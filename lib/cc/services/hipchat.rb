@@ -1,4 +1,13 @@
 class CC::Service::HipChat < CC::Service
+  class Config < CC::Service::Config
+    attribute :auth_token, String
+    attribute :room_id, String
+    attribute :notify, Boolean
+
+    validates :auth_token, presence: true
+    validates :room_id, presence: true
+  end
+
   BASE_URL = "https://api.hipchat.com/v1"
 
   def receive_coverage
@@ -6,14 +15,19 @@ class CC::Service::HipChat < CC::Service
       coverage: payload["coverage"]
     }
 
+    speak(render_coverage(details), color: "yellow")
+  end
+
+private
+
+  def speak(message, options)
     payload = {
       from:       "Code Climate",
-      message:    render_coverage(details),
-      auth_token: required_config_value(:auth_token),
-      room_id:    required_config_value(:room_id),
-      notify:     false,
-      color:      "yellow"
-    }
+      message:    message,
+      auth_token: config.auth_token,
+      room_id:    config.room_id,
+      notify:     config.notify
+    }.merge(options)
 
     http_post("#{BASE_URL}/rooms/message", payload)
   end

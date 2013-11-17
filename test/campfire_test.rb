@@ -1,6 +1,12 @@
 require File.expand_path('../helper', __FILE__)
 
 class TestCampfire < CC::Service::TestCase
+  def test_config
+    assert_raises CC::Service::ConfigurationError do
+      service(CC::Service::Campfire, :coverage, {},{})
+    end
+  end
+
   def test_coverage_change
     @stubs.post '/room/123/speak.json' do |env|
       body = JSON.parse(env[:body])
