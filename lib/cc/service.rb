@@ -26,9 +26,9 @@ module CC
 
     def initialize(event, config, payload)
       validate_event(event)
-      @event    = event
+      @event    = event.to_s
       @config   = config.stringify_keys
-      @payload  = payload
+      @payload  = payload.stringify_keys
     end
 
     def receive

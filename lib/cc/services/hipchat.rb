@@ -3,7 +3,7 @@ class CC::Service::HipChat < CC::Service
 
   def receive_coverage
     details = {
-      title: payload[:title]
+      coverage: payload["coverage"]
     }
 
     payload = {
@@ -19,8 +19,8 @@ class CC::Service::HipChat < CC::Service
   end
 
   def render_coverage(details)
-    Liquid::Template.parse(<<-EOF.strip).render(details)
-      <b>Hello! {{title}}</b>
+    Liquid::Template.parse(<<-EOF.strip).render(details.stringify_keys)
+      <b>Coverage:</b> {{coverage}}
     EOF
   end
 
