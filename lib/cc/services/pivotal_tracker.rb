@@ -23,10 +23,10 @@ class CC::Service::PivotalTracker < CC::Service
 
     http.headers["X-TrackerToken"] = config.api_token
     url = "#{BASE_URL}/projects/#{config.project_id}/stories"
-    resp = http_post(url, params)
+    res = http_post(url, params)
 
-    if resp.status == 200
-      parse_story(resp)
+    if res.status.to_s =~ /^2\d\d$/
+      parse_story(res)
     end
   end
 
