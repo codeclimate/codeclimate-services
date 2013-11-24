@@ -1,7 +1,7 @@
 require File.expand_path('../helper', __FILE__)
 
-class TestHipChat < CC::Service::TestCase
-  def test_coverage_change
+class TestPivotalTracker < CC::Service::TestCase
+  def test_unit
     @stubs.post '/services/v3/projects/123/stories' do |env|
       assert_equal "token", env[:request_headers]["X-TrackerToken"]
       [200, {}, '']

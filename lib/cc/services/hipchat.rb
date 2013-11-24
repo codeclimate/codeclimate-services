@@ -26,7 +26,7 @@ private
       message:    message,
       auth_token: config.auth_token,
       room_id:    config.room_id,
-      notify:     config.notify
+      notify:     !!config.notify
     }.merge(options)
 
     http_post("#{BASE_URL}/rooms/message", payload)
