@@ -14,6 +14,15 @@ module CC::Service::HTTP
     end
   end
 
+  def http_get(url = nil, params = nil, headers = nil)
+    http.get do |req|
+      req.url(url)                if url
+      req.params.update(params)   if params
+      req.headers.update(headers) if headers
+      yield req if block_given?
+    end
+  end
+
   def http_post(url = nil, body = nil, headers = nil)
     block = Proc.new if block_given?
     http_method :post, url, body, headers, &block
