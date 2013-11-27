@@ -1,9 +1,16 @@
 class CC::Service::Lighthouse < CC::Service
   class Config < CC::Service::Config
-    attribute :subdomain, String
-    attribute :api_token, String
-    attribute :project_id, String
-    attribute :tags, String
+    attribute :subdomain, String,
+      description: "Your Lighthouse subdomain"
+
+    attribute :api_token, String,
+      description: "Your Lighthouse API Key (http://help.lighthouseapp.com/kb/api/how-do-i-get-an-api-token)"
+
+    attribute :project_id, String,
+      description: "Your Lighthouse project ID. You can find this from the URL to your Lighthouse project."
+
+    attribute :tags, String,
+      description: "Which tags to add to tickets, comma delimited"
 
     validates :subdomain, presence: true
     validates :api_token, presence: true

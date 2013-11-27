@@ -1,6 +1,8 @@
 class CC::Service::Flowdock < CC::Service
   class Config < CC::Service::Config
-    attribute :api_token, String
+    attribute :api_token, String,
+      description: "The API token of the Flow to send notifications to",
+      link: "https://www.flowdock.com/account/tokens"
     validates :api_token, presence: true
   end
 

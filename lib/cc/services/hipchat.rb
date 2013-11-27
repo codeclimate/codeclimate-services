@@ -1,8 +1,13 @@
 class CC::Service::HipChat < CC::Service
   class Config < CC::Service::Config
-    attribute :auth_token, String
-    attribute :room_id, String
-    attribute :notify, Boolean
+    attribute :auth_token, String,
+      description: "Your HipChat API auth token"
+
+    attribute :room_id, String,
+      description: "The ID or name of the HipChat chat room to send notifications to"
+
+    attribute :notify, Boolean, default: false,
+      description: "Should we trigger a notification for people in the room?"
 
     validates :auth_token, presence: true
     validates :room_id, presence: true

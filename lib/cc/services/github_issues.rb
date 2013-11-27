@@ -1,7 +1,10 @@
 class CC::Service::GitHubIssues < CC::Service
   class Config < CC::Service::Config
-    attribute :oauth_token, String
-    attribute :labels, String
+    attribute :oauth_token, String,
+      description: "A personal OAuth token with permissions for the repo"
+    attribute :labels, String,
+      label: "Labels (comma separated)",
+      description: "Comma separated list of labels to apply to the issue"
 
     validates :oauth_token, presence: true
   end

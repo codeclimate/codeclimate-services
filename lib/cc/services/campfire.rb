@@ -1,8 +1,11 @@
 class CC::Service::Campfire < CC::Service
   class Config < CC::Service::Config
-    attribute :subdomain, String
-    attribute :room_id, String
-    attribute :token, String
+    attribute :subdomain, String,
+      description: "The Campfire subdomain for the account"
+    attribute :token, String,
+      description: "Your Campfire API auth token"
+    attribute :room_id, String,
+      description: "Check your campfire URL for a room ID. Usually 6 digits."
 
     validates :subdomain, presence: true
     validates :room_id, presence: true

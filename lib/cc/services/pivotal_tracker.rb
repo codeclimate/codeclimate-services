@@ -1,8 +1,14 @@
 class CC::Service::PivotalTracker < CC::Service
   class Config < CC::Service::Config
-    attribute :api_token, String
-    attribute :project_id, String
-    attribute :labels, String
+    attribute :api_token, String,
+      description: "Your Pivotal Tracker API Token, from your profile page"
+
+    attribute :project_id, String,
+      description: "Your Pivotal Tracker project ID"
+
+    attribute :labels, String,
+      label: "Labels (comma separated)",
+      description: "Comma separated list of labels to apply to the story"
 
     validates :api_token, presence: true
     validates :project_id, presence: true

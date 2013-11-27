@@ -1,10 +1,21 @@
 class CC::Service::Trello < CC::Service
   class Config < CC::Service::Config
-    attribute :application_key, String
-    attribute :member_token, String
-    attribute :board_id, String
-    attribute :list_name, String
-    attribute :labels, String
+    attribute :application_key, String,
+      description: "Your Trello Application Key",
+      link: "https://trello.com/1/appKey/generate"
+
+    attribute :member_token, String,
+      description: "An authenticated token for the user who the Trello cards should be created by",
+      link: "https://trello.com/1/authorize?key={applicationKey}&name=Bugsnag&expiration=never&response_type=token&scope=read,write"
+
+    attribute :board_id, String,
+      description: "The Id of the board you want to add the report to. The Id is a hex number visible in the URL when viewing the board."
+
+    attribute :list_name, String,
+      description: "The name of the list you want to add the report to. For Example \"To Do\""
+
+    attribute :labels, String,
+      description: "Comma separated list of label colors to apply to the card. Options: green, yellow, orange, red, purple, blue"
 
     validates :application_key, presence: true
     validates :member_token, presence: true
