@@ -10,6 +10,8 @@ class CC::Service::Lighthouse < CC::Service
     validates :project_id, presence: true
   end
 
+  self.issue_tracker = true
+
   def receive_unit
     params = {
       ticket: {

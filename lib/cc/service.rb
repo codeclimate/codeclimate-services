@@ -18,6 +18,7 @@ module CC
 
     include HTTP
 
+    cattr_accessor :issue_tracker
     attr_reader :event, :config, :payload
 
     ALL_EVENTS = %w[unit coverage]

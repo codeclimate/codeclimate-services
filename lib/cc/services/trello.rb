@@ -12,6 +12,8 @@ class CC::Service::Trello < CC::Service
     validates :list_name, presence: true
   end
 
+  self.issue_tracker = true
+
   BASE_URL = "https://api.trello.com/1"
 
   def receive_unit
