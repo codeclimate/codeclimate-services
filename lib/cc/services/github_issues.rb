@@ -1,6 +1,7 @@
 class CC::Service::GitHubIssues < CC::Service
   class Config < CC::Service::Config
     attribute :oauth_token, String,
+      label: "OAuth Token",
       description: "A personal OAuth token with permissions for the repo"
     attribute :labels, String,
       label: "Labels (comma separated)",
@@ -10,6 +11,7 @@ class CC::Service::GitHubIssues < CC::Service
   end
 
   self.issue_tracker = true
+  self.title = "GitHub Issues"
 
   BASE_URL = "https://api.github.com"
 

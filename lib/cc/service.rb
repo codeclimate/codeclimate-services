@@ -37,6 +37,32 @@ module CC
       super
     end
 
+    def self.by_slug(slug)
+      services.detect { |s| s.slug == slug }
+    end
+
+    class << self
+      attr_writer :title
+    end
+
+    def self.title
+      return @title if @title
+      @hook ||= begin
+        hook = name.dup
+        hook.sub! /.*:/, ''
+        hook
+      end
+    end
+
+    def self.slug
+      @slug ||= begin
+        hook = name.dup
+        hook.downcase!
+        hook.sub! /.*:/, ''
+        hook
+      end
+    end
+
     def initialize(event, config, payload)
       validate_event(event)
 

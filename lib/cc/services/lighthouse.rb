@@ -4,6 +4,7 @@ class CC::Service::Lighthouse < CC::Service
       description: "Your Lighthouse subdomain"
 
     attribute :api_token, String,
+      label: "API Token",
       description: "Your Lighthouse API Key (http://help.lighthouseapp.com/kb/api/how-do-i-get-an-api-token)"
 
     attribute :project_id, String,

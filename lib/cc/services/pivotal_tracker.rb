@@ -14,6 +14,7 @@ class CC::Service::PivotalTracker < CC::Service
     validates :project_id, presence: true
   end
 
+  self.title = "Pivotal Tracker"
   self.issue_tracker = true
 
   BASE_URL = "https://www.pivotaltracker.com/services/v3"
