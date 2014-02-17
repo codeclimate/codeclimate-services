@@ -13,7 +13,12 @@ class CC::Service::Campfire < CC::Service
   end
 
   def receive_coverage
-    speak("Coverage: #{coverage}")
+    message =  "[Code Climate][#{repo_name}]"
+    message << " #{emoji} Test coverage has #{changed}"
+    message << " to #{covered_percent}% (#{delta})."
+    message << " (#{details_url})"
+
+    speak(message)
   end
 
 private

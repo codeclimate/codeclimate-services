@@ -6,6 +6,8 @@ CC::Service.load_services
 class CC::Service::TestCase < Test::Unit::TestCase
   def setup
     @stubs = Faraday::Adapter::Test::Stubs.new
+
+    I18n.enforce_available_locales = true
   end
 
   def teardown
