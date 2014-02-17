@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = CC::Services::VERSION
   spec.authors       = ["Bryan Helmkamp"]
   spec.email         = ["bryan@brynary.com"]
-  spec.summary       = %q{TODO: Write a short summary. Required.}
-  spec.description   = %q{TODO: Write a longer description. Optional.}
+  spec.summary       = %q{Service classes for Code Climate}
+  spec.description   = %q{Service classes for Code Climate}
   spec.homepage      = ""
   spec.license       = "MIT"
 
@@ -23,6 +23,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "virtus", "1.0.0"
   spec.add_dependency "nokogiri", "~> 1.6.0"
   spec.add_dependency "activemodel", "~> 3.0"
-  spec.add_development_dependency "bundler", "1.5.0.rc.1"
+  spec.add_development_dependency "bundler", "~> 1.5.3"
   spec.add_development_dependency "rake"
 end
