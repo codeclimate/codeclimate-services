@@ -15,6 +15,7 @@ class TestHipChat < CC::Service::TestCase
       repo_name: "Rails",
       covered_percent: 90.2,
       previous_covered_percent: 80.0,
+      covered_percent_delta: 10.2,
       details_url: "https://codeclimate.com/repos/1/feed",
       compare_url: "https://codeclimate.com/repos/1/compare"
     }, [
@@ -30,6 +31,7 @@ class TestHipChat < CC::Service::TestCase
       repo_name: "Rails",
       covered_percent: 80.0,
       previous_covered_percent: 86.2,
+      covered_percent_delta: -6.2,
       details_url: "https://codeclimate.com/repos/1/feed",
     }, [
       "[Rails]",

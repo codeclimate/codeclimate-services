@@ -20,6 +20,7 @@ class TestCampfire < CC::Service::TestCase
       repo_name: "Rails",
       covered_percent: 90.2,
       previous_covered_percent: 80.0,
+      covered_percent_delta: 10.2,
       details_url: "http://codeclimate.com/rails/compare"
     }, [
       "[Code Climate][Rails] :sunny:",
@@ -33,6 +34,7 @@ class TestCampfire < CC::Service::TestCase
       repo_name: "jQuery",
       covered_percent: 88.6,
       previous_covered_percent: 94.6,
+      covered_percent_delta: -6.0,
       details_url: "http://codeclimate.com/rails/compare"
     }, [
       "[Code Climate][jQuery] :umbrella:",
