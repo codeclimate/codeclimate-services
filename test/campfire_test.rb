@@ -7,6 +7,14 @@ class TestCampfire < CC::Service::TestCase
     end
   end
 
+  def test_test_hook
+    assert_campfire_receives(
+      :test,
+      { repo_name: "Rails" },
+      "[Code Climate][Rails] This is a test of the Campfire service hook"
+    )
+  end
+
   def test_coverage_improved
     assert_campfire_receives(:coverage, {
       repo_name: "Rails",
