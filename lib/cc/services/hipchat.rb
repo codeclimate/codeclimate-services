@@ -18,31 +18,27 @@ class CC::Service::HipChat < CC::Service
   self.description = "Send messages to a HipChat chat room"
 
   def receive_coverage
-    details = {
-      coverage: payload["coverage"]
-    }
+    message = "[#{repo_name}] <a href=\"#{details_url}\">Test coverage</a>"
+    message << " has #{changed} to #{covered_percent}% (#{delta})"
 
-    speak(render_coverage(details), color: "yellow")
+    if compare_url
+      message << " (<a href=\"#{compare_url}\">Compare</a>)"
+    end
+
+    speak(message, color)
   end
 
 private
 
-  def speak(message, options)
-    payload = {
+  def speak(message, color)
+    http_post("#{BASE_URL}/rooms/message", {
       from:       "Code Climate",
       message:    message,
       auth_token: config.auth_token,
       room_id:    config.room_id,
-      notify:     !!config.notify
-    }.merge(options)
-
-    http_post("#{BASE_URL}/rooms/message", payload)
-  end
-
-  def render_coverage(details)
-    Liquid::Template.parse(<<-EOF.strip).render(details.stringify_keys)
-      <b>Coverage:</b> {{coverage}}
-    EOF
+      notify:     !!config.notify,
+      color:      color
+    })
   end
 
 end

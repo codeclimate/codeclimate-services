@@ -1,7 +1,6 @@
 require "cc/services/version"
 
 require "faraday"
-require "liquid"
 require "nokogiri"
 require "virtus"
 require "active_model"
