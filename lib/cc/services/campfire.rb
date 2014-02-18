@@ -12,7 +12,7 @@ class CC::Service::Campfire < CC::Service
     validates :token, presence: true
   end
 
-  self.description = "Send messages to a chat room"
+  self.description = "Send messages to a Campfire chat room"
 
   def receive_coverage
     message =  "[Code Climate][#{repo_name}]"

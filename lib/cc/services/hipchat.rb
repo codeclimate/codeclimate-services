@@ -15,7 +15,7 @@ class CC::Service::HipChat < CC::Service
 
   BASE_URL = "https://api.hipchat.com/v1"
 
-  self.description = "Send messages to a chat room"
+  self.description = "Send messages to a HipChat chat room"
 
   def receive_coverage
     details = {
