@@ -36,6 +36,14 @@ class CC::Service::Campfire < CC::Service
     speak(message)
   end
 
+  def receive_vulnerability
+    message = "[Code Climate][#{repo_name}]"
+    message << " #{new_issues_found}."
+    message << " Details: #{details_url}"
+
+    speak(message)
+  end
+
   private
 
   def speak(line)

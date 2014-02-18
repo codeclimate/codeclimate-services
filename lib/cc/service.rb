@@ -23,7 +23,7 @@ module CC
     cattr_accessor :issue_tracker
     attr_reader :event, :config, :payload
 
-    ALL_EVENTS = %w[test unit coverage quality]
+    ALL_EVENTS = %w[test unit coverage quality vulnerability]
 
     def self.receive(event, config, payload)
       new(event, config, payload).receive

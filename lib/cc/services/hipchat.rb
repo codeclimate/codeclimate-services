@@ -43,6 +43,13 @@ class CC::Service::HipChat < CC::Service
     speak(message, color)
   end
 
+  def receive_vulnerability
+    message = "[#{repo_name}]"
+    message << " #{new_issues_found(true)}."
+
+    speak(message, "red")
+  end
+
   private
 
   def speak(message, color)

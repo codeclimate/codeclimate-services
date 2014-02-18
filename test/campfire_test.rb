@@ -73,6 +73,53 @@ class TestCampfire < CC::Service::TestCase
     ].join(" "))
   end
 
+  def test_single_vulnerability
+    assert_campfire_receives(:vulnerability, {
+      repo_name: "Rails",
+      vulnerabilities: [{ "warning_type" => "critical" }],
+      details_url: "https://codeclimate.com/repos/1/vulnerabilities"
+    }, [
+      "[Code Climate][Rails]",
+      "New critical issue found.",
+      "Details: https://codeclimate.com/repos/1/vulnerabilities"
+    ].join(" "))
+  end
+
+  def test_single_vulnerability_with_location
+    assert_campfire_receives(:vulnerability, {
+      repo_name: "Rails",
+      vulnerabilities: [{
+        "warning_type" => "critical",
+        "location" => "app/user.rb line 120"
+      }],
+      details_url: "https://codeclimate.com/repos/1/vulnerabilities"
+    }, [
+      "[Code Climate][Rails]",
+      "New critical issue found",
+      "in app/user.rb line 120.",
+      "Details: https://codeclimate.com/repos/1/vulnerabilities"
+    ].join(" "))
+  end
+
+  def test_multiple_vulnerabilities
+    assert_campfire_receives(:vulnerability, {
+      repo_name: "Rails",
+      warning_type: "critical",
+      vulnerabilities: [{
+        "warning_type" => "unused",
+        "location" => "unused"
+      }, {
+        "warning_type" => "unused",
+        "location" => "unused"
+      }],
+      details_url: "https://codeclimate.com/repos/1/vulnerabilities"
+    }, [
+      "[Code Climate][Rails]",
+      "2 new critical issues found.",
+      "Details: https://codeclimate.com/repos/1/vulnerabilities"
+    ].join(" "))
+  end
+
   private
 
   def assert_campfire_receives(event_name, event_data, expected_body)
