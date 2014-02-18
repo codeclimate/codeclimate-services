@@ -72,6 +72,52 @@ class TestHipChat < CC::Service::TestCase
     ].join(" "))
   end
 
+  def test_single_vulnerability
+    assert_hipchat_receives(:vulnerability, "red", {
+      repo_name: "Rails",
+      vulnerabilities: [{ "warning_type" => "critical" }],
+      details_url: "https://codeclimate.com/repos/1/vulnerabilities"
+    }, [
+      "[Rails]",
+      "New <a href=\"https://codeclimate.com/repos/1/vulnerabilities\">critical</a>",
+      "issue found.",
+    ].join(" "))
+  end
+
+  def test_single_vulnerability_with_location
+    assert_hipchat_receives(:vulnerability, "red", {
+      repo_name: "Rails",
+      vulnerabilities: [{
+        "warning_type" => "critical",
+        "location" => "app/user.rb line 120"
+      }],
+      details_url: "https://codeclimate.com/repos/1/vulnerabilities"
+    }, [
+      "[Rails]",
+      "New <a href=\"https://codeclimate.com/repos/1/vulnerabilities\">critical</a>",
+      "issue found in app/user.rb line 120.",
+    ].join(" "))
+  end
+
+  def test_multiple_vulnerabilities
+    assert_hipchat_receives(:vulnerability, "red", {
+      repo_name: "Rails",
+      warning_type: "critical",
+      vulnerabilities: [{
+        "warning_type" => "unused",
+        "location" => "unused"
+      }, {
+        "warning_type" => "unused",
+        "location" => "unused"
+      }],
+      details_url: "https://codeclimate.com/repos/1/vulnerabilities"
+    }, [
+      "[Rails]",
+      "2 new <a href=\"https://codeclimate.com/repos/1/vulnerabilities\">critical</a>",
+      "issues found.",
+    ].join(" "))
+  end
+
   private
 
   def assert_hipchat_receives(event_name, color, event_data, expected_body)
