@@ -8,40 +8,77 @@ class TestCampfire < CC::Service::TestCase
   end
 
   def test_coverage_improved
-    expected_message = "[Code Climate][Rails] :sunny:"
-    expected_message << " Test coverage has improved to 90.2% (+10.2%)."
-    expected_message << " (http://codeclimate.com/rails/compare)"
-    @stubs.post '/room/123/speak.json' do |env|
-      body = JSON.parse(env[:body])
-      assert_equal expected_message, body["message"]["body"]
-      [200, {}, '']
-    end
-
-    receive(CC::Service::Campfire, :coverage,
-      { token: "token", subdomain: "sub", room_id: "123" },
-      {
-        repo_name: "Rails",
-        covered_percent: 90.2,
-        previous_covered_percent: 80.0,
-        details_url: "http://codeclimate.com/rails/compare"
-      })
+    assert_campfire_receives(:coverage, {
+      repo_name: "Rails",
+      covered_percent: 90.2,
+      previous_covered_percent: 80.0,
+      details_url: "http://codeclimate.com/rails/compare"
+    }, [
+      "[Code Climate][Rails] :sunny:",
+      "Test coverage has improved to 90.2% (+10.2%).",
+      "(http://codeclimate.com/rails/compare)"
+    ].join(" "))
   end
 
   def test_coverage_declined
-    expected_message = "[Code Climate][jQuery] :umbrella: Test coverage has declined to 88.6% (-6.0%). (http://codeclimate.com/rails/compare)"
+    assert_campfire_receives(:coverage, {
+      repo_name: "jQuery",
+      covered_percent: 88.6,
+      previous_covered_percent: 94.6,
+      details_url: "http://codeclimate.com/rails/compare"
+    }, [
+      "[Code Climate][jQuery] :umbrella:",
+      "Test coverage has declined to 88.6% (-6.0%).",
+      "(http://codeclimate.com/rails/compare)"
+    ].join(" "))
+  end
+
+  def test_quality_improved
+    assert_campfire_receives(:quality, {
+      repo_name: "Rails",
+      constant_name: "User",
+      rating: "A",
+      previous_rating: "B",
+      remediation_cost: 50,
+      previous_remediation_cost: 25,
+      details_url: "http://codeclimate.com/rails/feed"
+    }, [
+      "[Code Climate][Rails] :sunny:",
+      "User has improved from a B to an A.",
+      "(http://codeclimate.com/rails/feed)"
+    ].join(" "))
+  end
+
+  def test_quality_declined
+    assert_campfire_receives(:quality, {
+      repo_name: "Rails",
+      constant_name: "User",
+      rating: "D",
+      previous_rating: "C",
+      remediation_cost: 25,
+      previous_remediation_cost: 50,
+      details_url: "http://codeclimate.com/rails/feed"
+    }, [
+      "[Code Climate][Rails] :umbrella:",
+      "User has declined from a C to a D.",
+      "(http://codeclimate.com/rails/feed)"
+    ].join(" "))
+  end
+
+  private
+
+  def assert_campfire_receives(event_name, event_data, expected_body)
     @stubs.post '/room/123/speak.json' do |env|
       body = JSON.parse(env[:body])
-      assert_equal expected_message, body["message"]["body"]
+      assert_equal expected_body, body["message"]["body"]
       [200, {}, '']
     end
 
-    receive(CC::Service::Campfire, :coverage,
+    receive(
+      CC::Service::Campfire,
+      event_name,
       { token: "token", subdomain: "sub", room_id: "123" },
-      {
-        repo_name: "jQuery",
-        covered_percent: 88.6,
-        previous_covered_percent: 94.6,
-        details_url: "http://codeclimate.com/rails/compare"
-      })
+      event_data
+    )
   end
 end
