@@ -46,8 +46,7 @@ module CC
     end
 
     def self.title
-      return @title if @title
-      @hook ||= begin
+      @title ||= begin
         hook = name.dup
         hook.sub! /.*:/, ''
         hook
@@ -64,46 +63,52 @@ module CC
     end
 
     def initialize(event, config, payload)
-      validate_event(event)
+      @event   = event.to_s
+      @payload = payload.stringify_keys
+      @config  = create_config(config)
 
-      helper_name = "#{event.to_s.classify}Helpers"
+      load_helper
+      validate_event
+    end
+
+    def receive
+      if respond_to?(:receive_event)
+        receive_event
+      else
+        public_send("receive_#{event}")
+      end
+    end
+
+    private
+
+    def load_helper
+      helper_name = "#{event.classify}Helpers"
+
       if Service.const_defined?(helper_name)
         @helper = Service.const_get(helper_name)
         extend @helper
       end
-
-      @event    = event.to_s
-      @payload  = payload.stringify_keys
-      @config   = create_config(config)
     end
 
-    def receive
-      validate_event(event)
-
-      if respond_to?(:receive_event)
-        receive_event
-      else
-        send("receive_#{@event}")
-      end
-    end
-
-    def validate_event(event)
-      unless ALL_EVENTS.include?(event.to_s)
+    def validate_event
+      unless ALL_EVENTS.include?(event)
         raise ArgumentError.new("Invalid event: #{event}")
       end
     end
 
     def create_config(config)
-      config_class = if defined?("#{self.class.name}::Config")
-        "#{self.class.name}::Config".constantize
-      else
-        Config
-      end
-
       config_class.new(config).tap do |c|
         unless c.valid?
           raise ConfigurationError, "Invalid config: #{config.inspect}"
         end
+      end
+    end
+
+    def config_class
+      if defined?("#{self.class.name}::Config")
+        "#{self.class.name}::Config".constantize
+      else
+        Config
       end
     end
 
