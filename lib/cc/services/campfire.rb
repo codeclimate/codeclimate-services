@@ -23,7 +23,16 @@ class CC::Service::Campfire < CC::Service
     speak(message)
   end
 
-private
+  def receive_quality
+    message = "[Code Climate][#{repo_name}]"
+    message << " #{emoji} #{constant_name} has #{changed}"
+    message << " from #{previous_rating} to #{rating}."
+    message << " (#{details_url})"
+
+    speak(message)
+  end
+
+  private
 
   def speak(line)
     http.headers['Content-Type']  = 'application/json'

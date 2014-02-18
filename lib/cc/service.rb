@@ -2,6 +2,7 @@ module CC
   class Service
     require "cc/service/config"
     require "cc/service/http"
+    require "cc/service/events/base_helpers"
 
     dir = File.expand_path '../service', __FILE__
     Dir["#{dir}/events/*.rb"].each do |helper|
@@ -17,11 +18,12 @@ module CC
     ConfigurationError = Class.new(Error)
 
     include HTTP
+    include BaseHelpers
 
     cattr_accessor :issue_tracker
     attr_reader :event, :config, :payload
 
-    ALL_EVENTS = %w[unit coverage]
+    ALL_EVENTS = %w[unit coverage quality]
 
     def self.receive(event, config, payload)
       new(event, config, payload).receive

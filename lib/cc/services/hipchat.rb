@@ -28,7 +28,18 @@ class CC::Service::HipChat < CC::Service
     speak(message, color)
   end
 
-private
+  def receive_quality
+    message = "[#{repo_name}] <a href=\"#{details_url}\">#{constant_name}</a>"
+    message << " has #{changed} from #{previous_rating} to #{rating}"
+
+    if compare_url
+      message << " (<a href=\"#{compare_url}\">Compare</a>)"
+    end
+
+    speak(message, color)
+  end
+
+  private
 
   def speak(message, color)
     http_post("#{BASE_URL}/rooms/message", {
