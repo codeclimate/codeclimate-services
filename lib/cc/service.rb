@@ -43,6 +43,7 @@ module CC
 
     class << self
       attr_writer :title
+      attr_accessor :description
     end
 
     def self.title
