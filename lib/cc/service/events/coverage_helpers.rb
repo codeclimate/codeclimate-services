@@ -1,13 +1,13 @@
 module CC::Service::CoverageHelpers
   def improved?
-    covered_delta_percent > 0
+    covered_percent_delta > 0
   end
 
   def delta
     if improved?
-      "+#{covered_delta_percent}%"
+      "+#{covered_percent_delta}%"
     else
-      "#{covered_delta_percent}%"
+      "#{covered_percent_delta}%"
     end
   end
 
@@ -19,7 +19,7 @@ module CC::Service::CoverageHelpers
     payload.fetch("previous_covered_percent", 0).round(1)
   end
 
-  def covered_delta_percent
-    (covered_percent - previous_covered_percent).round(1)
+  def covered_percent_delta
+    payload.fetch("covered_percent_delta", 0) # pre-rounded
   end
 end
