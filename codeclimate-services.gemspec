@@ -19,7 +19,6 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "faraday", "0.8.8"
-  spec.add_dependency "liquid", "2.5.4"
   spec.add_dependency "virtus", "1.0.0"
   spec.add_dependency "nokogiri", "~> 1.6.0"
   spec.add_dependency "activemodel", "~> 3.0"

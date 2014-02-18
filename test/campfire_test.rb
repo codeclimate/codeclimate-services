@@ -8,7 +8,9 @@ class TestCampfire < CC::Service::TestCase
   end
 
   def test_coverage_improved
-    expected_message = "[Code Climate][Rails] :sunny: Test coverage has improved to 90.2% (+10.2%). (http://codeclimate.com/rails/compare)"
+    expected_message = "[Code Climate][Rails] :sunny:"
+    expected_message << " Test coverage has improved to 90.2% (+10.2%)."
+    expected_message << " (http://codeclimate.com/rails/compare)"
     @stubs.post '/room/123/speak.json' do |env|
       body = JSON.parse(env[:body])
       assert_equal expected_message, body["message"]["body"]

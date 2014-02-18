@@ -7,6 +7,10 @@ module CC::Service::CoverageHelpers
     payload["details_url"]
   end
 
+  def compare_url
+    payload["compare_url"]
+  end
+
   def improved?
     covered_delta_percent > 0
   end
@@ -16,6 +20,14 @@ module CC::Service::CoverageHelpers
       ":sunny:"
     else
       ":umbrella:"
+    end
+  end
+
+  def color
+    if improved?
+      "green"
+    else
+      "red"
     end
   end
 
