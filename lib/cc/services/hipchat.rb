@@ -17,6 +17,10 @@ class CC::Service::HipChat < CC::Service
 
   self.description = "Send messages to a HipChat chat room"
 
+  def receive_test
+    speak("[#{repo_name}] This is a test of the HipChat service hook", "green")
+  end
+
   def receive_coverage
     message = "[#{repo_name}] <a href=\"#{details_url}\">Test coverage</a>"
     message << " has #{changed} to #{covered_percent}% (#{delta})"

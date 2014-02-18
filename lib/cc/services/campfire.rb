@@ -14,6 +14,10 @@ class CC::Service::Campfire < CC::Service
 
   self.description = "Send messages to a Campfire chat room"
 
+  def receive_test
+    speak("[Code Climate][#{repo_name}] This is a test of the Campfire service hook")
+  end
+
   def receive_coverage
     message =  "[Code Climate][#{repo_name}]"
     message << " #{emoji} Test coverage has #{changed}"

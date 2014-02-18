@@ -1,6 +1,15 @@
 require File.expand_path('../helper', __FILE__)
 
 class TestHipChat < CC::Service::TestCase
+  def test_test_hook
+    assert_hipchat_receives(
+      :test,
+      "green",
+      { repo_name: "Rails" },
+      "[Rails] This is a test of the HipChat service hook"
+    )
+  end
+
   def test_coverage_improved
     assert_hipchat_receives(:coverage, "green", {
       repo_name: "Rails",
