@@ -1,57 +1,33 @@
+CC.require_all "service"
+
 module CC
   class Service
-    require "cc/service/config"
-    require "cc/service/http"
-    require "cc/service/helper"
-    require "cc/service/formatter"
-
-    dir = File.expand_path '../helpers', __FILE__
-    Dir["#{dir}/*_helper.rb"].each do |helper|
-      require helper
-    end
-
-    dir = File.expand_path '../formatters', __FILE__
-    Dir["#{dir}/*_formatter.rb"].each do |formatter|
-      require formatter
-    end
-
-    def self.load_services
-      path = File.expand_path("../services/**/*.rb", __FILE__)
-      Dir[path].each { |lib| require(lib) }
-    end
-
-    Error = Class.new(StandardError)
-    ConfigurationError = Class.new(Error)
-
     include HTTP
     include Helper
 
-    cattr_accessor :issue_tracker
-    attr_reader :event, :config, :payload
-
     ALL_EVENTS = %w[test unit coverage quality vulnerability]
 
-    def self.receive(event, config, payload)
-      new(event, config, payload).receive
-    end
-
-    # Tracks the defined services.
-    def self.services
-      @services ||= []
+    class << self
+      attr_writer :title
+      attr_accessor :description
+      attr_accessor :issue_tracker
     end
 
     def self.inherited(svc)
-      Service.services << svc
+      services << svc
       super
+    end
+
+    def self.services
+      @services ||= []
     end
 
     def self.by_slug(slug)
       services.detect { |s| s.slug == slug }
     end
 
-    class << self
-      attr_writer :title
-      attr_accessor :description
+    def self.receive(event, config, payload)
+      new(event, config, payload).receive
     end
 
     def self.title
@@ -89,6 +65,8 @@ module CC
     end
 
     private
+
+    attr_reader :event, :config, :payload
 
     def load_helper
       helper_name = "#{event.classify}Helper"
