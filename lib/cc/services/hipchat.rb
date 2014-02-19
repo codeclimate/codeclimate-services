@@ -36,7 +36,7 @@ class CC::Service::HipChat < CC::Service
   private
 
   def formatter
-    CC::Formatters::HtmlFormatter.new(self, prefix: "")
+    CC::Formatters::LinkedFormatter.new(self, prefix: nil, link_style: :html)
   end
 
   def speak(message, color)

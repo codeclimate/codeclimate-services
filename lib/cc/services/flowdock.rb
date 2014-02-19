@@ -30,7 +30,12 @@ class CC::Service::Flowdock < CC::Service
   private
 
   def formatter
-    CC::Formatters::HtmlFormatter.new(self, prefix: "", prefix_with_repo: false)
+    CC::Formatters::LinkedFormatter.new(
+      self,
+      prefix: "",
+      prefix_with_repo: false,
+      link_style: :html
+    )
   end
 
   def notify(subject, project, content)

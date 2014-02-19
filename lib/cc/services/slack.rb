@@ -29,7 +29,7 @@ class CC::Service::Slack < CC::Service
   private
 
   def formatter
-    CC::Formatters::WikiFormatter.new(self, prefix: nil)
+    CC::Formatters::LinkedFormatter.new(self, prefix: nil, link_style: :wiki)
   end
 
   def speak(message, options = {})
