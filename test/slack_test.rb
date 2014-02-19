@@ -99,7 +99,7 @@ class TestSlack < CC::Service::TestCase
 
   def assert_slack_receives(event_name, emoji, event_data, expected_body)
     @stubs.post '/token' do |env|
-      body = Hash[URI.decode_www_form(env[:body])]
+      body = JSON.parse(env[:body])
       assert_equal "Code Climate", body["username"]
       assert_equal emoji, body["icon_emoji"] # may be nil
       assert_equal expected_body, body["text"]
@@ -109,7 +109,7 @@ class TestSlack < CC::Service::TestCase
     receive(
       CC::Service::Slack,
       event_name,
-      { url: "http://api.slack.com/token", channel: "#general" },
+      { webhook_url: "http://api.slack.com/token", channel: "#general" },
       event_data
     )
   end

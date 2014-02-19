@@ -1,6 +1,6 @@
 class CC::Service::Slack < CC::Service
   class Config < CC::Service::Config
-    attribute :url, String,
+    attribute :webhook_url, String,
       label: "Webhook URL",
       description: "The Slack webhook URL you would like message posted to"
 
@@ -42,6 +42,7 @@ class CC::Service::Slack < CC::Service
       body[:channel] = config.channel
     end
 
-    http_post(config.url, body)
+    http.headers['Content-Type']  = 'application/json'
+    http_post(config.webhook_url, body.to_json)
   end
 end
