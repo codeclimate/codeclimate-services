@@ -9,6 +9,8 @@ class CC::Service::Flowdock < CC::Service
 
   BASE_URL = "https://api.flowdock.com/v1"
 
+  self.description = "Send messages to a Flowdock inbox"
+
   def receive_test
     notify("Test", repo_name, "This is a test of the Flowdock service hook")
   end
