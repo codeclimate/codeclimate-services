@@ -15,36 +15,26 @@ class CC::Service::Campfire < CC::Service
   self.description = "Send messages to a Campfire chat room"
 
   def receive_test
-    speak("[Code Climate][#{repo_name}] This is a test of the Campfire service hook")
+    speak(formatter.format_test)
   end
 
   def receive_coverage
-    message =  "[Code Climate][#{repo_name}]"
-    message << " #{emoji} Test coverage has #{changed}"
-    message << " to #{covered_percent}% (#{delta})."
-    message << " (#{details_url})"
-
-    speak(message)
+    speak(formatter.format_coverage)
   end
 
   def receive_quality
-    message = "[Code Climate][#{repo_name}]"
-    message << " #{emoji} #{constant_name} has #{changed}"
-    message << " from #{previous_rating} to #{rating}."
-    message << " (#{details_url})"
-
-    speak(message)
+    speak(formatter.format_quality)
   end
 
   def receive_vulnerability
-    message = "[Code Climate][#{repo_name}]"
-    message << " #{new_issues_found}."
-    message << " Details: #{details_url}"
-
-    speak(message)
+    speak(formatter.format_vulnerability)
   end
 
   private
+
+  def formatter
+    CC::Formatters::PlainFormatter.new(self)
+  end
 
   def speak(line)
     http.headers['Content-Type']  = 'application/json'

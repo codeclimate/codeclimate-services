@@ -12,28 +12,26 @@ class CC::Service::Flowdock < CC::Service
   self.description = "Send messages to a Flowdock inbox"
 
   def receive_test
-    notify("Test", repo_name, "This is a test of the Flowdock service hook")
+    notify("Test", repo_name, formatter.format_test)
   end
 
   def receive_coverage
-    message = "<a href=\"#{details_url}\">Test coverage</a>"
-    message << " has #{changed} to #{covered_percent}% (#{delta})"
-
-    notify("Coverage", repo_name, message)
+    notify("Coverage", repo_name, formatter.format_coverage)
   end
 
   def receive_quality
-    message = "<a href=\"#{details_url}\">#{constant_name}</a>"
-    message << " has #{changed} from #{previous_rating} to #{rating}"
-
-    notify("Quality", repo_name, message)
+    notify("Quality", repo_name, formatter.format_quality)
   end
 
   def receive_vulnerability
-    notify("Vulnerability", repo_name, "#{new_issues_found(true)}.")
+    notify("Vulnerability", repo_name, formatter.format_vulnerability)
   end
 
   private
+
+  def formatter
+    CC::Formatters::HtmlFormatter.new(self, prefix: "", prefix_with_repo: false)
+  end
 
   def notify(subject, project, content)
     params = {

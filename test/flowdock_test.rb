@@ -15,7 +15,8 @@ class TestFlowdock < CC::Service::TestCase
 
     assert_flowdock_receives(:coverage, "Coverage", e, [
       "<a href=\"https://codeclimate.com/repos/1/feed\">Test coverage</a>",
-      "has improved to 90.2% (+10.2%)"
+      "has improved to 90.2% (+10.2%)",
+      "(<a href=\"https://codeclimate.com/repos/1/compare\">Compare</a>)"
     ].join(" "))
   end
 
@@ -24,7 +25,8 @@ class TestFlowdock < CC::Service::TestCase
 
     assert_flowdock_receives(:coverage, "Coverage", e, [
       "<a href=\"https://codeclimate.com/repos/1/feed\">Test coverage</a>",
-      "has declined to 88.6% (-6.0%)"
+      "has declined to 88.6% (-6.0%)",
+      "(<a href=\"https://codeclimate.com/repos/1/compare\">Compare</a>)"
     ].join(" "))
   end
 
@@ -33,7 +35,8 @@ class TestFlowdock < CC::Service::TestCase
 
     assert_flowdock_receives(:quality, "Quality", e, [
       "<a href=\"https://codeclimate.com/repos/1/feed\">User</a>",
-      "has improved from a B to an A"
+      "has improved from a B to an A",
+      "(<a href=\"https://codeclimate.com/repos/1/compare\">Compare</a>)"
     ].join(" "))
   end
 
@@ -42,7 +45,8 @@ class TestFlowdock < CC::Service::TestCase
 
     assert_flowdock_receives(:quality, "Quality", e, [
       "<a href=\"https://codeclimate.com/repos/1/feed\">User</a>",
-      "has declined from a C to a D"
+      "has declined from a C to a D",
+      "(<a href=\"https://codeclimate.com/repos/1/compare\">Compare</a>)"
     ].join(" "))
   end
 
@@ -53,7 +57,7 @@ class TestFlowdock < CC::Service::TestCase
 
     assert_flowdock_receives(:vulnerability, "Vulnerability", e, [
       "New <a href=\"https://codeclimate.com/repos/1/feed\">critical</a>",
-      "issue found.",
+      "issue found",
     ].join(" "))
   end
 
@@ -65,7 +69,7 @@ class TestFlowdock < CC::Service::TestCase
 
     assert_flowdock_receives(:vulnerability, "Vulnerability", e, [
       "New <a href=\"https://codeclimate.com/repos/1/feed\">critical</a>",
-      "issue found in app/user.rb line 120.",
+      "issue found in app/user.rb line 120",
     ].join(" "))
   end
 
@@ -80,7 +84,7 @@ class TestFlowdock < CC::Service::TestCase
 
     assert_flowdock_receives(:vulnerability, "Vulnerability", e, [
       "2 new <a href=\"https://codeclimate.com/repos/1/feed\">critical</a>",
-      "issues found.",
+      "issues found",
     ].join(" "))
   end
 

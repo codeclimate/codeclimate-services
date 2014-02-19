@@ -62,7 +62,7 @@ class TestHipChat < CC::Service::TestCase
     assert_hipchat_receives(:vulnerability, "red", e, [
       "[Example]",
       "New <a href=\"https://codeclimate.com/repos/1/feed\">critical</a>",
-      "issue found.",
+      "issue found",
     ].join(" "))
   end
 
@@ -75,7 +75,7 @@ class TestHipChat < CC::Service::TestCase
     assert_hipchat_receives(:vulnerability, "red", e, [
       "[Example]",
       "New <a href=\"https://codeclimate.com/repos/1/feed\">critical</a>",
-      "issue found in app/user.rb line 120.",
+      "issue found in app/user.rb line 120",
     ].join(" "))
   end
 
@@ -91,7 +91,7 @@ class TestHipChat < CC::Service::TestCase
     assert_hipchat_receives(:vulnerability, "red", e, [
       "[Example]",
       "2 new <a href=\"https://codeclimate.com/repos/1/feed\">critical</a>",
-      "issues found.",
+      "issues found",
     ].join(" "))
   end
 

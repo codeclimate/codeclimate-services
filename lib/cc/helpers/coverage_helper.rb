@@ -1,4 +1,4 @@
-module CC::Service::CoverageHelpers
+module CC::Service::CoverageHelper
   def improved?
     covered_percent_delta > 0
   end

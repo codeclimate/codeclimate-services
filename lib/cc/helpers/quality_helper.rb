@@ -1,4 +1,4 @@
-module CC::Service::QualityHelpers
+module CC::Service::QualityHelper
   def improved?
     remediation_cost < previous_remediation_cost
   end
