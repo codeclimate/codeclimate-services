@@ -18,39 +18,26 @@ class CC::Service::HipChat < CC::Service
   self.description = "Send messages to a HipChat chat room"
 
   def receive_test
-    speak("[#{repo_name}] This is a test of the HipChat service hook", "green")
+    speak(formatter.format_test, "green")
   end
 
   def receive_coverage
-    message = "[#{repo_name}] <a href=\"#{details_url}\">Test coverage</a>"
-    message << " has #{changed} to #{covered_percent}% (#{delta})"
-
-    if compare_url
-      message << " (<a href=\"#{compare_url}\">Compare</a>)"
-    end
-
-    speak(message, color)
+    speak(formatter.format_coverage, color)
   end
 
   def receive_quality
-    message = "[#{repo_name}] <a href=\"#{details_url}\">#{constant_name}</a>"
-    message << " has #{changed} from #{previous_rating} to #{rating}"
-
-    if compare_url
-      message << " (<a href=\"#{compare_url}\">Compare</a>)"
-    end
-
-    speak(message, color)
+    speak(formatter.format_quality, color)
   end
 
   def receive_vulnerability
-    message = "[#{repo_name}]"
-    message << " #{new_issues_found(true)}."
-
-    speak(message, "red")
+    speak(formatter.format_vulnerability, "red")
   end
 
   private
+
+  def formatter
+    CC::Formatters::LinkedFormatter.new(self, prefix: nil, link_style: :html)
+  end
 
   def speak(message, color)
     http_post("#{BASE_URL}/rooms/message", {

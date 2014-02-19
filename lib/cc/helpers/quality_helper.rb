@@ -1,6 +1,6 @@
-module CC::Service::QualityHelpers
+module CC::Service::QualityHelper
   def improved?
-    previous_remediation_cost < remediation_cost
+    remediation_cost < previous_remediation_cost
   end
 
   def constant_name
@@ -26,7 +26,7 @@ module CC::Service::QualityHelpers
   def with_article(letter)
     letter ||= '?'
 
-    if %w( A E ).include?(letter)
+    if %w( A F ).include?(letter)
       "an #{letter}"
     else
       "a #{letter}"

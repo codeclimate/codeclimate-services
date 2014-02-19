@@ -1,7 +1,9 @@
 require 'test/unit'
 require 'pp'
 require File.expand_path('../../config/load', __FILE__)
+require File.expand_path('../fixtures', __FILE__)
 CC::Service.load_services
+
 
 class CC::Service::TestCase < Test::Unit::TestCase
   def setup

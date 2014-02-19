@@ -1,4 +1,5 @@
-module CC::Service::BaseHelpers
+module CC::Service::Helper
+
   def repo_name
     payload["repo_name"]
   end
@@ -39,4 +40,5 @@ module CC::Service::BaseHelpers
     raise NotImplementedError,
       "Event-specific helpers must define #{__method__}"
   end
+
 end

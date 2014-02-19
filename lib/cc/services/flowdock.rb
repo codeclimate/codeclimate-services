@@ -9,15 +9,44 @@ class CC::Service::Flowdock < CC::Service
 
   BASE_URL = "https://api.flowdock.com/v1"
 
-  def receive_unit
+  self.description = "Send messages to a Flowdock inbox"
+
+  def receive_test
+    notify("Test", repo_name, formatter.format_test)
+  end
+
+  def receive_coverage
+    notify("Coverage", repo_name, formatter.format_coverage)
+  end
+
+  def receive_quality
+    notify("Quality", repo_name, formatter.format_quality)
+  end
+
+  def receive_vulnerability
+    notify("Vulnerability", repo_name, formatter.format_vulnerability)
+  end
+
+  private
+
+  def formatter
+    CC::Formatters::LinkedFormatter.new(
+      self,
+      prefix: "",
+      prefix_with_repo: false,
+      link_style: :html
+    )
+  end
+
+  def notify(subject, project, content)
     params = {
       source:       "Code Climate",
       from_address: "notifications@codeclimate.com",
       from_name:    "Code Climate",
       format:       "html",
-      subject:      "Subject",
-      project:      "Project",
-      content:      "Content",
+      subject:      subject,
+      project:      project,
+      content:      content,
       link:         "https://codeclimate.com"
     }
 

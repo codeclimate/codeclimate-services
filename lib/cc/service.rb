@@ -2,11 +2,17 @@ module CC
   class Service
     require "cc/service/config"
     require "cc/service/http"
-    require "cc/service/events/base_helpers"
+    require "cc/service/helper"
+    require "cc/service/formatter"
 
-    dir = File.expand_path '../service', __FILE__
-    Dir["#{dir}/events/*.rb"].each do |helper|
+    dir = File.expand_path '../helpers', __FILE__
+    Dir["#{dir}/*_helper.rb"].each do |helper|
       require helper
+    end
+
+    dir = File.expand_path '../formatters', __FILE__
+    Dir["#{dir}/*_formatter.rb"].each do |formatter|
+      require formatter
     end
 
     def self.load_services
@@ -18,7 +24,7 @@ module CC
     ConfigurationError = Class.new(Error)
 
     include HTTP
-    include BaseHelpers
+    include Helper
 
     cattr_accessor :issue_tracker
     attr_reader :event, :config, :payload
@@ -85,7 +91,7 @@ module CC
     private
 
     def load_helper
-      helper_name = "#{event.classify}Helpers"
+      helper_name = "#{event.classify}Helper"
 
       if Service.const_defined?(helper_name)
         @helper = Service.const_get(helper_name)

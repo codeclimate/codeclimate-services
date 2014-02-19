@@ -16,109 +16,84 @@ class TestCampfire < CC::Service::TestCase
   end
 
   def test_coverage_improved
-    assert_campfire_receives(:coverage, {
-      repo_name: "Rails",
-      covered_percent: 90.2,
-      previous_covered_percent: 80.0,
-      covered_percent_delta: 10.2,
-      details_url: "http://codeclimate.com/rails/compare"
-    }, [
-      "[Code Climate][Rails] :sunny:",
+    e = event(:coverage, to: 90.2, from: 80)
+
+    assert_campfire_receives(:coverage, e, [
+      "[Code Climate][Example] :sunny:",
       "Test coverage has improved to 90.2% (+10.2%).",
-      "(http://codeclimate.com/rails/compare)"
+      "(https://codeclimate.com/repos/1/feed)"
     ].join(" "))
   end
 
   def test_coverage_declined
-    assert_campfire_receives(:coverage, {
-      repo_name: "jQuery",
-      covered_percent: 88.6,
-      previous_covered_percent: 94.6,
-      covered_percent_delta: -6.0,
-      details_url: "http://codeclimate.com/rails/compare"
-    }, [
-      "[Code Climate][jQuery] :umbrella:",
+    e = event(:coverage, to: 88.6, from: 94.6)
+
+    assert_campfire_receives(:coverage, e, [
+      "[Code Climate][Example] :umbrella:",
       "Test coverage has declined to 88.6% (-6.0%).",
-      "(http://codeclimate.com/rails/compare)"
+      "(https://codeclimate.com/repos/1/feed)"
     ].join(" "))
   end
 
   def test_quality_improved
-    assert_campfire_receives(:quality, {
-      repo_name: "Rails",
-      constant_name: "User",
-      rating: "A",
-      previous_rating: "B",
-      remediation_cost: 50,
-      previous_remediation_cost: 25,
-      details_url: "http://codeclimate.com/rails/feed"
-    }, [
-      "[Code Climate][Rails] :sunny:",
+    e = event(:quality, to: "A", from: "B")
+
+    assert_campfire_receives(:quality, e, [
+      "[Code Climate][Example] :sunny:",
       "User has improved from a B to an A.",
-      "(http://codeclimate.com/rails/feed)"
+      "(https://codeclimate.com/repos/1/feed)"
     ].join(" "))
   end
 
   def test_quality_declined
-    assert_campfire_receives(:quality, {
-      repo_name: "Rails",
-      constant_name: "User",
-      rating: "D",
-      previous_rating: "C",
-      remediation_cost: 25,
-      previous_remediation_cost: 50,
-      details_url: "http://codeclimate.com/rails/feed"
-    }, [
-      "[Code Climate][Rails] :umbrella:",
+    e = event(:quality, to: "D", from: "C")
+
+    assert_campfire_receives(:quality, e, [
+      "[Code Climate][Example] :umbrella:",
       "User has declined from a C to a D.",
-      "(http://codeclimate.com/rails/feed)"
+      "(https://codeclimate.com/repos/1/feed)"
     ].join(" "))
   end
 
   def test_single_vulnerability
-    assert_campfire_receives(:vulnerability, {
-      repo_name: "Rails",
-      vulnerabilities: [{ "warning_type" => "critical" }],
-      details_url: "https://codeclimate.com/repos/1/vulnerabilities"
-    }, [
-      "[Code Climate][Rails]",
+    e = event(:vulnerability, vulnerabilities: [
+      { "warning_type" => "critical" }
+    ])
+
+    assert_campfire_receives(:vulnerability, e, [
+      "[Code Climate][Example]",
       "New critical issue found.",
-      "Details: https://codeclimate.com/repos/1/vulnerabilities"
+      "Details: https://codeclimate.com/repos/1/feed"
     ].join(" "))
   end
 
   def test_single_vulnerability_with_location
-    assert_campfire_receives(:vulnerability, {
-      repo_name: "Rails",
-      vulnerabilities: [{
-        "warning_type" => "critical",
-        "location" => "app/user.rb line 120"
-      }],
-      details_url: "https://codeclimate.com/repos/1/vulnerabilities"
-    }, [
-      "[Code Climate][Rails]",
+    e = event(:vulnerability, vulnerabilities: [{
+      "warning_type" => "critical",
+      "location" => "app/user.rb line 120"
+    }])
+
+    assert_campfire_receives(:vulnerability, e, [
+      "[Code Climate][Example]",
       "New critical issue found",
       "in app/user.rb line 120.",
-      "Details: https://codeclimate.com/repos/1/vulnerabilities"
+      "Details: https://codeclimate.com/repos/1/feed"
     ].join(" "))
   end
 
   def test_multiple_vulnerabilities
-    assert_campfire_receives(:vulnerability, {
-      repo_name: "Rails",
-      warning_type: "critical",
-      vulnerabilities: [{
-        "warning_type" => "unused",
-        "location" => "unused"
-      }, {
-        "warning_type" => "unused",
-        "location" => "unused"
-      }],
-      details_url: "https://codeclimate.com/repos/1/vulnerabilities"
-    }, [
-      "[Code Climate][Rails]",
+    e = event(:vulnerability, warning_type: "critical", vulnerabilities: [{
+      "warning_type" => "unused",
+      "location" => "unused"
+    }, {
+      "warning_type" => "unused",
+      "location" => "unused"
+    }])
+
+    assert_campfire_receives(:vulnerability, e, [
+      "[Code Climate][Example]",
       "2 new critical issues found.",
-      "Details: https://codeclimate.com/repos/1/vulnerabilities"
+      "Details: https://codeclimate.com/repos/1/feed"
     ].join(" "))
   end
 
