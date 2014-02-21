@@ -5,9 +5,9 @@ module CC::Service::CoverageHelper
 
   def delta
     if improved?
-      "+#{covered_percent_delta}%"
+      "+#{covered_percent_delta.round(1)}%"
     else
-      "#{covered_percent_delta}%"
+      "#{covered_percent_delta.round(1)}%"
     end
   end
 
