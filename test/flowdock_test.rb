@@ -1,6 +1,21 @@
 require File.expand_path('../helper', __FILE__)
 
 class TestFlowdock < CC::Service::TestCase
+  def test_valid_project_parameter
+    @stubs.post '/v1/messages/team_inbox/token' do |env|
+      body = Hash[URI.decode_www_form(env[:body])]
+      assert_equal "Exampleorg", body["project"]
+      [200, {}, '']
+    end
+
+    receive(
+      CC::Service::Flowdock,
+      :test,
+      { api_token: "token" },
+      { repo_name: "Example.org" }
+    )
+  end
+
   def test_test_hook
     assert_flowdock_receives(
       :test,
