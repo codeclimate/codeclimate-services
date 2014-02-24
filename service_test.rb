@@ -7,11 +7,15 @@ require 'cc/services'
 CC::Service.load_services
 
 def test_service(klass, config)
-  service = klass.new(:test, config, { repo_name: "Example" })
+  service = klass.new(:test, config, { repo_name: "Example.org" })
   service.receive
 end
 
 test_service(CC::Service::Slack, {
   webhook_url: "...",
   channel: "..."
+})
+
+test_service(CC::Service::Flowdock, {
+  api_token: "..."
 })

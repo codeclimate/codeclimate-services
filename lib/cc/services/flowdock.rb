@@ -8,6 +8,7 @@ class CC::Service::Flowdock < CC::Service
   end
 
   BASE_URL = "https://api.flowdock.com/v1"
+  INVALID_PROJECT_CHARACTERS = /[^0-9a-z\-_ ]+/i
 
   self.description = "Send messages to a Flowdock inbox"
 
@@ -45,7 +46,7 @@ class CC::Service::Flowdock < CC::Service
       from_name:    "Code Climate",
       format:       "html",
       subject:      subject,
-      project:      project,
+      project:      project.gsub(INVALID_PROJECT_CHARACTERS, ''),
       content:      content,
       link:         "https://codeclimate.com"
     }
