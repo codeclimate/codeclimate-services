@@ -1,4 +1,10 @@
-class CC::Service::Config
-  include Virtus.model
-  include ActiveModel::Validations
+module CC
+  class Service
+    ConfigurationError = Class.new(StandardError)
+
+    class Config
+      include Virtus.model
+      include ActiveModel::Validations
+    end
+  end
 end

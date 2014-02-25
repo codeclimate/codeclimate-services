@@ -4,7 +4,6 @@
 #
 ###
 require 'cc/services'
-CC::Service.load_services
 
 def test_service(klass, config)
   service = klass.new(:test, config, { repo_name: "Example.org" })
