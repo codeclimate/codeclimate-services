@@ -10,17 +10,15 @@ class TestFlowdock < CC::Service::TestCase
 
     receive(
       CC::Service::Flowdock,
-      :test,
       { api_token: "token" },
-      { repo_name: "Example.org" }
+      { name: "test", repo_name: "Example.org" }
     )
   end
 
   def test_test_hook
     assert_flowdock_receives(
-      :test,
       "Test",
-      { repo_name: "Example" },
+      { name: "test", repo_name: "Example" },
       "This is a test of the Flowdock service hook"
     )
   end
@@ -28,7 +26,7 @@ class TestFlowdock < CC::Service::TestCase
   def test_coverage_improved
     e = event(:coverage, to: 90.2, from: 80)
 
-    assert_flowdock_receives(:coverage, "Coverage", e, [
+    assert_flowdock_receives("Coverage", e, [
       "<a href=\"https://codeclimate.com/repos/1/feed\">Test coverage</a>",
       "has improved to 90.2% (+10.2%)",
       "(<a href=\"https://codeclimate.com/repos/1/compare\">Compare</a>)"
@@ -38,7 +36,7 @@ class TestFlowdock < CC::Service::TestCase
   def test_coverage_declined
     e = event(:coverage, to: 88.6, from: 94.6)
 
-    assert_flowdock_receives(:coverage, "Coverage", e, [
+    assert_flowdock_receives("Coverage", e, [
       "<a href=\"https://codeclimate.com/repos/1/feed\">Test coverage</a>",
       "has declined to 88.6% (-6.0%)",
       "(<a href=\"https://codeclimate.com/repos/1/compare\">Compare</a>)"
@@ -48,7 +46,7 @@ class TestFlowdock < CC::Service::TestCase
   def test_quality_improved
     e = event(:quality, to: "A", from: "B")
 
-    assert_flowdock_receives(:quality, "Quality", e, [
+    assert_flowdock_receives("Quality", e, [
       "<a href=\"https://codeclimate.com/repos/1/feed\">User</a>",
       "has improved from a B to an A",
       "(<a href=\"https://codeclimate.com/repos/1/compare\">Compare</a>)"
@@ -58,7 +56,7 @@ class TestFlowdock < CC::Service::TestCase
   def test_quality_declined
     e = event(:quality, to: "D", from: "C")
 
-    assert_flowdock_receives(:quality, "Quality", e, [
+    assert_flowdock_receives("Quality", e, [
       "<a href=\"https://codeclimate.com/repos/1/feed\">User</a>",
       "has declined from a C to a D",
       "(<a href=\"https://codeclimate.com/repos/1/compare\">Compare</a>)"
@@ -70,7 +68,7 @@ class TestFlowdock < CC::Service::TestCase
       { "warning_type" => "critical" }
     ])
 
-    assert_flowdock_receives(:vulnerability, "Vulnerability", e, [
+    assert_flowdock_receives("Vulnerability", e, [
       "New <a href=\"https://codeclimate.com/repos/1/feed\">critical</a>",
       "issue found",
     ].join(" "))
@@ -82,7 +80,7 @@ class TestFlowdock < CC::Service::TestCase
       "location" => "app/user.rb line 120"
     }])
 
-    assert_flowdock_receives(:vulnerability, "Vulnerability", e, [
+    assert_flowdock_receives("Vulnerability", e, [
       "New <a href=\"https://codeclimate.com/repos/1/feed\">critical</a>",
       "issue found in app/user.rb line 120",
     ].join(" "))
@@ -97,7 +95,7 @@ class TestFlowdock < CC::Service::TestCase
       "location" => "unused"
     }])
 
-    assert_flowdock_receives(:vulnerability, "Vulnerability", e, [
+    assert_flowdock_receives("Vulnerability", e, [
       "2 new <a href=\"https://codeclimate.com/repos/1/feed\">critical</a>",
       "issues found",
     ].join(" "))
@@ -105,7 +103,7 @@ class TestFlowdock < CC::Service::TestCase
 
   private
 
-  def assert_flowdock_receives(event_name, subject, event_data, expected_body)
+  def assert_flowdock_receives(subject, event_data, expected_body)
     @stubs.post '/v1/messages/team_inbox/token' do |env|
       body = Hash[URI.decode_www_form(env[:body])]
       assert_equal "Code Climate", body["source"]
@@ -119,6 +117,6 @@ class TestFlowdock < CC::Service::TestCase
       [200, {}, '']
     end
 
-    receive(CC::Service::Flowdock, event_name, { api_token: "token" }, event_data)
+    receive(CC::Service::Flowdock, { api_token: "token" }, event_data)
   end
 end

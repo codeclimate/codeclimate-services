@@ -24,6 +24,7 @@ class EventFixtures
     delta = (to - from).round(1)
 
     options.merge(
+      name: "coverage",
       covered_percent: to,
       previous_covered_percent: from,
       covered_percent_delta: delta
@@ -36,6 +37,7 @@ class EventFixtures
     from = options.delete(:from)
 
     options.merge(
+      name: "quality",
       constant_name: "User",
       rating: to,
       previous_rating: from,
@@ -46,7 +48,7 @@ class EventFixtures
 
   # Options: warning_type, vulnerabilities
   def vulnerability
-    options
+    options.merge(name: "vulnerability")
   end
 
 end
