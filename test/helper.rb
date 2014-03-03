@@ -16,8 +16,8 @@ class CC::Service::TestCase < Test::Unit::TestCase
     @stubs.verify_stubbed_calls
   end
 
-  def service(klass, event, data, payload)
-    service = klass.new(event, data, payload)
+  def service(klass, data, payload)
+    service = klass.new(data, payload)
     service.http :adapter => [:test, @stubs]
     service
   end

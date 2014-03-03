@@ -3,9 +3,8 @@ require File.expand_path('../helper', __FILE__)
 class TestHipChat < CC::Service::TestCase
   def test_test_hook
     assert_hipchat_receives(
-      :test,
       "green",
-      { repo_name: "Rails" },
+      { name: "test", repo_name: "Rails" },
       "[Rails] This is a test of the HipChat service hook"
     )
   end
@@ -13,7 +12,7 @@ class TestHipChat < CC::Service::TestCase
   def test_coverage_improved
     e = event(:coverage, to: 90.2, from: 80)
 
-    assert_hipchat_receives(:coverage, "green", e, [
+    assert_hipchat_receives("green", e, [
       "[Example]",
       "<a href=\"https://codeclimate.com/repos/1/feed\">Test coverage</a>",
       "has improved to 90.2% (+10.2%)",
@@ -24,7 +23,7 @@ class TestHipChat < CC::Service::TestCase
   def test_coverage_declined
     e = event(:coverage, to: 88.6, from: 94.6)
 
-    assert_hipchat_receives(:coverage, "red", e, [
+    assert_hipchat_receives("red", e, [
       "[Example]",
       "<a href=\"https://codeclimate.com/repos/1/feed\">Test coverage</a>",
       "has declined to 88.6% (-6.0%)",
@@ -35,7 +34,7 @@ class TestHipChat < CC::Service::TestCase
   def test_quality_improved
     e = event(:quality, to: "A", from: "B")
 
-    assert_hipchat_receives(:quality, "green", e, [
+    assert_hipchat_receives("green", e, [
       "[Example]",
       "<a href=\"https://codeclimate.com/repos/1/feed\">User</a>",
       "has improved from a B to an A",
@@ -46,7 +45,7 @@ class TestHipChat < CC::Service::TestCase
   def test_quality_declined_without_compare_url
     e = event(:quality, to: "D", from: "C")
 
-    assert_hipchat_receives(:quality, "red", e, [
+    assert_hipchat_receives("red", e, [
       "[Example]",
       "<a href=\"https://codeclimate.com/repos/1/feed\">User</a>",
       "has declined from a C to a D",
@@ -59,7 +58,7 @@ class TestHipChat < CC::Service::TestCase
       { "warning_type" => "critical" }
     ])
 
-    assert_hipchat_receives(:vulnerability, "red", e, [
+    assert_hipchat_receives("red", e, [
       "[Example]",
       "New <a href=\"https://codeclimate.com/repos/1/feed\">critical</a>",
       "issue found",
@@ -72,7 +71,7 @@ class TestHipChat < CC::Service::TestCase
       "location" => "app/user.rb line 120"
     }])
 
-    assert_hipchat_receives(:vulnerability, "red", e, [
+    assert_hipchat_receives("red", e, [
       "[Example]",
       "New <a href=\"https://codeclimate.com/repos/1/feed\">critical</a>",
       "issue found in app/user.rb line 120",
@@ -88,7 +87,7 @@ class TestHipChat < CC::Service::TestCase
       "location" => "unused"
     }])
 
-    assert_hipchat_receives(:vulnerability, "red", e, [
+    assert_hipchat_receives("red", e, [
       "[Example]",
       "2 new <a href=\"https://codeclimate.com/repos/1/feed\">critical</a>",
       "issues found",
@@ -97,7 +96,7 @@ class TestHipChat < CC::Service::TestCase
 
   private
 
-  def assert_hipchat_receives(event_name, color, event_data, expected_body)
+  def assert_hipchat_receives(color, event_data, expected_body)
     @stubs.post '/v1/rooms/message' do |env|
       body = Hash[URI.decode_www_form(env[:body])]
       assert_equal "token", body["auth_token"]
@@ -110,7 +109,6 @@ class TestHipChat < CC::Service::TestCase
 
     receive(
       CC::Service::HipChat,
-      event_name,
       { auth_token: "token", room_id: "123", notify: true },
       event_data
     )

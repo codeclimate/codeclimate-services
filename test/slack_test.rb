@@ -3,9 +3,8 @@ require File.expand_path('../helper', __FILE__)
 class TestSlack < CC::Service::TestCase
   def test_test_hook
     assert_slack_receives(
-      :test,
       nil,
-      { repo_name: "Rails" },
+      { name: "test", repo_name: "Rails" },
       "[Rails] This is a test of the Slack service hook"
     )
   end
@@ -13,7 +12,7 @@ class TestSlack < CC::Service::TestCase
   def test_coverage_improved
     e = event(:coverage, to: 90.2, from: 80)
 
-    assert_slack_receives(:coverage, ":sunny:", e, [
+    assert_slack_receives(":sunny:", e, [
       "[Example]",
       "<https://codeclimate.com/repos/1/feed|Test coverage>",
       "has improved to 90.2% (+10.2%)",
@@ -24,7 +23,7 @@ class TestSlack < CC::Service::TestCase
   def test_coverage_declined
     e = event(:coverage, to: 88.6, from: 94.6)
 
-    assert_slack_receives(:coverage, ":umbrella:", e, [
+    assert_slack_receives(":umbrella:", e, [
       "[Example]",
       "<https://codeclimate.com/repos/1/feed|Test coverage>",
       "has declined to 88.6% (-6.0%)",
@@ -35,7 +34,7 @@ class TestSlack < CC::Service::TestCase
   def test_quality_improved
     e = event(:quality, to: "A", from: "B")
 
-    assert_slack_receives(:quality, ":sunny:", e, [
+    assert_slack_receives(":sunny:", e, [
       "[Example]",
       "<https://codeclimate.com/repos/1/feed|User>",
       "has improved from a B to an A",
@@ -46,7 +45,7 @@ class TestSlack < CC::Service::TestCase
   def test_quality_declined_without_compare_url
     e = event(:quality, to: "D", from: "C")
 
-    assert_slack_receives(:quality, ":umbrella:", e, [
+    assert_slack_receives(":umbrella:", e, [
       "[Example]",
       "<https://codeclimate.com/repos/1/feed|User>",
       "has declined from a C to a D",
@@ -59,7 +58,7 @@ class TestSlack < CC::Service::TestCase
       { "warning_type" => "critical" }
     ])
 
-    assert_slack_receives(:vulnerability, nil, e, [
+    assert_slack_receives(nil, e, [
       "[Example]",
       "New <https://codeclimate.com/repos/1/feed|critical>",
       "issue found",
@@ -72,7 +71,7 @@ class TestSlack < CC::Service::TestCase
       "location" => "app/user.rb line 120"
     }])
 
-    assert_slack_receives(:vulnerability, nil, e, [
+    assert_slack_receives(nil, e, [
       "[Example]",
       "New <https://codeclimate.com/repos/1/feed|critical>",
       "issue found in app/user.rb line 120",
@@ -88,7 +87,7 @@ class TestSlack < CC::Service::TestCase
       "location" => "unused"
     }])
 
-    assert_slack_receives(:vulnerability, nil, e, [
+    assert_slack_receives(nil, e, [
       "[Example]",
       "2 new <https://codeclimate.com/repos/1/feed|critical>",
       "issues found",
@@ -97,7 +96,7 @@ class TestSlack < CC::Service::TestCase
 
   private
 
-  def assert_slack_receives(event_name, emoji, event_data, expected_body)
+  def assert_slack_receives(emoji, event_data, expected_body)
     @stubs.post '/token' do |env|
       body = JSON.parse(env[:body])
       assert_equal "Code Climate", body["username"]
@@ -108,7 +107,6 @@ class TestSlack < CC::Service::TestCase
 
     receive(
       CC::Service::Slack,
-      event_name,
       { webhook_url: "http://api.slack.com/token", channel: "#general" },
       event_data
     )

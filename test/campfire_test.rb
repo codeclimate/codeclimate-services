@@ -3,14 +3,13 @@ require File.expand_path('../helper', __FILE__)
 class TestCampfire < CC::Service::TestCase
   def test_config
     assert_raises CC::Service::ConfigurationError do
-      service(CC::Service::Campfire, :coverage, {},{})
+      service(CC::Service::Campfire, {}, {name: "test"})
     end
   end
 
   def test_test_hook
     assert_campfire_receives(
-      :test,
-      { repo_name: "Rails" },
+      { name: "test", repo_name: "Rails" },
       "[Code Climate][Rails] This is a test of the Campfire service hook"
     )
   end
@@ -18,7 +17,7 @@ class TestCampfire < CC::Service::TestCase
   def test_coverage_improved
     e = event(:coverage, to: 90.2, from: 80)
 
-    assert_campfire_receives(:coverage, e, [
+    assert_campfire_receives(e, [
       "[Code Climate][Example] :sunny:",
       "Test coverage has improved to 90.2% (+10.2%).",
       "(https://codeclimate.com/repos/1/feed)"
@@ -28,7 +27,7 @@ class TestCampfire < CC::Service::TestCase
   def test_coverage_declined
     e = event(:coverage, to: 88.6, from: 94.6)
 
-    assert_campfire_receives(:coverage, e, [
+    assert_campfire_receives(e, [
       "[Code Climate][Example] :umbrella:",
       "Test coverage has declined to 88.6% (-6.0%).",
       "(https://codeclimate.com/repos/1/feed)"
@@ -38,7 +37,7 @@ class TestCampfire < CC::Service::TestCase
   def test_quality_improved
     e = event(:quality, to: "A", from: "B")
 
-    assert_campfire_receives(:quality, e, [
+    assert_campfire_receives(e, [
       "[Code Climate][Example] :sunny:",
       "User has improved from a B to an A.",
       "(https://codeclimate.com/repos/1/feed)"
@@ -48,7 +47,7 @@ class TestCampfire < CC::Service::TestCase
   def test_quality_declined
     e = event(:quality, to: "D", from: "C")
 
-    assert_campfire_receives(:quality, e, [
+    assert_campfire_receives(e, [
       "[Code Climate][Example] :umbrella:",
       "User has declined from a C to a D.",
       "(https://codeclimate.com/repos/1/feed)"
@@ -60,7 +59,7 @@ class TestCampfire < CC::Service::TestCase
       { "warning_type" => "critical" }
     ])
 
-    assert_campfire_receives(:vulnerability, e, [
+    assert_campfire_receives(e, [
       "[Code Climate][Example]",
       "New critical issue found.",
       "Details: https://codeclimate.com/repos/1/feed"
@@ -73,7 +72,7 @@ class TestCampfire < CC::Service::TestCase
       "location" => "app/user.rb line 120"
     }])
 
-    assert_campfire_receives(:vulnerability, e, [
+    assert_campfire_receives(e, [
       "[Code Climate][Example]",
       "New critical issue found",
       "in app/user.rb line 120.",
@@ -90,7 +89,7 @@ class TestCampfire < CC::Service::TestCase
       "location" => "unused"
     }])
 
-    assert_campfire_receives(:vulnerability, e, [
+    assert_campfire_receives(e, [
       "[Code Climate][Example]",
       "2 new critical issues found.",
       "Details: https://codeclimate.com/repos/1/feed"
@@ -99,7 +98,7 @@ class TestCampfire < CC::Service::TestCase
 
   private
 
-  def assert_campfire_receives(event_name, event_data, expected_body)
+  def assert_campfire_receives(event_data, expected_body)
     @stubs.post '/room/123/speak.json' do |env|
       body = JSON.parse(env[:body])
       assert_equal expected_body, body["message"]["body"]
@@ -108,7 +107,6 @@ class TestCampfire < CC::Service::TestCase
 
     receive(
       CC::Service::Campfire,
-      event_name,
       { token: "token", subdomain: "sub", room_id: "123" },
       event_data
     )

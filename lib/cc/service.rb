@@ -4,6 +4,7 @@ module CC
     require "cc/service/http"
     require "cc/service/helper"
     require "cc/service/formatter"
+    require "cc/service/invocation"
 
     dir = File.expand_path '../helpers', __FILE__
     Dir["#{dir}/*_helper.rb"].each do |helper|
@@ -31,8 +32,13 @@ module CC
 
     ALL_EVENTS = %w[test unit coverage quality vulnerability]
 
-    def self.receive(event, config, payload)
-      new(event, config, payload).receive
+    def self.receive(config, payload, invocation_class = Invocation)
+      statsd = config.delete(:statsd)
+      logger = config.delete(:logger)
+      service = new(config, payload)
+
+      invocation = invocation_class.new(service, statsd, logger)
+      invocation.invoke
     end
 
     # Tracks the defined services.
@@ -71,10 +77,10 @@ module CC
       end
     end
 
-    def initialize(event, config, payload)
-      @event   = event.to_s
+    def initialize(config, payload)
       @payload = payload.stringify_keys
       @config  = create_config(config)
+      @event   = @payload["name"].to_s
 
       load_helper
       validate_event
