@@ -48,11 +48,14 @@ class TestInvocation < Test::Unit::TestCase
   private
 
   class FakeService
-    attr_reader :slug, :receive_count
+    attr_reader :receive_count
     attr_accessor :raise_on_receive
 
+    def self.slug
+      "fake-service"
+    end
+
     def initialize
-      @slug = "fake-service"
       @receive_count = 0
     end
 

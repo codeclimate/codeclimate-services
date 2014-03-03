@@ -35,15 +35,19 @@ class CC::Service::Invocation
   end
 
   def success_stat
-    "services.invocations.#{service.slug}"
+    "services.invocations.#{slug}"
   end
 
   def error_stat(ex)
-    "services.errors.#{service.slug}.#{ex.class.name.underscore}"
+    "services.errors.#{slug}.#{ex.class.name.underscore}"
   end
 
   def error_message(ex)
-    "Exception invoking #{service.slug} service: (#{ex.class}) #{ex.message}"
+    "Exception invoking #{slug} service: (#{ex.class}) #{ex.message}"
+  end
+
+  def slug
+    service.class.slug
   end
 
   class NullObject
