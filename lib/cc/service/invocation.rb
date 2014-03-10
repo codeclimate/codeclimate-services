@@ -38,7 +38,11 @@ class CC::Service::Invocation
 
   def with(middleware, *args)
     if klass = MIDDLEWARE[middleware]
-      @chain.wrap(klass, *args)
+      wrap(klass, *args)
     end
+  end
+
+  def wrap(klass, *args)
+    @chain.wrap(klass, *args)
   end
 end
