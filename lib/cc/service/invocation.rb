@@ -1,57 +1,116 @@
+# Build a chain of invocation wrappers which eventually calls receive on
+# the given service, then execute that chain.
+#
+# Order is important. Each call to #with, wraps the last.
+#
+# Usage:
+#
+#   CC::Service::Invocation.new(service) do |i|
+#     i.with :retries, 3
+#     i.with :metrics, $statsd
+#     i.with :error_handling, Rails.logger
+#   end
+#
+# In the above example, service.receive could happen 4 times (once, then
+# three retries) before an exception is re-raised up to the metrics
+# collector, then up again to the error handling. If the order were
+# reversed, the error handling middleware would prevent the other
+# middleware from seeing any exceptions at all.
+#
 class CC::Service::Invocation
-  RETRIES = 3
+  class InvocationChain
+    def initialize(&block)
+      @invocation = block
+    end
 
-  def initialize(service, statsd = nil, logger = nil)
-    @service = service
-    @statsd = statsd || NullObject.new
-    @logger = logger || NullObject.new
+    def wrap(klass, *args)
+      @invocation = klass.new(@invocation, *args)
+    end
+
+    def call
+      @invocation.call
+    end
   end
 
-  def invoke
-    safely { service.receive }
+  class WithRetries
+    def initialize(invocation, retries)
+      @invocation = invocation
+      @retries = retries
+    end
 
-    statsd.increment(success_stat)
+    def call
+      @invocation.call
+    rescue => ex
+      raise ex if @retries.zero?
+
+      @retries -= 1
+      retry
+    end
   end
 
-  private
+  class WithMetrics
+    def initialize(invocation, statsd, prefix = nil)
+      @invocation = invocation
+      @statsd = statsd
+      @prefix = prefix
+    end
 
-  attr_reader :service, :statsd, :logger
+    def call
+      @invocation.call
+      @statsd.increment(success_key)
+    rescue => ex
+      @statsd.increment(error_key(ex))
+      raise ex
+    end
 
-  def safely(&block)
-    with_retries(RETRIES, &block)
-  rescue => ex
-    statsd.increment(error_stat(ex))
-    logger.error(error_message(ex))
+    def success_key
+      ["services.invocations", @prefix].compact.join('.')
+    end
+
+    def error_key(ex)
+      ["services.errors", @prefix, "#{ex.class.name.underscore}"].compact.join('.')
+    end
   end
 
-  def with_retries(retries, &block)
-    yield
+  class WithErrorHandling
+    def initialize(invocation, logger, prefix = nil)
+      @invocation = invocation
+      @logger = logger
+      @prefix = prefix
+    end
 
-  rescue => ex
-    raise ex if retries.zero?
+    def call
+      @invocation.call
+    rescue => ex
+      @logger.error(error_message(ex))
+    end
 
-    retries -= 1
-    retry
+    private
+
+    def error_message(ex)
+      message  = "Exception invoking service:"
+      message << " [#{@prefix}]" if @prefix
+      message << " (#{ex.class}) #{ex.message}"
+    end
   end
 
-  def success_stat
-    "services.invocations.#{slug}"
+  MIDDLEWARE = {
+    retries: WithRetries,
+    metrics: WithMetrics,
+    error_handling: WithErrorHandling,
+  }
+
+  def initialize(service)
+    @chain = InvocationChain.new { service.receive }
+
+    yield(self) if block_given?
+
+    @chain.call
   end
 
-  def error_stat(ex)
-    "services.errors.#{slug}.#{ex.class.name.underscore}"
-  end
-
-  def error_message(ex)
-    "Exception invoking #{slug} service: (#{ex.class}) #{ex.message}"
-  end
-
-  def slug
-    service.class.slug
-  end
-
-  class NullObject
-    def method_missing(*)
+  def with(middleware, *args)
+    if klass = MIDDLEWARE[middleware]
+      @chain.wrap(klass, *args)
     end
   end
 end
