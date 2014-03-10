@@ -4,45 +4,83 @@ class TestInvocation < Test::Unit::TestCase
   def test_success
     service = FakeService.new
 
-    CC::Service::Invocation.new(service).invoke
+    CC::Service::Invocation.new(service)
 
     assert_equal 1, service.receive_count
   end
 
-  def test_failure
+  def test_retries
     service = FakeService.new
     service.raise_on_receive = true
+    error_occurred = false
 
-    CC::Service::Invocation.new(service).invoke
+    begin
+      CC::Service::Invocation.new(service) do |i|
+        i.with :retries, 3
+      end
+    rescue
+      error_occurred = true
+    end
 
-    # First call + N retries
-    expected_count = 1 + CC::Service::Invocation::RETRIES
-    assert_equal expected_count, service.receive_count
+    assert error_occurred
+    assert_equal 1 + 3, service.receive_count
   end
 
-  def test_success_metrics
+  def test_metrics
     statsd = FakeStatsd.new
-    logger = FakeLogger.new
-    service = FakeService.new
 
-    CC::Service::Invocation.new(service, statsd, logger).invoke
+    CC::Service::Invocation.new(FakeService.new) do |i|
+      i.with :metrics, statsd, "a_prefix"
+    end
 
     assert_equal 1, statsd.incremented_keys.length
-    assert_match /services\.invocations/, statsd.incremented_keys.first
-    assert_empty logger.logged_errors
+    assert_equal "services.invocations.a_prefix", statsd.incremented_keys.first
   end
 
-  def test_failure_metrics
+  def test_metrics_on_errors
     statsd = FakeStatsd.new
+    service = FakeService.new
+    service.raise_on_receive = true
+    error_occurred = false
+
+    begin
+      CC::Service::Invocation.new(service) do |i|
+        i.with :metrics, statsd, "a_prefix"
+      end
+    rescue
+      error_occurred = true
+    end
+
+    assert error_occurred
+    assert_equal 1, statsd.incremented_keys.length
+    assert_match /^services\.errors\.a_prefix/, statsd.incremented_keys.first
+  end
+
+  def test_error_handling
     logger = FakeLogger.new
     service = FakeService.new
     service.raise_on_receive = true
 
-    CC::Service::Invocation.new(service, statsd, logger).invoke
+    CC::Service::Invocation.new(service) do |i|
+      i.with :error_handling, logger, "a_prefix"
+    end
 
-    refute_empty statsd.incremented_keys
-    refute_empty logger.logged_errors
-    assert_match /services\.errors/, statsd.incremented_keys.first
+    assert_equal 1, logger.logged_errors.length
+    assert_match /^Exception invoking service: \[a_prefix\]/, logger.logged_errors.first
+  end
+
+  def test_multiple_middleware
+    service = FakeService.new
+    service.raise_on_receive = true
+    logger = FakeLogger.new
+
+    CC::Service::Invocation.new(service) do |i|
+      i.with :retries, 3
+      i.with :error_handling, logger
+    end
+
+    assert_equal 1 + 3, service.receive_count
+    assert_equal 1, logger.logged_errors.length
   end
 
   private
@@ -50,10 +88,6 @@ class TestInvocation < Test::Unit::TestCase
   class FakeService
     attr_reader :receive_count
     attr_accessor :raise_on_receive
-
-    def self.slug
-      "fake-service"
-    end
 
     def initialize
       @receive_count = 0

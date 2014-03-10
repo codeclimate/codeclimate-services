@@ -20,10 +20,24 @@
 require 'cc/services'
 CC::Service.load_services
 
+class WithResponseLogging
+  def initialize(invocation)
+    @invocation = invocation
+  end
+
+  def call
+    @invocation.call.tap { |r| p r }
+  end
+end
+
 def test_service(klass, config)
   repo_name = ENV["REPO_NAME"] || "App"
 
-  klass.receive(config, name: :test, repo_name: repo_name)
+  service = klass.new(config, name: :test, repo_name: repo_name)
+
+  CC::Service::Invocation.new(service) do |i|
+    i.wrap(WithResponseLogging)
+  end
 end
 
 if webhook_url = ENV["SLACK_WEBHOOK_URL"]

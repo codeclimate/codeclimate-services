@@ -32,15 +32,6 @@ module CC
 
     ALL_EVENTS = %w[test unit coverage quality vulnerability]
 
-    def self.receive(config, payload, invocation_class = Invocation)
-      statsd = config.delete(:statsd)
-      logger = config.delete(:logger)
-      service = new(config, payload)
-
-      invocation = invocation_class.new(service, statsd, logger)
-      invocation.invoke
-    end
-
     # Tracks the defined services.
     def self.services
       @services ||= []
