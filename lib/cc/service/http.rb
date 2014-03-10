@@ -53,6 +53,7 @@ module CC::Service::HTTP
 
       Faraday.new(options) do |b|
         b.request(:url_encoded)
+        b.response(:raise_error)
         b.adapter(*Array(options[:adapter] || config[:adapter]))
       end
     end
