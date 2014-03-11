@@ -28,6 +28,14 @@ module CC::Service::Helper
     end
   end
 
+  def hex_color
+    if improved?
+      "#38ae6f"
+    else
+      "#ed2f00"
+    end
+  end
+
   def changed
     if improved?
       "improved"
