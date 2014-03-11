@@ -12,7 +12,7 @@ class TestSlack < CC::Service::TestCase
   def test_coverage_improved
     e = event(:coverage, to: 90.2, from: 80)
 
-    assert_slack_receives(":sunny:", e, [
+    assert_slack_receives("#38ae6f", e, [
       "[Example]",
       "<https://codeclimate.com/repos/1/feed|Test coverage>",
       "has improved to 90.2% (+10.2%)",
@@ -23,7 +23,7 @@ class TestSlack < CC::Service::TestCase
   def test_coverage_declined
     e = event(:coverage, to: 88.6, from: 94.6)
 
-    assert_slack_receives(":umbrella:", e, [
+    assert_slack_receives("#ed2f00", e, [
       "[Example]",
       "<https://codeclimate.com/repos/1/feed|Test coverage>",
       "has declined to 88.6% (-6.0%)",
@@ -34,7 +34,7 @@ class TestSlack < CC::Service::TestCase
   def test_quality_improved
     e = event(:quality, to: "A", from: "B")
 
-    assert_slack_receives(":sunny:", e, [
+    assert_slack_receives("#38ae6f", e, [
       "[Example]",
       "<https://codeclimate.com/repos/1/feed|User>",
       "has improved from a B to an A",
@@ -45,7 +45,7 @@ class TestSlack < CC::Service::TestCase
   def test_quality_declined_without_compare_url
     e = event(:quality, to: "D", from: "C")
 
-    assert_slack_receives(":umbrella:", e, [
+    assert_slack_receives("#ed2f00", e, [
       "[Example]",
       "<https://codeclimate.com/repos/1/feed|User>",
       "has declined from a C to a D",
@@ -96,12 +96,14 @@ class TestSlack < CC::Service::TestCase
 
   private
 
-  def assert_slack_receives(emoji, event_data, expected_body)
+  def assert_slack_receives(color, event_data, expected_body)
     @stubs.post '/token' do |env|
       body = JSON.parse(env[:body])
-      assert_equal "Code Climate", body["username"]
-      assert_equal emoji, body["icon_emoji"] # may be nil
-      assert_equal expected_body, body["text"]
+      attachment = body["attachments"].first
+      field = attachment["fields"].first
+      assert_equal color, attachment["color"] # may be nil
+      assert_equal expected_body, attachment["fallback"]
+      assert_equal expected_body, field["value"]
       [200, {}, '']
     end
 

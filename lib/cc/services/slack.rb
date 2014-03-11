@@ -15,11 +15,11 @@ class CC::Service::Slack < CC::Service
   end
 
   def receive_coverage
-    speak(formatter.format_coverage, icon_emoji: emoji)
+    speak(formatter.format_coverage, hex_color)
   end
 
   def receive_quality
-    speak(formatter.format_quality, icon_emoji: emoji)
+    speak(formatter.format_quality, hex_color)
   end
 
   def receive_vulnerability
@@ -32,11 +32,12 @@ class CC::Service::Slack < CC::Service
     CC::Formatters::LinkedFormatter.new(self, prefix: nil, link_style: :wiki)
   end
 
-  def speak(message, options = {})
-    body = {
-      text: message,
-      username: "Code Climate"
-    }.merge(options)
+  def speak(message, color = nil)
+    body = { attachments: [{
+      color: color,
+      fallback: message,
+      fields: [{ value: message }]
+    }]}
 
     if config.channel
       body[:channel] = config.channel
