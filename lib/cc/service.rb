@@ -27,7 +27,6 @@ module CC
     include HTTP
     include Helper
 
-    cattr_accessor :issue_tracker
     attr_reader :event, :config, :payload
 
     ALL_EVENTS = %w[test unit coverage quality vulnerability]
@@ -49,6 +48,7 @@ module CC
     class << self
       attr_writer :title
       attr_accessor :description
+      attr_accessor :issue_tracker
     end
 
     def self.title
