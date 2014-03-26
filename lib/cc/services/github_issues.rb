@@ -15,10 +15,10 @@ class CC::Service::GitHubIssues < CC::Service
 
   BASE_URL = "https://api.github.com"
 
-  def receive_unit
+  def receive_quality
     params = {
-      title:  "Title",
-      body:   "Body"
+      title:  "Refactor #{constant_name} from #{rating} on Code Climate",
+      body:   details_url,
     }
 
     if config.labels.present?
