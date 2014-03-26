@@ -1,6 +1,6 @@
 require File.expand_path('../helper', __FILE__)
 
-class TestLightout < CC::Service::TestCase
+class TestLighthouse < CC::Service::TestCase
   def test_quality
     assert_lighthouse_receives(
       event(:quality, to: "D", from: "C"),
