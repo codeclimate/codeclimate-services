@@ -16,43 +16,27 @@ class CC::Service::PivotalTracker < CC::Service
 
   self.title = "Pivotal Tracker"
   self.issue_tracker = true
+  self.custom_middleware = XMLMiddleware
 
   BASE_URL = "https://www.pivotaltracker.com/services/v3"
 
   def receive_quality
-    name = "Refactor #{constant_name} from #{rating} on Code Climate"
-    create_chore(name, details_url)
-  end
-
-private
-
-  def create_chore(name, description)
     params = {
-      "story[name]"        => name,
-      "story[story_type]"  => "chore",
-      "story[description]" => description,
+      "story[name]" => "Refactor #{constant_name} from #{rating} on Code Climate",
+      "story[story_type]" => "chore",
+      "story[description]" => details_url,
     }
 
     if config.labels.present?
       params["story[labels]"] = config.labels.strip
     end
 
-    parse_api_response(post_to_api(params))
-  end
-
-  def post_to_api(params)
     http.headers["X-TrackerToken"] = config.api_token
-    http_post("#{BASE_URL}/projects/#{config.project_id}/stories", params)
-  end
-
-  def parse_api_response(response)
-    return unless response.status.to_s =~ /^2\d\d$/
-
-    body = Nokogiri::XML(response.body)
+    res = http.post("#{BASE_URL}/projects/#{config.project_id}/stories", params)
 
     {
-      id:  (body / "story/id").text,
-      url: (body / "story/url").text
+      id: (res.body / "story/id").text,
+      url: (res.body / "story/url").text
     }
   end
 

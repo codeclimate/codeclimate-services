@@ -5,6 +5,8 @@ module CC
     require "cc/service/helper"
     require "cc/service/formatter"
     require "cc/service/invocation"
+    require "cc/service/json_middleware"
+    require "cc/service/xml_middleware"
 
     dir = File.expand_path '../helpers', __FILE__
     Dir["#{dir}/*_helper.rb"].each do |helper|
