@@ -22,7 +22,7 @@ class TestGitHubIssues < CC::Service::TestCase
 
     receive(
       CC::Service::GitHubIssues,
-      { oauth_token: "123" },
+      { oauth_token: "123", project: "brynary/test_repo" },
       event_data
     )
   end
