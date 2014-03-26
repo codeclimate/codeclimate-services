@@ -55,8 +55,8 @@ module CC::Service::HTTP
 
       Faraday.new(options) do |b|
         # Any custom middleware must be specified first (outermost)
-        if middelware = self.class.custom_middleware
-          b.use middelware
+        if middleware = self.class.custom_middleware
+          b.use middleware
         end
 
         b.request(:url_encoded)
