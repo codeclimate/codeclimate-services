@@ -7,7 +7,13 @@ class CC::Service::JSONMiddleware < Faraday::Middleware
     env[:body] = (env[:body] || {}).to_json
 
     @app.call(env).on_complete do
-      env[:body] = JSON.parse(env[:body])
+      env[:body] = parse_json(env[:body])
     end
+  end
+
+  def parse_json(string)
+    JSON.parse(string)
+  rescue JSON::ParserError
+    string # return unparsable responses as-is
   end
 end

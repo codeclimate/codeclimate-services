@@ -13,6 +13,7 @@ class CC::Service::Campfire < CC::Service
   end
 
   self.description = "Send messages to a Campfire chat room"
+  self.custom_middleware = JSONMiddleware
 
   def receive_test
     speak(formatter.format_test)
@@ -37,11 +38,10 @@ class CC::Service::Campfire < CC::Service
   end
 
   def speak(line)
-    http.headers['Content-Type']  = 'application/json'
     body = { message: { body: line } }
 
     http.basic_auth(config.token, "X")
-    http_post(speak_uri, body.to_json)
+    http_post(speak_uri, body)
   end
 
   def speak_uri
