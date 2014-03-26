@@ -18,36 +18,45 @@ class CC::Service::Lighthouse < CC::Service
     validates :project_id, presence: true
   end
 
+  self.title = "Lighthouse"
   self.issue_tracker = true
 
-  def receive_unit
-    params = {
-      ticket: {
-        title: "Title",
-        body: "Body",
-      }
-    }
+  def receive_quality
+    title = "Refactor #{constant_name} from #{rating} on Code Climate"
+    create_ticket(title, details_url)
+  end
+
+private
+
+  def create_ticket(title, body)
+    params = { ticket: { title: title, body: body } }
 
     if config.tags.present?
       params[:ticket][:tags] = config.tags.strip
     end
 
+    parse_api_response(post_to_api(params))
+  end
+
+  def post_to_api(params)
     http.headers["X-LighthouseToken"] = config.api_token
     http.headers["Content-Type"] = "application/json"
 
     base_url = "https://#{config.subdomain}.lighthouseapp.com"
     url = "#{base_url}/projects/#{config.project_id}/tickets.json"
 
-    res = http_post(url, params.to_json)
+    http_post(url, params.to_json)
+  end
 
-    if res.status.to_s =~ /^2\d\d$/
-      body = JSON.parse(res.body)
+  def parse_api_response(response)
+    return unless response.status.to_s =~ /^2\d\d$/
 
-      {
-        id:   body["ticket"]["number"],
-        url:  body["ticket"]["url"]
-      }
-    end
+    body = JSON.parse(response.body)
+
+    {
+      id:  body["ticket"]["number"],
+      url: body["ticket"]["url"]
+    }
   end
 
 end
