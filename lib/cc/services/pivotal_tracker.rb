@@ -19,34 +19,40 @@ class CC::Service::PivotalTracker < CC::Service
 
   BASE_URL = "https://www.pivotaltracker.com/services/v3"
 
-  def receive_unit
+  def receive_quality
+    name = "Refactor #{constant_name} from #{rating} on Code Climate"
+    create_chore(name, details_url)
+  end
+
+private
+
+  def create_chore(name, description)
     params = {
-      "story[name]"           => "name",
-      "story[story_type]"     => "chore",
-      "story[description]"    => "description"
+      "story[name]"        => name,
+      "story[story_type]"  => "chore",
+      "story[description]" => description,
     }
 
     if config.labels.present?
       params["story[labels]"] = config.labels.strip
     end
 
-    http.headers["X-TrackerToken"] = config.api_token
-    url = "#{BASE_URL}/projects/#{config.project_id}/stories"
-    res = http_post(url, params)
-
-    if res.status.to_s =~ /^2\d\d$/
-      parse_story(res)
-    end
+    parse_api_response(post_to_api(params))
   end
 
-private
+  def post_to_api(params)
+    http.headers["X-TrackerToken"] = config.api_token
+    http_post("#{BASE_URL}/projects/#{config.project_id}/stories", params)
+  end
 
-  def parse_story(resp)
-    body = Nokogiri::XML(resp.body)
+  def parse_api_response(response)
+    return unless response.status.to_s =~ /^2\d\d$/
+
+    body = Nokogiri::XML(response.body)
 
     {
-      id:   (body / "story/id").text,
-      url:  (body / "story/url").text
+      id:  (body / "story/id").text,
+      url: (body / "story/url").text
     }
   end
 
