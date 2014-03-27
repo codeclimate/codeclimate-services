@@ -16,7 +16,6 @@ class CC::Service::PivotalTracker < CC::Service
 
   self.title = "Pivotal Tracker"
   self.issue_tracker = true
-  self.custom_middleware = XMLMiddleware
 
   BASE_URL = "https://www.pivotaltracker.com/services/v3"
 
@@ -34,9 +33,11 @@ class CC::Service::PivotalTracker < CC::Service
     http.headers["X-TrackerToken"] = config.api_token
     res = http.post("#{BASE_URL}/projects/#{config.project_id}/stories", params)
 
+    body = Nokogiri::XML(res.body)
+
     {
-      id: (res.body / "story/id").text,
-      url: (res.body / "story/url").text
+      id:  (body / "story/id").text,
+      url: (body / "story/url").text
     }
   end
 

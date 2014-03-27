@@ -15,7 +15,6 @@ class CC::Service::GitHubIssues < CC::Service
 
   self.issue_tracker = true
   self.title = "GitHub Issues"
-  self.custom_middleware = JSONMiddleware
 
   BASE_URL = "https://api.github.com"
 
@@ -29,16 +28,19 @@ class CC::Service::GitHubIssues < CC::Service
       params[:labels] = config.labels.split(",").map(&:strip).reject(&:blank?).compact
     end
 
+    http.headers["Content-Type"] = "application/json"
     http.headers["Authorization"] = "token #{config.oauth_token}"
     http.headers["User-Agent"] = "Code Climate"
 
     url = "#{BASE_URL}/repos/#{config.project}/issues"
-    res = http_post(url, params)
+    res = http_post(url, params.to_json)
+
+    body = JSON.parse(res.body)
 
     {
-      id:     res.body["id"],
-      number: res.body["number"],
-      url:    res.body["html_url"]
+      id:     body["id"],
+      number: body["number"],
+      url:    body["html_url"]
     }
   end
 

@@ -12,8 +12,6 @@ module CC::Service::HTTP
         headers: {}
       }
     end
-
-    attr_accessor :custom_middleware
   end
 
   def http_get(url = nil, params = nil, headers = nil)
@@ -54,11 +52,6 @@ module CC::Service::HTTP
       options[:ssl][:ca_file] ||= ca_file
 
       Faraday.new(options) do |b|
-        # Any custom middleware must be specified first (outermost)
-        if middleware = self.class.custom_middleware
-          b.use middleware
-        end
-
         b.request(:url_encoded)
         b.response(:raise_error)
         b.adapter(*Array(options[:adapter] || config[:adapter]))

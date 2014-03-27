@@ -9,7 +9,6 @@ class CC::Service::Slack < CC::Service
   end
 
   self.description = "Send messages to a Slack channel"
-  self.custom_middleware = JSONMiddleware
 
   def receive_test
     speak(formatter.format_test)
@@ -44,6 +43,7 @@ class CC::Service::Slack < CC::Service
       body[:channel] = config.channel
     end
 
-    http_post(config.webhook_url, body)
+    http.headers['Content-Type']  = 'application/json'
+    http_post(config.webhook_url, body.to_json)
   end
 end

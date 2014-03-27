@@ -20,7 +20,6 @@ class CC::Service::Lighthouse < CC::Service
 
   self.title = "Lighthouse"
   self.issue_tracker = true
-  self.custom_middleware = JSONMiddleware
 
   def receive_quality
     params = {
@@ -37,12 +36,15 @@ class CC::Service::Lighthouse < CC::Service
     base_url = "https://#{config.subdomain}.lighthouseapp.com"
     url = "#{base_url}/projects/#{config.project_id}/tickets.json"
 
+    http.headers["Content-Type"] = "application/json"
     http.headers["X-LighthouseToken"] = config.api_token
-    res = http.post(url, params)
+    res = http.post(url, params.to_json)
+
+    body = JSON.parse(res.body)
 
     {
-      id:  res.body["ticket"]["number"],
-      url: res.body["ticket"]["url"]
+      id:  body["ticket"]["number"],
+      url: body["ticket"]["url"]
     }
   end
 end
