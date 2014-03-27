@@ -19,11 +19,11 @@ class CC::Service::PivotalTracker < CC::Service
 
   BASE_URL = "https://www.pivotaltracker.com/services/v3"
 
-  def receive_unit
+  def receive_quality
     params = {
-      "story[name]"           => "name",
-      "story[story_type]"     => "chore",
-      "story[description]"    => "description"
+      "story[name]"        => "Refactor #{constant_name} from #{rating} on Code Climate",
+      "story[story_type]"  => "chore",
+      "story[description]" => details_url,
     }
 
     if config.labels.present?
@@ -34,9 +34,7 @@ class CC::Service::PivotalTracker < CC::Service
     url = "#{BASE_URL}/projects/#{config.project_id}/stories"
     res = http_post(url, params)
 
-    if res.status.to_s =~ /^2\d\d$/
-      parse_story(res)
-    end
+    parse_story(res)
   end
 
 private

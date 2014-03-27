@@ -18,13 +18,14 @@ class CC::Service::Lighthouse < CC::Service
     validates :project_id, presence: true
   end
 
+  self.title = "Lighthouse"
   self.issue_tracker = true
 
-  def receive_unit
+  def receive_quality
     params = {
       ticket: {
-        title: "Title",
-        body: "Body",
+        title: "Refactor #{constant_name} from #{rating} on Code Climate",
+        body: details_url
       }
     }
 
@@ -40,14 +41,12 @@ class CC::Service::Lighthouse < CC::Service
 
     res = http_post(url, params.to_json)
 
-    if res.status.to_s =~ /^2\d\d$/
-      body = JSON.parse(res.body)
+    body = JSON.parse(res.body)
 
-      {
-        id:   body["ticket"]["number"],
-        url:  body["ticket"]["url"]
-      }
-    end
+    {
+      id:  body["ticket"]["number"],
+      url: body["ticket"]["url"]
+    }
   end
 
 end
