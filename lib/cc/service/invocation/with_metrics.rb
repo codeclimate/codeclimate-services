@@ -7,8 +7,10 @@ class CC::Service::Invocation
     end
 
     def call
-      @invocation.call
+      result = @invocation.call
       @statsd.increment(success_key)
+
+      result
     rescue => ex
       @statsd.increment(error_key(ex))
       raise ex
