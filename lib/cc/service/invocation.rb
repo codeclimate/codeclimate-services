@@ -10,6 +10,8 @@ class CC::Service::Invocation
     error_handling: WithErrorHandling,
   }
 
+  attr_reader :result
+
   # Build a chain of invocation wrappers which eventually calls receive
   # on the given service, then execute that chain.
   #
@@ -17,7 +19,7 @@ class CC::Service::Invocation
   #
   # Usage:
   #
-  #   CC::Service::Invocation.new(service) do |i|
+  #   CC::Service::Invocation.invoke(service) do |i|
   #     i.with :retries, 3
   #     i.with :metrics, $statsd
   #     i.with :error_handling, Rails.logger
@@ -28,12 +30,17 @@ class CC::Service::Invocation
   # metrics collector, then up again to the error handling. If the order
   # were reversed, the error handling middleware would prevent the other
   # middleware from seeing any exceptions at all.
+  def self.invoke(service, &block)
+    instance = new(service, &block)
+    instance.result
+  end
+
   def initialize(service)
     @chain = InvocationChain.new { service.receive }
 
     yield(self) if block_given?
 
-    @chain.call
+    @result = @chain.call
   end
 
   def with(middleware, *args)
