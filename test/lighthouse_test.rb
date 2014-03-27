@@ -9,6 +9,17 @@ class TestLighthouse < CC::Service::TestCase
     )
   end
 
+  def test_vulnerability
+    assert_lighthouse_receives(
+      event(:vulnerability, vulnerabilities: [{
+        "warning_type" => "critical",
+        "location" => "app/user.rb line 120"
+      }]),
+      "New critical issue found in app/user.rb line 120",
+      "A critical vulnerability was found by Code Climate in app/user.rb line 120.\n\nhttps://codeclimate.com/repos/1/feed"
+    )
+  end
+
   private
 
   def assert_lighthouse_receives(event_data, title, ticket_body)

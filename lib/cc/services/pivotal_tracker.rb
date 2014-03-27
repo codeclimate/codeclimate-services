@@ -30,6 +30,15 @@ class CC::Service::PivotalTracker < CC::Service
     create_story(name, details_url)
   end
 
+  def receive_vulnerability
+    formatter = CC::Formatters::TicketFormatter.new(self)
+
+    create_story(
+      formatter.format_vulnerability_title,
+      formatter.format_vulnerability_body
+    )
+  end
+
 private
 
   def create_story(name, description)

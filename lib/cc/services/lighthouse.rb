@@ -32,6 +32,15 @@ class CC::Service::Lighthouse < CC::Service
     create_ticket(title, details_url)
   end
 
+  def receive_vulnerability
+    formatter = CC::Formatters::TicketFormatter.new(self)
+
+    create_ticket(
+      formatter.format_vulnerability_title,
+      formatter.format_vulnerability_body
+    )
+  end
+
 private
 
   def create_ticket(title, ticket_body)

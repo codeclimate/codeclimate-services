@@ -29,6 +29,15 @@ class CC::Service::GitHubIssues < CC::Service
     create_issue(title, details_url)
   end
 
+  def receive_vulnerability
+    formatter = CC::Formatters::TicketFormatter.new(self)
+
+    create_issue(
+      formatter.format_vulnerability_title,
+      formatter.format_vulnerability_body
+    )
+  end
+
 private
 
   def create_issue(title, issue_body)
