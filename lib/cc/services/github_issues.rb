@@ -20,8 +20,8 @@ class CC::Service::GitHubIssues < CC::Service
 
   def receive_quality
     params = {
-      title:  "Refactor #{constant_name} from #{rating} on Code Climate",
-      body:   details_url,
+      title: "Refactor #{constant_name} from #{rating} on Code Climate",
+      body:  details_url,
     }
 
     if config.labels.present?

@@ -33,12 +33,13 @@ class CC::Service::Lighthouse < CC::Service
       params[:ticket][:tags] = config.tags.strip
     end
 
+    http.headers["X-LighthouseToken"] = config.api_token
+    http.headers["Content-Type"] = "application/json"
+
     base_url = "https://#{config.subdomain}.lighthouseapp.com"
     url = "#{base_url}/projects/#{config.project_id}/tickets.json"
 
-    http.headers["Content-Type"] = "application/json"
-    http.headers["X-LighthouseToken"] = config.api_token
-    res = http.post(url, params.to_json)
+    res = http_post(url, params.to_json)
 
     body = JSON.parse(res.body)
 
@@ -47,4 +48,5 @@ class CC::Service::Lighthouse < CC::Service
       url: body["ticket"]["url"]
     }
   end
+
 end

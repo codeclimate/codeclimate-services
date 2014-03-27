@@ -21,8 +21,8 @@ class CC::Service::PivotalTracker < CC::Service
 
   def receive_quality
     params = {
-      "story[name]" => "Refactor #{constant_name} from #{rating} on Code Climate",
-      "story[story_type]" => "chore",
+      "story[name]"        => "Refactor #{constant_name} from #{rating} on Code Climate",
+      "story[story_type]"  => "chore",
       "story[description]" => details_url,
     }
 
@@ -31,13 +31,20 @@ class CC::Service::PivotalTracker < CC::Service
     end
 
     http.headers["X-TrackerToken"] = config.api_token
-    res = http.post("#{BASE_URL}/projects/#{config.project_id}/stories", params)
+    url = "#{BASE_URL}/projects/#{config.project_id}/stories"
+    res = http_post(url, params)
 
-    body = Nokogiri::XML(res.body)
+    parse_story(res)
+  end
+
+private
+
+  def parse_story(resp)
+    body = Nokogiri::XML(resp.body)
 
     {
-      id:  (body / "story/id").text,
-      url: (body / "story/url").text
+      id:   (body / "story/id").text,
+      url:  (body / "story/url").text
     }
   end
 
