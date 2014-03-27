@@ -2,11 +2,12 @@ require File.expand_path('../helper', __FILE__)
 
 class TestInvocation < Test::Unit::TestCase
   def test_success
-    service = FakeService.new
+    service = FakeService.new(:some_result)
 
-    CC::Service::Invocation.new(service)
+    result = CC::Service::Invocation.invoke(service)
 
     assert_equal 1, service.receive_count
+    assert_equal :some_result, result
   end
 
   def test_retries
@@ -15,7 +16,7 @@ class TestInvocation < Test::Unit::TestCase
     error_occurred = false
 
     begin
-      CC::Service::Invocation.new(service) do |i|
+      CC::Service::Invocation.invoke(service) do |i|
         i.with :retries, 3
       end
     rescue
@@ -29,7 +30,7 @@ class TestInvocation < Test::Unit::TestCase
   def test_metrics
     statsd = FakeStatsd.new
 
-    CC::Service::Invocation.new(FakeService.new) do |i|
+    CC::Service::Invocation.invoke(FakeService.new) do |i|
       i.with :metrics, statsd, "a_prefix"
     end
 
@@ -44,7 +45,7 @@ class TestInvocation < Test::Unit::TestCase
     error_occurred = false
 
     begin
-      CC::Service::Invocation.new(service) do |i|
+      CC::Service::Invocation.invoke(service) do |i|
         i.with :metrics, statsd, "a_prefix"
       end
     rescue
@@ -61,7 +62,7 @@ class TestInvocation < Test::Unit::TestCase
     service = FakeService.new
     service.raise_on_receive = true
 
-    CC::Service::Invocation.new(service) do |i|
+    CC::Service::Invocation.invoke(service) do |i|
       i.with :error_handling, logger, "a_prefix"
     end
 
@@ -74,7 +75,7 @@ class TestInvocation < Test::Unit::TestCase
     service.raise_on_receive = true
     logger = FakeLogger.new
 
-    CC::Service::Invocation.new(service) do |i|
+    CC::Service::Invocation.invoke(service) do |i|
       i.with :retries, 3
       i.with :error_handling, logger
     end
@@ -89,7 +90,8 @@ class TestInvocation < Test::Unit::TestCase
     attr_reader :receive_count
     attr_accessor :raise_on_receive
 
-    def initialize
+    def initialize(result = nil)
+      @result = result
       @receive_count = 0
     end
 
@@ -99,6 +101,8 @@ class TestInvocation < Test::Unit::TestCase
       if @raise_on_receive
         raise "Boom"
       end
+
+      @result
     end
   end
 
