@@ -15,6 +15,7 @@ class CC::Service::PivotalTracker < CC::Service
   end
 
   self.title = "Pivotal Tracker"
+  self.description = "Create stories on Pivotal Tracker"
   self.issue_tracker = true
 
   BASE_URL = "https://www.pivotaltracker.com/services/v3"

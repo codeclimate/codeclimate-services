@@ -13,8 +13,9 @@ class CC::Service::GitHubIssues < CC::Service
     validates :oauth_token, presence: true
   end
 
-  self.issue_tracker = true
   self.title = "GitHub Issues"
+  self.description = "Open issues on GitHub"
+  self.issue_tracker = true
 
   BASE_URL = "https://api.github.com"
 

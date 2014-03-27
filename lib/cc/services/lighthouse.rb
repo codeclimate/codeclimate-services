@@ -19,6 +19,7 @@ class CC::Service::Lighthouse < CC::Service
   end
 
   self.title = "Lighthouse"
+  self.description = "Create tickets in Lighthouse"
   self.issue_tracker = true
 
   def receive_test
