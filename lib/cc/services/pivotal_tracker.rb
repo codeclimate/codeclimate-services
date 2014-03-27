@@ -19,11 +19,23 @@ class CC::Service::PivotalTracker < CC::Service
 
   BASE_URL = "https://www.pivotaltracker.com/services/v3"
 
+  def receive_test
+    create_story("Test ticket from Code Climate", "")
+  end
+
   def receive_quality
+    name = "Refactor #{constant_name} from #{rating} on Code Climate"
+
+    create_story(name, details_url)
+  end
+
+private
+
+  def create_story(name, description)
     params = {
-      "story[name]"        => "Refactor #{constant_name} from #{rating} on Code Climate",
+      "story[name]"        => name,
       "story[story_type]"  => "chore",
-      "story[description]" => details_url,
+      "story[description]" => description,
     }
 
     if config.labels.present?
@@ -36,8 +48,6 @@ class CC::Service::PivotalTracker < CC::Service
 
     parse_story(res)
   end
-
-private
 
   def parse_story(resp)
     body = Nokogiri::XML(resp.body)

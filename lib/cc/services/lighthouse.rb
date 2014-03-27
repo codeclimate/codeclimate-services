@@ -21,13 +21,20 @@ class CC::Service::Lighthouse < CC::Service
   self.title = "Lighthouse"
   self.issue_tracker = true
 
+  def receive_test
+    create_ticket("Test ticket from Code Climate", "")
+  end
+
   def receive_quality
-    params = {
-      ticket: {
-        title: "Refactor #{constant_name} from #{rating} on Code Climate",
-        body: details_url
-      }
-    }
+    title = "Refactor #{constant_name} from #{rating} on Code Climate"
+
+    create_ticket(title, details_url)
+  end
+
+private
+
+  def create_ticket(title, ticket_body)
+    params = { ticket: { title: title, body: ticket_body } }
 
     if config.tags.present?
       params[:ticket][:tags] = config.tags.strip
