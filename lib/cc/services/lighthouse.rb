@@ -19,15 +19,32 @@ class CC::Service::Lighthouse < CC::Service
   end
 
   self.title = "Lighthouse"
+  self.description = "Create tickets in Lighthouse"
   self.issue_tracker = true
 
+  def receive_test
+    create_ticket("Test ticket from Code Climate", "")
+  end
+
   def receive_quality
-    params = {
-      ticket: {
-        title: "Refactor #{constant_name} from #{rating} on Code Climate",
-        body: details_url
-      }
-    }
+    title = "Refactor #{constant_name} from #{rating} on Code Climate"
+
+    create_ticket(title, details_url)
+  end
+
+  def receive_vulnerability
+    formatter = CC::Formatters::TicketFormatter.new(self)
+
+    create_ticket(
+      formatter.format_vulnerability_title,
+      formatter.format_vulnerability_body
+    )
+  end
+
+private
+
+  def create_ticket(title, ticket_body)
+    params = { ticket: { title: title, body: ticket_body } }
 
     if config.tags.present?
       params[:ticket][:tags] = config.tags.strip

@@ -13,16 +13,35 @@ class CC::Service::GitHubIssues < CC::Service
     validates :oauth_token, presence: true
   end
 
-  self.issue_tracker = true
   self.title = "GitHub Issues"
+  self.description = "Open issues on GitHub"
+  self.issue_tracker = true
 
   BASE_URL = "https://api.github.com"
 
+  def receive_test
+    create_issue("Test ticket from Code Climate", "")
+  end
+
   def receive_quality
-    params = {
-      title: "Refactor #{constant_name} from #{rating} on Code Climate",
-      body:  details_url,
-    }
+    title = "Refactor #{constant_name} from #{rating} on Code Climate"
+
+    create_issue(title, details_url)
+  end
+
+  def receive_vulnerability
+    formatter = CC::Formatters::TicketFormatter.new(self)
+
+    create_issue(
+      formatter.format_vulnerability_title,
+      formatter.format_vulnerability_body
+    )
+  end
+
+private
+
+  def create_issue(title, issue_body)
+    params = { title: title, body: issue_body }
 
     if config.labels.present?
       params[:labels] = config.labels.split(",").map(&:strip).reject(&:blank?).compact
