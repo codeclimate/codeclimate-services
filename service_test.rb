@@ -49,3 +49,14 @@ if api_token = ENV["FLOWDOCK_API_TOKEN"]
   puts "Testing Flowdock..."
   test_service(CC::Service::Flowdock, api_token: api_token)
 end
+
+if (jira_username = ENV["JIRA_USERNAME"]) &&
+   (jira_password = ENV["JIRA_PASSWORD"]) &&
+   (jira_domain   = ENV["JIRA_DOMAIN"])   &&
+   (jira_project  = ENV["JIRA_PROJECT"])
+  puts "Testing Jira"
+  test_service(CC::Service::Jira, { username:   jira_username,
+                                    password:   jira_password,
+                                    domain:     jira_domain,
+                                    project_id: jira_project })
+end
