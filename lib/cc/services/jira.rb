@@ -55,7 +55,8 @@ private
         {
           project: { id: config.project_id },
           summary: title,
-          description: ticket_body
+          description: ticket_body,
+          issuetype: { name: "Task" }
         }
     }
 
@@ -63,8 +64,8 @@ private
       params[:fields][:labels] = config.labels.strip
     end
 
-    http.headers["Authorization"] = "Basic #{encoded_username_password}"
     http.headers["Content-Type"] = "application/json"
+    http.basic_auth(config.username,config.password)
 
     url = "https://#{config.domain}/rest/api/2/issue/"
 
@@ -76,10 +77,6 @@ private
       id:  body["id"],
       url: body["self"]
     }
-  end
-
-  def encoded_username_password
-    Base64.encode64("#{config.username}:#{config.password}")
   end
 
 end
