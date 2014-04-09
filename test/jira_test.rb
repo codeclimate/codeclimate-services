@@ -25,7 +25,7 @@ class TestJira < CC::Service::TestCase
   def assert_jira_receives(event_data, title, ticket_body)
     @stubs.post '/rest/api/2/issue' do |env|
       body = JSON.parse(env[:body])
-      assert_equal "Basic Zm9vOmJhcg==\n", env[:request_headers]["Authorization"]
+      assert_equal "Basic Zm9vOmJhcg==", env[:request_headers]["Authorization"]
       assert_equal title, body["fields"]["summary"]
       assert_equal ticket_body, body["fields"]["description"]
       [200, {}, '{"ticket":{}}']

@@ -8,7 +8,7 @@ class CC::Service::Jira < CC::Service
     attribute :username, String,
       description: "Your JIRA username"
 
-    attribute :password, String,
+    attribute :password, Password,
       label: "JIRA password",
       description: "Your JIRA password"
 
