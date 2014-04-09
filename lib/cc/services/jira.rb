@@ -65,7 +65,7 @@ private
     end
 
     http.headers["Content-Type"] = "application/json"
-    http.basic_auth(config.username,config.password)
+    http.basic_auth(config.username, config.password)
 
     url = "https://#{config.domain}/rest/api/2/issue/"
 
