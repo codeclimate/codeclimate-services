@@ -24,8 +24,8 @@ class CC::Service::Jira < CC::Service
     validates :project_id, presence: true
   end
 
-  self.title = "Jira"
-  self.description = "Create tickets in Jira"
+  self.title = "JIRA"
+  self.description = "Create tickets in JIRA"
   self.issue_tracker = true
 
   def receive_test

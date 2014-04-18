@@ -54,7 +54,7 @@ if (jira_username = ENV["JIRA_USERNAME"]) &&
    (jira_password = ENV["JIRA_PASSWORD"]) &&
    (jira_domain   = ENV["JIRA_DOMAIN"])   &&
    (jira_project  = ENV["JIRA_PROJECT"])
-  puts "Testing Jira"
+  puts "Testing JIRA"
   test_service(CC::Service::Jira, { username:   jira_username,
                                     password:   jira_password,
                                     domain:     jira_domain,
