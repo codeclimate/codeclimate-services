@@ -3,7 +3,7 @@ require 'base64'
 class CC::Service::Jira < CC::Service
   class Config < CC::Service::Config
     attribute :domain, String,
-      description: "Your JIRA host domain (e.g. yourjira.com:PORT)"
+      description: "Your JIRA host domain (e.g. yourjira.com:PORT, please exclude https://)"
 
     attribute :username, String,
       description: "Your JIRA username"
@@ -13,7 +13,7 @@ class CC::Service::Jira < CC::Service
       description: "Your JIRA password"
 
     attribute :project_id, String,
-      description: "Your JIRA project ID."
+      description: "Your JIRA project ID Number. Located in your JIRA admin panel."
 
     attribute :labels, String,
       description: "Which labels to add to issues, comma delimited"
@@ -61,7 +61,7 @@ private
     }
 
     if config.labels.present?
-      params[:fields][:labels] = config.labels.strip
+      params[:fields][:labels] = config.labels.split(",")
     end
 
     http.headers["Content-Type"] = "application/json"
