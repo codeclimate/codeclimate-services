@@ -68,6 +68,7 @@ private
     http.basic_auth(config.username, config.password)
 
     url = "https://#{config.domain}/rest/api/2/issue/"
+    redirect_url = "https://#{config.domain}/"
 
     res = http_post(url, params.to_json)
 
@@ -75,7 +76,7 @@ private
 
     {
       id:  body["id"],
-      url: body["self"]
+      url: redirect_url
     }
   end
 
