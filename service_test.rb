@@ -60,3 +60,13 @@ if (jira_username = ENV["JIRA_USERNAME"]) &&
                                     domain:     jira_domain,
                                     project_id: jira_project })
 end
+
+if (api_key      = ENV["ASANA_API_KEY"])   &&
+   (workspace_id = ENV["ASANA_WORKSPACE"]) &&
+   (project_id   = ENV["ASANA_PROJECT"])
+  test_service(CC::Service::Asana, {
+    api_key:      api_key,
+    workspace_id: workspace_id,
+    project_id:   project_id
+  })
+end
