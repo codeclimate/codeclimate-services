@@ -4,17 +4,17 @@
 #
 # Usage:
 #
-#   bundle exec ruby service_test.rb
-#
-# Environment variables used:
-#
-#   REPO_NAME           Defaults to "App"
-#   SLACK_WEBHOOK_URL   Slack is not tested unless set
-#   FLOWDOCK_API_TOKEN  Flowdock is not tested unless set
+#   $ <SERVICE>_<CONFIG_ATTR_1>="..." \
+#     <SERVICE>_<CONFIG_ATTR_2>="..." \
+#     ... ... bundle exec ruby service_test.rb
 #
 # Example:
 #
-#   SLACK_WEBHOOK_URL="http://..." bundle exec ruby service_test.rb
+#   $ SLACK_WEBHOOK_URL="http://..." bundle exec ruby service_test.rb
+#
+# Other Environment variables used:
+#
+#   REPO_NAME  Defaults to "App"
 #
 ###
 require 'cc/services'
@@ -30,33 +30,52 @@ class WithResponseLogging
   end
 end
 
-def test_service(klass, config)
-  repo_name = ENV["REPO_NAME"] || "App"
+class ServiceTest
+  def initialize(klass, *params)
+    @klass = klass
+    @params = params
+  end
 
-  service = klass.new(config, name: :test, repo_name: repo_name)
+  def test
+    config = {}
 
-  CC::Service::Invocation.new(service) do |i|
-    i.wrap(WithResponseLogging)
+    puts "-"*80
+    puts @klass
+
+    @params.each do |param|
+      if var = ENV[to_env_var(param)]
+        config[param] = var
+      else
+        puts "  -> skipping"
+        return false
+      end
+    end
+
+    puts "  -> testing"
+    puts "  -> #{config.inspect}"
+    print "  => "
+
+    test_service(@klass, config)
+  end
+
+private
+
+  def to_env_var(param)
+    "#{@klass.to_s.split("::").last}_#{param}".upcase
+  end
+
+  def test_service(klass, config)
+    repo_name = ENV["REPO_NAME"] || "App"
+
+    service = klass.new(config, name: :test, repo_name: repo_name)
+
+    CC::Service::Invocation.new(service) do |i|
+      i.wrap(WithResponseLogging)
+    end
   end
 end
 
-if webhook_url = ENV["SLACK_WEBHOOK_URL"]
-  puts "Testing Slack..."
-  test_service(CC::Service::Slack, webhook_url: webhook_url)
-end
-
-if api_token = ENV["FLOWDOCK_API_TOKEN"]
-  puts "Testing Flowdock..."
-  test_service(CC::Service::Flowdock, api_token: api_token)
-end
-
-if (jira_username = ENV["JIRA_USERNAME"]) &&
-   (jira_password = ENV["JIRA_PASSWORD"]) &&
-   (jira_domain   = ENV["JIRA_DOMAIN"])   &&
-   (jira_project  = ENV["JIRA_PROJECT"])
-  puts "Testing JIRA"
-  test_service(CC::Service::Jira, { username:   jira_username,
-                                    password:   jira_password,
-                                    domain:     jira_domain,
-                                    project_id: jira_project })
-end
+ServiceTest.new(CC::Service::Slack, :webhook_url).test
+ServiceTest.new(CC::Service::Flowdock, :api_token).test
+ServiceTest.new(CC::Service::Jira, :username, :password, :domain, :project_id).test
+ServiceTest.new(CC::Service::Asana, :api_key, :workspace_id, :project_id).test
