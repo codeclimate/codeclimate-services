@@ -4,17 +4,17 @@
 #
 # Usage:
 #
-#   bundle exec ruby service_test.rb
-#
-# Environment variables used:
-#
-#   REPO_NAME           Defaults to "App"
-#   SLACK_WEBHOOK_URL   Slack is not tested unless set
-#   FLOWDOCK_API_TOKEN  Flowdock is not tested unless set
+#   $ <SERVICE>_<CONFIG_ATTR_1>="..." \
+#     <SERVICE>_<CONFIG_ATTR_2>="..." \
+#     ... ... bundle exec ruby service_test.rb
 #
 # Example:
 #
-#   SLACK_WEBHOOK_URL="http://..." bundle exec ruby service_test.rb
+#   $ SLACK_WEBHOOK_URL="http://..." bundle exec ruby service_test.rb
+#
+# Other Environment variables used:
+#
+#   REPO_NAME  Defaults to "App"
 #
 ###
 require 'cc/services'
@@ -75,13 +75,6 @@ private
   end
 end
 
-# Usage:
-#
-# $ <SERVICE>_<CONFIG_ATTR_1>="..." \
-#   <SERVICE>_<CONFIG_ATTR_2>="..." \
-#   ... ... bundle exec service_test.rb
-#
-###
 ServiceTest.new(CC::Service::Slack, :webhook_url).test
 ServiceTest.new(CC::Service::Flowdock, :api_token).test
 ServiceTest.new(CC::Service::Jira, :username, :password, :domain, :project_id).test
