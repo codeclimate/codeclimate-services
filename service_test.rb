@@ -35,18 +35,19 @@ def test_service(klass, config)
 
   service = klass.new(config, name: :test, repo_name: repo_name)
 
+  puts "Service: #{klass.slug}"
+  puts "Config:  #{config.inspect}"
+
   CC::Service::Invocation.new(service) do |i|
     i.wrap(WithResponseLogging)
   end
 end
 
 if webhook_url = ENV["SLACK_WEBHOOK_URL"]
-  puts "Testing Slack..."
   test_service(CC::Service::Slack, webhook_url: webhook_url)
 end
 
 if api_token = ENV["FLOWDOCK_API_TOKEN"]
-  puts "Testing Flowdock..."
   test_service(CC::Service::Flowdock, api_token: api_token)
 end
 
@@ -54,7 +55,6 @@ if (jira_username = ENV["JIRA_USERNAME"]) &&
    (jira_password = ENV["JIRA_PASSWORD"]) &&
    (jira_domain   = ENV["JIRA_DOMAIN"])   &&
    (jira_project  = ENV["JIRA_PROJECT"])
-  puts "Testing JIRA"
   test_service(CC::Service::Jira, { username:   jira_username,
                                     password:   jira_password,
                                     domain:     jira_domain,
