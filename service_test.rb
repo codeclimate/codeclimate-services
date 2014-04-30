@@ -30,43 +30,59 @@ class WithResponseLogging
   end
 end
 
-def test_service(klass, config)
-  repo_name = ENV["REPO_NAME"] || "App"
+class ServiceTest
+  def initialize(klass, *params)
+    @klass = klass
+    @params = params
+  end
 
-  service = klass.new(config, name: :test, repo_name: repo_name)
+  def test
+    config = {}
 
-  puts "Service: #{klass.slug}"
-  puts "Config:  #{config.inspect}"
+    puts "-"*80
+    puts @klass
 
-  CC::Service::Invocation.new(service) do |i|
-    i.wrap(WithResponseLogging)
+    @params.each do |param|
+      if var = ENV[to_env_var(param)]
+        config[param] = var
+      else
+        puts "  -> skipping"
+        return false
+      end
+    end
+
+    puts "  -> testing"
+    puts "  -> #{config.inspect}"
+    print "  => "
+
+    test_service(@klass, config)
+  end
+
+private
+
+  def to_env_var(param)
+    "#{@klass.to_s.split("::").last}_#{param}".upcase
+  end
+
+  def test_service(klass, config)
+    repo_name = ENV["REPO_NAME"] || "App"
+
+    service = klass.new(config, name: :test, repo_name: repo_name)
+
+    CC::Service::Invocation.new(service) do |i|
+      i.wrap(WithResponseLogging)
+    end
   end
 end
 
-if webhook_url = ENV["SLACK_WEBHOOK_URL"]
-  test_service(CC::Service::Slack, webhook_url: webhook_url)
-end
-
-if api_token = ENV["FLOWDOCK_API_TOKEN"]
-  test_service(CC::Service::Flowdock, api_token: api_token)
-end
-
-if (jira_username = ENV["JIRA_USERNAME"]) &&
-   (jira_password = ENV["JIRA_PASSWORD"]) &&
-   (jira_domain   = ENV["JIRA_DOMAIN"])   &&
-   (jira_project  = ENV["JIRA_PROJECT"])
-  test_service(CC::Service::Jira, { username:   jira_username,
-                                    password:   jira_password,
-                                    domain:     jira_domain,
-                                    project_id: jira_project })
-end
-
-if (api_key      = ENV["ASANA_API_KEY"])   &&
-   (workspace_id = ENV["ASANA_WORKSPACE"]) &&
-   (project_id   = ENV["ASANA_PROJECT"])
-  test_service(CC::Service::Asana, {
-    api_key:      api_key,
-    workspace_id: workspace_id,
-    project_id:   project_id
-  })
-end
+# Usage:
+#
+# $ <SERVICE>_<CONFIG_ATTR_1>="..." \
+#   <SERVICE>_<CONFIG_ATTR_2>="..." \
+#   ... ... bundle exec service_test.rb
+#
+###
+ServiceTest.new(CC::Service::Slack, :webhook_url).test
+ServiceTest.new(CC::Service::Flowdock, :api_token).test
+ServiceTest.new(CC::Service::Jira, :username, :password, :domain, :project_id).test
+ServiceTest.new(CC::Service::Asana, :api_key, :workspace_id, :project_id).test
