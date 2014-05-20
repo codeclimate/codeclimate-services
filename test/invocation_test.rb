@@ -62,10 +62,11 @@ class TestInvocation < Test::Unit::TestCase
     service = FakeService.new
     service.raise_on_receive = true
 
-    CC::Service::Invocation.invoke(service) do |i|
+    result = CC::Service::Invocation.invoke(service) do |i|
       i.with :error_handling, logger, "a_prefix"
     end
 
+    assert result.has_key?(:error)
     assert_equal 1, logger.logged_errors.length
     assert_match /^Exception invoking service: \[a_prefix\]/, logger.logged_errors.first
   end
@@ -75,11 +76,12 @@ class TestInvocation < Test::Unit::TestCase
     service.raise_on_receive = true
     logger = FakeLogger.new
 
-    CC::Service::Invocation.invoke(service) do |i|
+    result = CC::Service::Invocation.invoke(service) do |i|
       i.with :retries, 3
       i.with :error_handling, logger
     end
 
+    assert result.has_key?(:error)
     assert_equal 1 + 3, service.receive_count
     assert_equal 1, logger.logged_errors.length
   end
