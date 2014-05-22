@@ -22,9 +22,16 @@ class CC::Service::Invocation
     private
 
     def error_message(ex)
+      if ex.respond_to?(:response_body)
+        response_body = ". Response: <#{ex.response_body.inspect}>"
+      else
+        response_body = ""
+      end
+
       message  = "Exception invoking service:"
       message << " [#{@prefix}]" if @prefix
       message << " (#{ex.class}) #{ex.message}"
+      message << response_body
     end
   end
 end

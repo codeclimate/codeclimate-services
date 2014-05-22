@@ -1,4 +1,5 @@
-require 'active_support/concern'
+require "active_support/concern"
+require "cc/service/response_check"
 
 module CC::Service::HTTP
   extend ActiveSupport::Concern
@@ -52,8 +53,8 @@ module CC::Service::HTTP
       options[:ssl][:ca_file] ||= ca_file
 
       Faraday.new(options) do |b|
+        b.use(CC::Service::ResponseCheck)
         b.request(:url_encoded)
-        b.response(:raise_error)
         b.adapter(*Array(options[:adapter] || config[:adapter]))
       end
     end
