@@ -19,6 +19,8 @@ class CC::Service::Slack < CC::Service
   end
 
   def receive_quality
+    return if new_constant?
+
     speak(formatter.format_quality, hex_color)
   end
 

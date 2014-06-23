@@ -21,6 +21,8 @@ class CC::Service::Flowdock < CC::Service
   end
 
   def receive_quality
+    return if new_constant?
+
     notify("Quality", repo_name, formatter.format_quality)
   end
 

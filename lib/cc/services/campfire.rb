@@ -23,6 +23,8 @@ class CC::Service::Campfire < CC::Service
   end
 
   def receive_quality
+    return if new_constant?
+
     speak(formatter.format_quality)
   end
 
