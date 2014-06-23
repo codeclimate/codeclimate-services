@@ -79,10 +79,12 @@ module CC
     end
 
     def receive
-      if respond_to?(:receive_event)
-        receive_event
-      else
-        public_send("receive_#{event}")
+      methods = [:receive_event, :"receive_#{event}"]
+
+      methods.each do |method|
+        if respond_to?(method)
+          return public_send(method)
+        end
       end
     end
 
