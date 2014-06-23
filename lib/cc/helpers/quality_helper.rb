@@ -1,4 +1,8 @@
 module CC::Service::QualityHelper
+  def new_constant?
+    payload["previous_rating"].nil?
+  end
+
   def improved?
     remediation_cost < previous_remediation_cost
   end
