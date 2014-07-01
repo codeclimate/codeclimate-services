@@ -86,6 +86,8 @@ module CC
           return public_send(method)
         end
       end
+
+      nil
     end
 
     private
