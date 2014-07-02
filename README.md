@@ -61,6 +61,21 @@ Event-specific attributes:
 }
 ```
 
+### Pull Request
+
+Event name: `pull_request`
+
+Event-specific attributes:
+
+```javascript
+{
+  "state": String, // "pending", or "success"
+  "github_slug": String, // user/repo
+  "number": String,
+  "commit_sha": String,
+}
+```
+
 ## Other Events
 
 The following are not fully implemented yet.
@@ -68,7 +83,6 @@ The following are not fully implemented yet.
 * :issue
 * :unit
 * :snapshot
-* :pull\_request
 
 ## License
 
