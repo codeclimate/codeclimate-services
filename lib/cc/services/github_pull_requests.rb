@@ -14,7 +14,7 @@ class CC::Service::GitHubPullRequests < CC::Service
   end
 
   self.title = "GitHub Pull Requests"
-  self.description = "Update pull requests on on GitHub"
+  self.description = "Update pull requests on GitHub"
 
   BASE_URL = "https://api.github.com"
   BODY_REGEX = %r{<b>Code Climate</b> has <a href=".*">analyzed this pull request</a>}
