@@ -2,7 +2,7 @@ class CC::Service::GitHubPullRequests < CC::Service
   class Config < CC::Service::Config
     attribute :oauth_token, String,
       label: "OAuth Token",
-      description: "A personal OAuth token with permissions for the repo"
+      description: "A personal OAuth token with permissions for the repo. The owner of the token will be the author of the pull request comment."
     attribute :update_status, Boolean,
       label: "Update status?",
       description: "Update the pull request status after analyzing?"
