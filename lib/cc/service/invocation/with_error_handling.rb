@@ -10,13 +10,6 @@ class CC::Service::Invocation
       @invocation.call
     rescue => ex
       @logger.error(error_message(ex))
-
-      {
-        error: {
-          class: ex.class,
-          message: ex.message
-        }
-      }
     end
 
     private

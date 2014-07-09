@@ -21,7 +21,14 @@ class CC::Service::PivotalTracker < CC::Service
   BASE_URL = "https://www.pivotaltracker.com/services/v3"
 
   def receive_test
-    create_story("Test ticket from Code Climate", "")
+    result = create_story("Test ticket from Code Climate", "")
+
+    {
+      ok: true,
+      message: "Ticked <a href='#{result[:url]}'>#{result[:id]}</a> created."
+    }
+  rescue => ex
+    { ok: false, message: ex.message }
   end
 
   def receive_quality

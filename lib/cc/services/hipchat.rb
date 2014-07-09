@@ -19,6 +19,10 @@ class CC::Service::HipChat < CC::Service
 
   def receive_test
     speak(formatter.format_test, "green")
+
+    { ok: true, message: "Test message sent" }
+  rescue => ex
+    { ok: false, message: ex.message }
   end
 
   def receive_coverage

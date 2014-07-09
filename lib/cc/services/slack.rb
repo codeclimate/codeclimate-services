@@ -12,6 +12,10 @@ class CC::Service::Slack < CC::Service
 
   def receive_test
     speak(formatter.format_test)
+
+    { ok: true, message: "Test message sent" }
+  rescue => ex
+    { ok: false, message: ex.message }
   end
 
   def receive_coverage

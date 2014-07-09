@@ -20,7 +20,14 @@ class CC::Service::GitHubIssues < CC::Service
   BASE_URL = "https://api.github.com"
 
   def receive_test
-    create_issue("Test ticket from Code Climate", "")
+    result = create_issue("Test ticket from Code Climate", "")
+
+    {
+      ok: true,
+      message: "Issue <a href='#{result[:url]}'>##{result[:number]}</a> created."
+    }
+  rescue => ex
+    { ok: false, message: ex.message }
   end
 
   def receive_quality

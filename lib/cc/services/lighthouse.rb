@@ -23,7 +23,14 @@ class CC::Service::Lighthouse < CC::Service
   self.issue_tracker = true
 
   def receive_test
-    create_ticket("Test ticket from Code Climate", "")
+    result = create_ticket("Test ticket from Code Climate", "")
+
+    {
+      ok: true,
+      message: "Ticked <a href='#{result[:url]}'>#{result[:id]}</a> created."
+    }
+  rescue => ex
+    { ok: false, message: ex.message }
   end
 
   def receive_quality

@@ -28,7 +28,9 @@ class CC::Service::GitHubPullRequests < CC::Service
 
     http_get("#{BASE_URL}")
 
-    nil
+    { ok: true, message: "OAuth token is valid" }
+  rescue => ex
+    { ok: false, message: ex.message }
   end
 
   def receive_pull_request

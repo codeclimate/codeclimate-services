@@ -14,6 +14,10 @@ class CC::Service::Flowdock < CC::Service
 
   def receive_test
     notify("Test", repo_name, formatter.format_test)
+
+    { ok: true, message: "Test message sent" }
+  rescue => ex
+    { ok: false, message: ex.message }
   end
 
   def receive_coverage

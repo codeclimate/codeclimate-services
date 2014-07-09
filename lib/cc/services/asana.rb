@@ -19,7 +19,14 @@ class CC::Service::Asana < CC::Service
   self.issue_tracker = true
 
   def receive_test
-    create_task("Test task from Code Climate")
+    result = create_task("Test task from Code Climate")
+
+    {
+      ok: true,
+      message: "Ticked <a href='#{result[:url]}'>#{result[:id]}</a> created."
+    }
+  rescue => ex
+    { ok: false, message: ex.message }
   end
 
   def receive_quality
