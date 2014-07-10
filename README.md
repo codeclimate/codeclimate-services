@@ -1,5 +1,17 @@
 # Code Climate Services
 
+A collection of classes, each responsible for integrating one external service
+with the Code Climate system.
+
+## Overview
+
+Services define `#receive_<event>` methods for any events they are interested
+in. These methods will be invoked with `@payload` set to a hash of data about
+the event being handled.
+
+The structure of this data is described below. Note that there may be additional
+keys not listed here.
+
 ## Events
 
 Attributes common to all event types:
@@ -61,6 +73,10 @@ Event-specific attributes:
 }
 ```
 
+*Note*: The reason for the top-level `warning_type` attribute is for when the
+list of vulnerabilities are of mixed warning types. In this case, the top-level
+attribute can be used in any messaging.
+
 ### Pull Request
 
 Event name: `pull_request`
@@ -80,9 +96,7 @@ Event-specific attributes:
 
 The following are not fully implemented yet.
 
-* :issue
-* :unit
-* :snapshot
+* `snapshot`
 
 ## License
 
