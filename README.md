@@ -98,6 +98,23 @@ The following are not fully implemented yet.
 
 * `snapshot`
 
+## Contributing
+
+To add a new integration, you'll need to create a new `Service` subclass. Please
+use existing services as an example:
+
+- Chat service examples: `hipchat`, `campfire`
+- Issue tracker examples: `github_issues`, `lighthouse`
+
+Ensure that you're class implements `#receive_test`. It must handle any
+exceptions and always return a hash of `{ ok: true|false, message: "String (HTML
+ok)" }`.
+
+When you open your PR, please include an image for your service.
+[Example][service_avatar].
+
+[service_avatar]: https://codeclimate.com/assets/integration_icons/campfire-9f0475f77133a3ff5267972436dead60.png
+
 ## License
 
 See LICENSE.txt. This incorporates code from bugsnag-notification-plugins and
