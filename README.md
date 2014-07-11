@@ -106,9 +106,8 @@ use existing services as an example:
 - Chat service examples: `hipchat`, `campfire`
 - Issue tracker examples: `github_issues`, `lighthouse`
 
-Ensure that you're class implements `#receive_test`. It must handle any
-exceptions and always return a hash of `{ ok: true|false, message: "String (HTML
-ok)" }`.
+Ensure that your class implements `#receive_test`. It must handle any exceptions
+and always return a hash of `{ ok: true|false, message: "String (HTML ok)" }`.
 
 When you open your PR, please include an image for your service.
 [Example][service_avatar].
