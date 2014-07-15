@@ -66,7 +66,7 @@ class TestInvocation < Test::Unit::TestCase
       i.with :error_handling, logger, "a_prefix"
     end
 
-    assert result.has_key?(:error)
+    assert_nil result
     assert_equal 1, logger.logged_errors.length
     assert_match /^Exception invoking service: \[a_prefix\]/, logger.logged_errors.first
   end
@@ -81,7 +81,7 @@ class TestInvocation < Test::Unit::TestCase
       i.with :error_handling, logger
     end
 
-    assert result.has_key?(:error)
+    assert_nil result
     assert_equal 1 + 3, service.receive_count
     assert_equal 1, logger.logged_errors.length
   end
