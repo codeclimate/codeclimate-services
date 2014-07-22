@@ -6,14 +6,14 @@ class CC::Service::Jira < CC::Service
       description: "Your JIRA host domain (e.g. yourjira.com:PORT, please exclude https://)"
 
     attribute :username, String,
-      description: "Your JIRA username"
+      description: "Must exactly match the 'username' that appears on your JIRA profile page."
 
     attribute :password, Password,
       label: "JIRA password",
       description: "Your JIRA password"
 
     attribute :project_id, String,
-      description: "Your JIRA project ID Number. Located in your JIRA admin panel."
+      description: "Your JIRA project ID Number. Located in your JIRA admin panel. Project must support 'task' issue types and must not have non-standard required fields."
 
     attribute :labels, String,
       description: "Which labels to add to issues, comma delimited"
