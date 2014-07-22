@@ -107,7 +107,7 @@ class TestFlowdock < CC::Service::TestCase
     @stubs.post '/v1/messages/team_inbox/token' do |env|
       body = Hash[URI.decode_www_form(env[:body])]
       assert_equal "Code Climate", body["source"]
-      assert_equal "notifications@codeclimate.com", body["from_address"]
+      assert_equal "hello@codeclimate.com", body["from_address"]
       assert_equal "Code Climate", body["from_name"]
       assert_equal "html", body["format"]
       assert_equal subject, body["subject"]
