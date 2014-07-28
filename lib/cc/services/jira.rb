@@ -13,7 +13,7 @@ class CC::Service::Jira < CC::Service
       description: "Your JIRA password"
 
     attribute :project_id, String,
-      description: "Your JIRA project ID Number. Located in your JIRA admin panel. Project must support 'task' issue types and must not have non-standard required fields."
+      description: "Your JIRA project ID number (located in your JIRA admin panel). Project must support 'task' issue types and contain only the default required fields."
 
     attribute :labels, String,
       description: "Which labels to add to issues, comma delimited"
