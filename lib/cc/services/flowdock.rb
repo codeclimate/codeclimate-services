@@ -46,7 +46,7 @@ class CC::Service::Flowdock < CC::Service
   def notify(subject, project, content)
     params = {
       source:       "Code Climate",
-      from_address: "notifications@codeclimate.com",
+      from_address: "hello@codeclimate.com",
       from_name:    "Code Climate",
       format:       "html",
       subject:      subject,
