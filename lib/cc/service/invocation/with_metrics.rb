@@ -8,7 +8,7 @@ class CC::Service::Invocation
 
     def call
       start_time = Time.now
-      
+
       result = @invocation.call
       @statsd.increment(success_key)
 
@@ -17,14 +17,14 @@ class CC::Service::Invocation
       @statsd.increment(error_key(ex))
       raise ex
     ensure
-      duration = ((Time.now - start_time) * 1_000)
+      duration = ((Time.now - start_time) * 1_000).round
       @statsd.timing(timing_key, duration)
     end
 
     def success_key
       ["services.invocations", @prefix].compact.join('.')
     end
-    
+
     def timing_key
       ["services.timing", @prefix].compact.join('.')
     end
