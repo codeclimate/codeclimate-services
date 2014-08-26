@@ -18,7 +18,7 @@ class CC::Service::Invocation
       raise ex
     ensure
       duration = ((Time.now - start_time) * 1_000)
-      @statsd.timing(timing_key)
+      @statsd.timing(timing_key, duration)
     end
 
     def success_key
