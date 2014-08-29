@@ -1,5 +1,9 @@
 require 'test/unit'
 require 'pp'
+
+require "codeclimate-test-reporter"
+CodeClimate::TestReporter.start
+
 require File.expand_path('../../config/load', __FILE__)
 require File.expand_path('../fixtures', __FILE__)
 CC::Service.load_services
