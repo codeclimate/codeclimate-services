@@ -118,6 +118,9 @@ class TestInvocation < Test::Unit::TestCase
     def increment(key)
       @incremented_keys << key
     end
+
+    def timing(key, value)
+    end
   end
 
   class FakeLogger
