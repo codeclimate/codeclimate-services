@@ -10,6 +10,7 @@ class TestService < Test::Unit::TestCase
   def test_default_path_to_ca_file
     s = CC::Service.new({}, {name: "test"})
     assert_equal(File.expand_path("../../config/cacert.pem", __FILE__), s.ca_file)
+    assert File.exist?(s.ca_file)
   end
 
   def test_custom_path_to_ca_file
