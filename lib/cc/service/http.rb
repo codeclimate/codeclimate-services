@@ -65,7 +65,7 @@ module CC::Service::HTTP
   #
   # Returns a String path.
   def ca_file
-    @ca_file ||= File.expand_path('../../../config/cacert.pem', __FILE__)
+    @ca_file ||= ENV.fetch("CODECLIMATE_CA_FILE", File.expand_path('../../../../config/cacert.pem', __FILE__))
   end
 
 end
