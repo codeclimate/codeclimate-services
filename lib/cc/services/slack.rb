@@ -40,7 +40,8 @@ class CC::Service::Slack < CC::Service
     body = { attachments: [{
       color: color,
       fallback: message,
-      fields: [{ value: message }]
+      fields: [{ value: message }],
+      mrkdwn_in: ["fields", "fallback"]
     }]}
 
     if config.channel
