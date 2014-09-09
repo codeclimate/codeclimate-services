@@ -1,4 +1,6 @@
 module CC::Service::Helper
+  GREEN_HEX = "#38ae6f"
+  RED_HEX   = "#ed2f00"
 
   def repo_name
     payload["repo_name"]
@@ -30,9 +32,9 @@ module CC::Service::Helper
 
   def hex_color
     if improved?
-      "#38ae6f"
+      GREEN_HEX
     else
-      "#ed2f00"
+      RED_HEX
     end
   end
 
