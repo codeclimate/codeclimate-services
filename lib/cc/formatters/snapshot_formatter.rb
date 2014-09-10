@@ -41,9 +41,7 @@ module CC::Formatters
     class Base
       attr_reader :alert_constants_payload, :improved_constants_payload, :details_url, :compare_url
 
-      def initialize(repo, payload)
-        @repo    = repo
-
+      def initialize(payload)
         new_constants = Array(payload[:new_constants])
         changed_constants = Array(payload[:changed_constants])
 
@@ -73,10 +71,6 @@ module CC::Formatters
 
       def improved_constants_selector
         Proc.new { |constant| from_rating(constant) < C && to_rating(constant) > from_rating(constant) }
-      end
-
-      def repo_identifier
-        repo.human_name
       end
 
       def to_rating(constant)

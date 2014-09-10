@@ -6,32 +6,32 @@ class TestSnapshotFormatter < Test::Unit::TestCase
   end
 
   def test_quality_alert_with_new_constants
-    f = described_class.new(nil, {new_constants: [{to: {rating: "D"}}], changed_constants: []})
+    f = described_class.new({new_constants: [{to: {rating: "D"}}], changed_constants: []})
     refute_nil f.alert_constants_payload
   end
 
   def test_quality_alert_with_decreased_constants
-    f = described_class.new(nil, {new_constants: [],
+    f = described_class.new({new_constants: [],
                                   changed_constants: [{to: {rating: "D"}, from: {rating: "A"}}]
     })
     refute_nil f.alert_constants_payload
   end
 
   def test_quality_improvements_with_better_ratings
-    f = described_class.new(nil, {new_constants: [],
+    f = described_class.new({new_constants: [],
                                   changed_constants: [{to: {rating: "A"}, from: {rating: "D"}}]
     })
     refute_nil f.improved_constants_payload
   end
 
   def test_nothing_set_without_changes
-    f = described_class.new(nil, {new_constants: [], changed_constants: []})
+    f = described_class.new({new_constants: [], changed_constants: []})
     assert_nil f.alert_constants_payload
     assert_nil f.improved_constants_payload
   end
 
   def test_snapshot_formatter_test_with_relaxed_constraints
-    f = CC::Formatters::SnapshotFormatter::Sample.new(nil, {
+    f = CC::Formatters::SnapshotFormatter::Sample.new({
        new_constants: [{name: "foo", to: {rating: "A"}}, {name: "bar", to: {rating: "A"}}],
        changed_constants: [
          {from: {rating: "B"}, to: {rating: "C"}},
