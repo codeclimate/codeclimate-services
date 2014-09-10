@@ -118,4 +118,3 @@ class CC::Service::Slack < CC::Service
     message.join("\n")
   end
 end
-end

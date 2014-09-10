@@ -31,28 +31,6 @@ class TestSlack < CC::Service::TestCase
     ].join(" "))
   end
 
-  def test_quality_improved
-    e = event(:quality, to: "A", from: "B")
-
-    assert_slack_receives("#38ae6f", e, [
-      "[Example]",
-      "<https://codeclimate.com/repos/1/feed|User>",
-      "has improved from a B to an A",
-      "(<https://codeclimate.com/repos/1/compare|Compare>)"
-    ].join(" "))
-  end
-
-  def test_quality_declined_without_compare_url
-    e = event(:quality, to: "D", from: "C")
-
-    assert_slack_receives("#ed2f00", e, [
-      "[Example]",
-      "<https://codeclimate.com/repos/1/feed|User>",
-      "has declined from a C to a D",
-      "(<https://codeclimate.com/repos/1/compare|Compare>)"
-    ].join(" "))
-  end
-
   def test_single_vulnerability
     e = event(:vulnerability, vulnerabilities: [
       { "warning_type" => "critical" }
