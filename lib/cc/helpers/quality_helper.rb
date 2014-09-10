@@ -36,7 +36,7 @@ module CC::Service::QualityHelper
 
   def constant_basename(name)
     if name.include?(".")
-      file.basename(name)
+      File.basename(name)
     else
       name
     end

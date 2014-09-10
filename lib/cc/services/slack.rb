@@ -1,6 +1,8 @@
  # encoding: UTF-8
 
 class CC::Service::Slack < CC::Service
+  include CC::Service::QualityHelper
+
   class Config < CC::Service::Config
     attribute :webhook_url, String,
       label: "Webhook URL",
@@ -57,35 +59,32 @@ class CC::Service::Slack < CC::Service
     http_post(config.webhook_url, body.to_json)
   end
 
-  def send_snapshot_to_slack(payload, sample = false)
-    snapshot = SnapshotEventFormatter.new(repo, payload, sample)
-
-    if formatter.alert_constants_payload
-      speak(alerts_message(snapshot), RED_HEX)
+  def send_snapshot_to_slack(snapshot)
+    if snapshot.alert_constants_payload
+      speak(alerts_message(snapshot.alert_constants_payload), RED_HEX)
     end
 
-    if formatter.improved_constants_payload
-      speak(improvements_message(snapshot), GREEN_HEX)
+    if snapshot.improved_constants_payload
+      speak(improvements_message(snapshot.improved_constants_payload), GREEN_HEX)
     end
   end
 
-  def alert_message(snapshot)
-    constants = snapshot.alert_constants_payload
-
-    message = ["Quality alert triggered for *#{repo_identifier}* (<#{compare_url}|Compare>)\n"]
+  def alerts_message(constants_payload)
+    constants = constants_payload["constants"]
+    message = ["Quality alert triggered for *#{repo_name}* (<#{compare_url}|Compare>)\n"]
 
     constants[0..2].each do |constant|
       object_identifier = constant_basename(constant["name"])
 
       if constant["from"]
-        from_rating = from_rating(constant)
-        to_rating = to_rating(constant)
+        from_rating = constant["from"]["rating"]
+        to_rating   = constant["to"]["rating"]
 
         message << "• _#{object_identifier}_ just declined from #{with_article(from_rating, :bold)} to #{with_article(to_rating, :bold)}"
       else
-        rating = to_rating(constant)
+        rating = constant["to"]["rating"]
 
-        message << "• _#{object_identifier}_ was just created and is #{with_article(rating, :bold)} *#{rating}*"
+        message << "• _#{object_identifier}_ was just created and is #{with_article(rating, :bold)}"
       end
     end
 
@@ -97,15 +96,14 @@ class CC::Service::Slack < CC::Service
     message.join("\n")
   end
 
-  def improvement_message(snapshot)
-    constants = snapshot.improved_constants_payload
-
-    message = ["Quality improvements in *#{repo_identifier}* (<#{compare_url}|Compare>)\n"]
+  def improvements_message(constants_payload)
+    constants = constants_payload["constants"]
+    message = ["Quality improvements in *#{repo_name}* (<#{compare_url}|Compare>)\n"]
 
     constants[0..2].each do |constant|
       object_identifier = constant_basename(constant["name"])
-      from_rating = from_rating(constant)
-      to_rating = to_rating(constant)
+      from_rating = constant["from"]["rating"]
+      to_rating   = constant["to"]["rating"]
 
       message << "• _#{object_identifier}_ just improved from #{with_article(from_rating, :bold)} to #{with_article(to_rating, :bold)}"
     end
