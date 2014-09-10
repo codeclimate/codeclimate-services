@@ -63,7 +63,7 @@ module CC::Formatters
 
     private
 
-      def new_constant_selector
+      def new_constants_selector
         Proc.new { |constant| to_rating(constant) < C }
       end
 
@@ -91,7 +91,7 @@ module CC::Formatters
     # Override the base snapshot formatter for be more lax grouping information.
     # This is useful to show more information for testing the service.
     class Sample < Base
-      def new_constant_selector
+      def new_constants_selector
         Proc.new { |_| true }
       end
 
