@@ -44,17 +44,17 @@ module CC::Formatters
       def initialize(repo, payload)
         @repo    = repo
 
-        new_constants = Array(payload["new_constants"])
-        changed_constants = Array(payload["changed_constants"])
+        new_constants = Array(payload[:new_constants])
+        changed_constants = Array(payload[:changed_constants])
 
-        alert_constants = new_constants.select(new_constants_selector)
-        alert_constants += changed_constants.select(decreased_constants_selector)
+        alert_constants = new_constants.select(&new_constants_selector)
+        alert_constants += changed_constants.select(&decreased_constants_selector)
 
-        improved_constants = changed_constants.select(improved_constants_selector)
+        improved_constants = changed_constants.select(&improved_constants_selector)
 
         data = {
-          from: { commit_sha: payload["previous_commit_sha"] },
-          to:   { commit_sha: payload["commit_sha"] }
+          from: { commit_sha: payload[:previous_commit_sha] },
+          to:   { commit_sha: payload[:commit_sha] }
         }
 
         @alert_constants_payload    = data.merge(constants: alert_constants) if alert_constants.any?
@@ -80,11 +80,11 @@ module CC::Formatters
       end
 
       def to_rating(constant)
-        Rating.new(constant["to"]["rating"])
+        Rating.new(constant[:to][:rating])
       end
 
       def from_rating(constant)
-        Rating.new(constant["from"]["rating"])
+        Rating.new(constant[:from][:rating])
       end
     end
 

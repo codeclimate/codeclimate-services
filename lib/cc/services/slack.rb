@@ -16,7 +16,7 @@ class CC::Service::Slack < CC::Service
     speak(formatter.format_test)
 
     # payloads for test receivers include the weekly quality report.
-    send_snapshot_to_slack(CC::Formatters::SnapshotFormatter::Test.new(repo, payload))
+    send_snapshot_to_slack(CC::Formatters::SnapshotFormatter::Sample.new(repo, payload))
 
     { ok: true, message: "Test message sent" }
   rescue => ex
