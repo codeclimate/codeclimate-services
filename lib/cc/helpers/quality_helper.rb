@@ -23,13 +23,22 @@ module CC::Service::QualityHelper
     payload.fetch("previous_remediation_cost", 0)
   end
 
-  def with_article(letter)
+  def with_article(letter, bold = false)
     letter ||= '?'
 
-    if %w( A F ).include?(letter)
-      "an #{letter}"
+    text = bold ? "*#{letter}*" : letter
+    if %w( A F ).include?(letter.to_s)
+      "an #{text}"
     else
-      "a #{letter}"
+      "a #{text}"
+    end
+  end
+
+  def constant_basename(name)
+    if name.include?(".")
+      File.basename(name)
+    else
+      name
     end
   end
 end
