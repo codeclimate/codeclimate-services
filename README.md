@@ -1,5 +1,8 @@
 # Code Climate Services
 
+[![Code Climate](https://codeclimate.com/github/codeclimate/codeclimate-services/badges/gpa.svg)](https://codeclimate.com/github/codeclimate/codeclimate-services)
+[![Test Coverage](https://codeclimate.com/github/codeclimate/codeclimate-services/badges/coverage.svg)](https://codeclimate.com/github/codeclimate/codeclimate-services)
+
 A collection of classes, each responsible for integrating one external service
 with the Code Climate system.
 
