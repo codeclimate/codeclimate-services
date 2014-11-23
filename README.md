@@ -106,24 +106,14 @@ The following are not fully implemented yet.
 To add a new integration, you'll need to create a new `Service` subclass. Please
 use existing services as an example:
 
-- Chat service examples: [hipchat][], [campfire][]
-- Issue tracker examples: [github_issues][], [lighthouse][]
-
-[hipchat]: /codeclimate/codeclimate-services/blob/master/lib/cc/services/hipchat.rb
-[campfire]: /codeclimate/codeclimate-services/blob/master/lib/cc/services/campfire.rb
-[github_issues]: /codeclimate/codeclimate-services/blob/master/lib/cc/services/github_issues.rb
-[lighthouse]: /codeclimate/codeclimate-services/blob/master/lib/cc/services/lighthouse.rb
+- Chat service examples: [hipchat](lib/cc/services/hipchat.rb), [campfire](lib/cc/services/campfire.rb)
+- Issue tracker examples: [github_issues](lib/cc/services/github_issues.rb), [lighthouse](lib/cc/services/lighthouse.rb)
 
 Ensure that your class implements `#receive_test`. It must handle any exceptions
 and always return a hash of `{ ok: true|false, message: "String (HTML ok)" }`.
-[Example][test_example].
-
-[test_example]: /codeclimate/codeclimate-services/blob/master/lib/cc/services/jira.rb#L31
+[Example](lib/cc/services/jira.rb#L31).
 
 When you open your PR, please include an image for your service.
-[Example][service_avatar].
-
-[service_avatar]: https://codeclimate.com/assets/integration_icons/campfire-9f0475f77133a3ff5267972436dead60.png
 
 ## License
 
