@@ -53,6 +53,7 @@ private
         state:       state,
         description: description,
         target_url:  @payload["details_url"],
+        context:     "codeclimate"
       }.to_json
 
       http_post(status_url, body)
