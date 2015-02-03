@@ -27,6 +27,18 @@ class TestGitHubPullRequests < CC::Service::TestCase
     })
   end
 
+  def test_pull_request_test_success
+    @stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") { |env| [422, {}, ""] }
+
+    assert receive_test({}, { github_slug: "pbrisbin/foo" })[:ok], "Expected test of pull request to be true"
+  end
+
+  def test_pull_request_test_failure
+    @stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") { |env| [401, {}, ""] }
+
+    assert !receive_test({}, { github_slug: "pbrisbin/foo" })[:ok], "Expected failed test of pull request"
+  end
+
   def test_pull_request_comment
     stub_existing_comments("pbrisbin/foo", 1, %w[Hey Yo])
 
@@ -89,6 +101,14 @@ private
       CC::Service::GitHubPullRequests,
       { oauth_token: "123" }.merge(config),
       { name: "pull_request" }.merge(event_data)
+    )
+  end
+
+  def receive_test(config, event_data)
+    receive(
+      CC::Service::GitHubPullRequests,
+      { oauth_token: "123" }.merge(config),
+      { name: "test" }.merge(event_data)
     )
   end
 
