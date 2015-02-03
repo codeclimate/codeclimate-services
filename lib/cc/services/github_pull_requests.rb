@@ -29,9 +29,9 @@ class CC::Service::GitHubPullRequests < CC::Service
     http_post(base_status_url("0" * 40))
 
   rescue HTTPError => ex
-    if ex.status == 422
+    if ex.status == 422 # response message: "No commit found for SHA"
       { ok: true, message: "OAuth token is valid" }
-    else ex.status == 401
+    else ex.status == 401 # response message: "Bad credentials"
       { ok: false, message: ex.message }
     end
   rescue => ex
