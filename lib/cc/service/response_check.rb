@@ -2,8 +2,8 @@ class CC::Service
   class HTTPError < StandardError
     attr_reader :response_body
 
-    def initialize(message, response_body)
-      @response_body = response_body
+    def initialize(message, env)
+      @response_body = env[:body]
 
       super(message)
     end
@@ -17,7 +17,7 @@ class CC::Service
         message = error_message(env) ||
           "API request unsuccessful (#{env[:status]})"
 
-        raise HTTPError.new(message, env[:body])
+        raise HTTPError.new(message, env)
       end
     end
 
