@@ -43,6 +43,8 @@ class CC::Service::GitHubPullRequests < CC::Service
   # additional information (github-slug, PR number, etc) we can't test much
   # else.
   def receive_test
+    setup_http
+
     if config.update_status && config.add_comment
       ResponseAggregator.new(receive_test_status, receive_test_comment).response
     elsif config.update_status
@@ -50,35 +52,6 @@ class CC::Service::GitHubPullRequests < CC::Service
     elsif config.add_comment
       receive_test_comment
     end
-  end
-
-  def receive_test_status
-    setup_http
-
-    http_post(base_status_url("0" * 40), "{}")
-
-  rescue HTTPError => ex
-    if ex.status == 422 # response message: "No commit found for SHA"
-      { ok: true, message: "OAuth token is valid" }
-    else ex.status == 401 # response message: "Bad credentials"
-      { ok: false, message: ex.message }
-    end
-  rescue => ex
-    { ok: false, message: ex.message }
-  end
-
-  def receive_test_comment
-    setup_http
-
-    response = http_get(user_url)
-    if response_includes_repo_scope?(response)
-      { ok: true, message: "OAuth token is valid" }
-    else
-      { ok: false, message: "OAuth token requires 'repo' scope to post comments." }
-    end
-
-  rescue => ex
-    { ok: false, message: ex.message }
   end
 
   def receive_pull_request
@@ -116,6 +89,31 @@ private
 
       http_post(comments_url, body)
     end
+  end
+
+  def receive_test_status
+    http_post(base_status_url("0" * 40), "{}")
+
+  rescue HTTPError => ex
+    if ex.status == 422 # response message: "No commit found for SHA"
+      { ok: true, message: "OAuth token is valid" }
+    else ex.status == 401 # response message: "Bad credentials"
+      { ok: false, message: ex.message }
+    end
+  rescue => ex
+    { ok: false, message: ex.message }
+  end
+
+  def receive_test_comment
+    response = http_get(user_url)
+    if response_includes_repo_scope?(response)
+      { ok: true, message: "OAuth token is valid" }
+    else
+      { ok: false, message: "OAuth token requires 'repo' scope to post comments." }
+    end
+
+  rescue => ex
+    { ok: false, message: ex.message }
   end
 
   def comment_present?
