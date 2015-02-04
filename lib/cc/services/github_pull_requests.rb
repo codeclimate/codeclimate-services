@@ -26,7 +26,7 @@ class CC::Service::GitHubPullRequests < CC::Service
   def receive_test
     setup_http
 
-    http_post(base_status_url("0" * 40))
+    http_post(base_status_url("0" * 40), "{}")
 
   rescue HTTPError => ex
     if ex.status == 422 # response message: "No commit found for SHA"
