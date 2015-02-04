@@ -13,6 +13,25 @@ class CC::Service::GitHubPullRequests < CC::Service
     validates :oauth_token, presence: true
   end
 
+  class ResponseAggregator
+    def initialize(status_response, comment_response)
+      @status_response = status_response
+      @comment_response = comment_response
+    end
+
+    def response
+      return @status_response if @status_response[:ok] && @comment_response[:ok]
+      message = if !@status_response[:ok] && !@comment_response[:ok]
+        "Unable to post comment or update status"
+      elsif !@status_response[:ok]
+        "Unable to update status: #{@status_response[:message]}"
+      elsif !@comment_response[:ok]
+        "Unable to post comment: #{@comment_response[:message]}"
+      end
+      { ok: false, message: message }
+    end
+  end
+
   self.title = "GitHub Pull Requests"
   self.description = "Update pull requests on GitHub"
 
@@ -24,7 +43,9 @@ class CC::Service::GitHubPullRequests < CC::Service
   # additional information (github-slug, PR number, etc) we can't test much
   # else.
   def receive_test
-    if config.update_status
+    if config.update_status && config.add_comment
+      ResponseAggregator.new(receive_test_status, receive_test_comment).response
+    elsif config.update_status
       receive_test_status
     elsif config.add_comment
       receive_test_comment
