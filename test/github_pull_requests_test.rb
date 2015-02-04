@@ -39,6 +39,24 @@ class TestGitHubPullRequests < CC::Service::TestCase
     assert !receive_test({ update_status: true }, { github_slug: "pbrisbin/foo" })[:ok], "Expected failed test of pull request"
   end
 
+  def test_pull_request_comment_test_success
+    @stubs.get("/user") { |env| [200, { "x-oauth-scopes" => "gist, user, repo" }, ""] }
+
+    assert receive_test({ add_comment: true })[:ok], "Expected test of pull request to be true"
+  end
+
+  def test_pull_request_comment_test_failure_insufficient_permissions
+    @stubs.get("/user") { |env| [200, { "x-oauth-scopes" => "gist, user" }, ""] }
+
+    assert !receive_test({ add_comment: true })[:ok], "Expected failed test of pull request"
+  end
+
+  def test_pull_request_comment_test_failure_bad_token
+    @stubs.get("/user") { |env| [401, {}, ""] }
+
+    assert !receive_test({ add_comment: true })[:ok], "Expected failed test of pull request"
+  end
+
   def test_pull_request_comment
     stub_existing_comments("pbrisbin/foo", 1, %w[Hey Yo])
 
@@ -104,7 +122,7 @@ private
     )
   end
 
-  def receive_test(config, event_data)
+  def receive_test(config, event_data = {})
     receive(
       CC::Service::GitHubPullRequests,
       { oauth_token: "123" }.merge(config),

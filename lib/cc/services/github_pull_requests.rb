@@ -24,7 +24,11 @@ class CC::Service::GitHubPullRequests < CC::Service
   # additional information (github-slug, PR number, etc) we can't test much
   # else.
   def receive_test
-    receive_test_status if config.update_status
+    if config.update_status
+      receive_test_status
+    elsif config.add_comment
+      receive_test_comment
+    end
   end
 
   def receive_test_status
@@ -38,6 +42,20 @@ class CC::Service::GitHubPullRequests < CC::Service
     else ex.status == 401 # response message: "Bad credentials"
       { ok: false, message: ex.message }
     end
+  rescue => ex
+    { ok: false, message: ex.message }
+  end
+
+  def receive_test_comment
+    setup_http
+
+    response = http_get(user_url)
+    if response_includes_repo_scope?(response)
+      { ok: true, message: "OAuth token is valid" }
+    else
+      { ok: false, message: "OAuth token requires 'repo' scope to post comments." }
+    end
+
   rescue => ex
     { ok: false, message: ex.message }
   end
@@ -104,6 +122,10 @@ private
     "#{BASE_URL}/repos/#{github_slug}/issues/#{number}/comments"
   end
 
+  def user_url
+    "#{BASE_URL}/user"
+  end
+
   def github_slug
     @payload.fetch("github_slug")
   end
@@ -114,6 +136,10 @@ private
 
   def number
     @payload.fetch("number")
+  end
+
+  def response_includes_repo_scope?(response)
+    response.headers['x-oauth-scopes'] && response.headers['x-oauth-scopes'].split(/\s*,\s*/).include?("repo")
   end
 
 end
