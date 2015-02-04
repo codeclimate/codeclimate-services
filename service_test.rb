@@ -11,6 +11,7 @@
 # Example:
 #
 #   $ SLACK_WEBHOOK_URL="http://..." bundle exec ruby service_test.rb
+#   $ GITHUBPULLREQUESTS_OAUTH_TOKEN=06083a4a060d358ca709939b1f00645777661c44 bundle exec ruby service_test.rb
 #
 # Other Environment variables used:
 #
@@ -36,7 +37,7 @@ class ServiceTest
     @params = params
   end
 
-  def test
+  def test(payload = {})
     config = {}
 
     puts "-"*80
@@ -55,7 +56,7 @@ class ServiceTest
     puts "  -> #{config.inspect}"
     print "  => "
 
-    test_service(@klass, config)
+    test_service(@klass, config, payload)
   end
 
 private
@@ -64,10 +65,10 @@ private
     "#{@klass.to_s.split("::").last}_#{param}".upcase
   end
 
-  def test_service(klass, config)
+  def test_service(klass, config, payload)
     repo_name = ENV["REPO_NAME"] || "App"
 
-    service = klass.new(config, name: :test, repo_name: repo_name)
+    service = klass.new(config, { name: :test, repo_name: repo_name }.merge(payload))
 
     CC::Service::Invocation.new(service) do |i|
       i.wrap(WithResponseLogging)
@@ -79,3 +80,4 @@ ServiceTest.new(CC::Service::Slack, :webhook_url).test
 ServiceTest.new(CC::Service::Flowdock, :api_token).test
 ServiceTest.new(CC::Service::Jira, :username, :password, :domain, :project_id).test
 ServiceTest.new(CC::Service::Asana, :api_key, :workspace_id, :project_id).test
+ServiceTest.new(CC::Service::GitHubPullRequests, :oauth_token).test({ github_slug: "codeclimate/codeclimate" })

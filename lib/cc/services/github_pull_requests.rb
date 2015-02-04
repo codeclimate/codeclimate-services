@@ -26,9 +26,14 @@ class CC::Service::GitHubPullRequests < CC::Service
   def receive_test
     setup_http
 
-    http_get("#{BASE_URL}")
+    http_post(base_status_url("0" * 40), "{}")
 
-    { ok: true, message: "OAuth token is valid" }
+  rescue HTTPError => ex
+    if ex.status == 422 # response message: "No commit found for SHA"
+      { ok: true, message: "OAuth token is valid" }
+    else ex.status == 401 # response message: "Bad credentials"
+      { ok: false, message: ex.message }
+    end
   rescue => ex
     { ok: false, message: ex.message }
   end
@@ -84,6 +89,10 @@ private
   end
 
   def status_url
+    base_status_url(commit_sha)
+  end
+
+  def base_status_url(commit_sha)
     "#{BASE_URL}/repos/#{github_slug}/statuses/#{commit_sha}"
   end
 
