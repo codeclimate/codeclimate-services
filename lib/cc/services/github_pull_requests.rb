@@ -24,6 +24,10 @@ class CC::Service::GitHubPullRequests < CC::Service
   # additional information (github-slug, PR number, etc) we can't test much
   # else.
   def receive_test
+    receive_test_status if config.update_status
+  end
+
+  def receive_test_status
     setup_http
 
     http_post(base_status_url("0" * 40), "{}")

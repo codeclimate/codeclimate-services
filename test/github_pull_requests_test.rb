@@ -27,16 +27,16 @@ class TestGitHubPullRequests < CC::Service::TestCase
     })
   end
 
-  def test_pull_request_test_success
+  def test_pull_request_status_test_success
     @stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") { |env| [422, {}, ""] }
 
-    assert receive_test({}, { github_slug: "pbrisbin/foo" })[:ok], "Expected test of pull request to be true"
+    assert receive_test({ update_status: true }, { github_slug: "pbrisbin/foo" })[:ok], "Expected test of pull request to be true"
   end
 
-  def test_pull_request_test_failure
+  def test_pull_request_status_test_failure
     @stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") { |env| [401, {}, ""] }
 
-    assert !receive_test({}, { github_slug: "pbrisbin/foo" })[:ok], "Expected failed test of pull request"
+    assert !receive_test({ update_status: true }, { github_slug: "pbrisbin/foo" })[:ok], "Expected failed test of pull request"
   end
 
   def test_pull_request_comment
