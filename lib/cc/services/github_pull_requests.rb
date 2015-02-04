@@ -13,6 +13,25 @@ class CC::Service::GitHubPullRequests < CC::Service
     validates :oauth_token, presence: true
   end
 
+  class ResponseAggregator
+    def initialize(status_response, comment_response)
+      @status_response = status_response
+      @comment_response = comment_response
+    end
+
+    def response
+      return @status_response if @status_response[:ok] && @comment_response[:ok]
+      message = if !@status_response[:ok] && !@comment_response[:ok]
+        "Unable to post comment or update status"
+      elsif !@status_response[:ok]
+        "Unable to update status: #{@status_response[:message]}"
+      elsif !@comment_response[:ok]
+        "Unable to post comment: #{@comment_response[:message]}"
+      end
+      { ok: false, message: message }
+    end
+  end
+
   self.title = "GitHub Pull Requests"
   self.description = "Update pull requests on GitHub"
 
@@ -26,16 +45,13 @@ class CC::Service::GitHubPullRequests < CC::Service
   def receive_test
     setup_http
 
-    http_post(base_status_url("0" * 40), "{}")
-
-  rescue HTTPError => ex
-    if ex.status == 422 # response message: "No commit found for SHA"
-      { ok: true, message: "OAuth token is valid" }
-    else ex.status == 401 # response message: "Bad credentials"
-      { ok: false, message: ex.message }
+    if config.update_status && config.add_comment
+      ResponseAggregator.new(receive_test_status, receive_test_comment).response
+    elsif config.update_status
+      receive_test_status
+    elsif config.add_comment
+      receive_test_comment
     end
-  rescue => ex
-    { ok: false, message: ex.message }
   end
 
   def receive_pull_request
@@ -75,6 +91,31 @@ private
     end
   end
 
+  def receive_test_status
+    http_post(base_status_url("0" * 40), "{}")
+
+  rescue HTTPError => ex
+    if ex.status == 422 # response message: "No commit found for SHA"
+      { ok: true, message: "OAuth token is valid" }
+    else ex.status == 401 # response message: "Bad credentials"
+      { ok: false, message: ex.message }
+    end
+  rescue => ex
+    { ok: false, message: ex.message }
+  end
+
+  def receive_test_comment
+    response = http_get(user_url)
+    if response_includes_repo_scope?(response)
+      { ok: true, message: "OAuth token is valid" }
+    else
+      { ok: false, message: "OAuth token requires 'repo' scope to post comments." }
+    end
+
+  rescue => ex
+    { ok: false, message: ex.message }
+  end
+
   def comment_present?
     response = http_get(comments_url)
     comments = JSON.parse(response.body)
@@ -100,6 +141,10 @@ private
     "#{BASE_URL}/repos/#{github_slug}/issues/#{number}/comments"
   end
 
+  def user_url
+    "#{BASE_URL}/user"
+  end
+
   def github_slug
     @payload.fetch("github_slug")
   end
@@ -110,6 +155,10 @@ private
 
   def number
     @payload.fetch("number")
+  end
+
+  def response_includes_repo_scope?(response)
+    response.headers['x-oauth-scopes'] && response.headers['x-oauth-scopes'].split(/\s*,\s*/).include?("repo")
   end
 
 end

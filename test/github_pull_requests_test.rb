@@ -27,16 +27,64 @@ class TestGitHubPullRequests < CC::Service::TestCase
     })
   end
 
-  def test_pull_request_test_success
+  def test_pull_request_status_test_success
     @stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") { |env| [422, {}, ""] }
 
-    assert receive_test({}, { github_slug: "pbrisbin/foo" })[:ok], "Expected test of pull request to be true"
+    assert receive_test({ update_status: true }, { github_slug: "pbrisbin/foo" })[:ok], "Expected test of pull request to be true"
   end
 
-  def test_pull_request_test_failure
+  def test_pull_request_status_test_failure
     @stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") { |env| [401, {}, ""] }
 
-    assert !receive_test({}, { github_slug: "pbrisbin/foo" })[:ok], "Expected failed test of pull request"
+    assert !receive_test({ update_status: true }, { github_slug: "pbrisbin/foo" })[:ok], "Expected failed test of pull request"
+  end
+
+  def test_pull_request_comment_test_success
+    @stubs.get("/user") { |env| [200, { "x-oauth-scopes" => "gist, user, repo" }, ""] }
+
+    assert receive_test({ add_comment: true })[:ok], "Expected test of pull request to be true"
+  end
+
+  def test_pull_request_comment_test_failure_insufficient_permissions
+    @stubs.get("/user") { |env| [200, { "x-oauth-scopes" => "gist, user" }, ""] }
+
+    assert !receive_test({ add_comment: true })[:ok], "Expected failed test of pull request"
+  end
+
+  def test_pull_request_comment_test_failure_bad_token
+    @stubs.get("/user") { |env| [401, {}, ""] }
+
+    assert !receive_test({ add_comment: true })[:ok], "Expected failed test of pull request"
+  end
+
+  def test_pull_request_success_both
+    @stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") { |env| [422, {}, ""] }
+    @stubs.get("/user") { |env| [200, { "x-oauth-scopes" => "gist, user, repo" }, ""] }
+
+    assert receive_test({ update_status: true, add_comment: true }, { github_slug: "pbrisbin/foo" })[:ok], "Expected test of pull request to be true"
+  end
+
+  def test_response_aggregator_success
+    response = aggregrate_response({ok: true, message: "OK"}, {ok: true, message: "OK 2"})
+    assert_equal response, { ok: true, message: "OK" }
+  end
+
+  def test_response_aggregator_failure_both
+    response = aggregrate_response({ok: false, message: "Bad Token"}, {ok: false, message: "Bad Stuff"})
+    assert_equal response, { ok: false, message: "Unable to post comment or update status" }
+  end
+
+  def test_response_aggregator_failure_status
+    response = aggregrate_response({ok: false, message: "Bad Token"}, {ok: true, message: "OK"})
+    assert !response[:ok], "Expected invalid response because status response is invalid"
+    assert_match /Bad Token/, response[:message]
+  end
+
+
+  def test_response_aggregator_failure_status
+    response = aggregrate_response({ok: true, message: "OK"}, {ok: false, message: "Bad Stuff"})
+    assert !response[:ok], "Expected invalid response because comment response is invalid"
+    assert_match /Bad Stuff/, response[:message]
   end
 
   def test_pull_request_comment
@@ -104,12 +152,16 @@ private
     )
   end
 
-  def receive_test(config, event_data)
+  def receive_test(config, event_data = {})
     receive(
       CC::Service::GitHubPullRequests,
       { oauth_token: "123" }.merge(config),
       { name: "test" }.merge(event_data)
     )
+  end
+
+  def aggregrate_response(status_response, comment_response)
+    CC::Service::GitHubPullRequests::ResponseAggregator.new(status_response, comment_response).response
   end
 
 end
