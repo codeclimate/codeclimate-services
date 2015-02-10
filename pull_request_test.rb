@@ -36,3 +36,20 @@ service = CC::Service::GitHubPullRequests.new({
 CC::Service::Invocation.new(service) do |i|
   i.wrap(WithResponseLogging)
 end
+
+ghe_service = CC::Service::GithubEnterprisePullRequest.new({
+  oauth_token: ENV.fetch("OAUTH_TOKEN"),
+  base_url: ENV.fetch("GITHUB_BASE_URL"),
+  update_status: true,
+  add_comment: true
+}, {
+  name:        "pull_request",
+  state:       "success",
+  github_slug: ENV.fetch("GITHUB_SLUG"),
+  number:      ENV.fetch("GITHUB_PR_NUMBER"),
+  commit_sha:  ENV.fetch("GITHUB_COMMIT_SHA")
+})
+
+CC::Service::Invocation.new(ghe_service) do |i|
+  i.wrap(WithResponseLogging)
+end
