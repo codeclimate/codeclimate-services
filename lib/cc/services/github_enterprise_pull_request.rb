@@ -8,9 +8,18 @@ class CC::Service::GithubEnterprisePullRequest < CC::Service::GitHubPullRequests
     attribute :base_url, String,
               label: "Base API URL",
               description: "The Base URL to your Github Enterprise instance."
+    attribute :ssl_verification, Boolean,
+              default: true,
+              label: "SSL Verification",
+              description: "Turn this off at your own risk. (Useful for self signed certificates)"
 
     validates :oauth_token, presence: true
     validates :base_url, presence: true
+  end
+
+  def setup_http
+    http.ssl[:verify] = config.ssl_verification
+    super
   end
 
   def base_status_url(commit_sha)

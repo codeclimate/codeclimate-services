@@ -22,8 +22,6 @@ end
 
 service = CC::Service::GitHubPullRequests.new({
   oauth_token:   ENV.fetch("OAUTH_TOKEN"),
-  update_status: true,
-  add_comment:   true,
 }, {
   name:        "pull_request",
   # https://github.com/codeclimate/nillson/pull/33
@@ -40,8 +38,7 @@ end
 ghe_service = CC::Service::GithubEnterprisePullRequest.new({
   oauth_token: ENV.fetch("OAUTH_TOKEN"),
   base_url: ENV.fetch("GITHUB_BASE_URL"),
-  update_status: true,
-  add_comment: true
+  ssl_verification: false
 }, {
   name:        "pull_request",
   state:       "success",
