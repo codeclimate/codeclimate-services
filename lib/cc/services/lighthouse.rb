@@ -24,13 +24,9 @@ class CC::Service::Lighthouse < CC::Service
 
   def receive_test
     result = create_ticket("Test ticket from Code Climate", "")
-
-    {
-      ok: true,
-      message: "Ticked <a href='#{result[:url]}'>#{result[:id]}</a> created."
-    }
-  rescue => ex
-    { ok: false, message: ex.message }
+    result.merge(
+      message: "Ticket <a href='#{result[:url]}'>#{result[:id]}</a> created."
+    )
   end
 
   def receive_quality
@@ -63,14 +59,13 @@ private
     base_url = "https://#{config.subdomain}.lighthouseapp.com"
     url = "#{base_url}/projects/#{config.project_id}/tickets.json"
 
-    res = http_post(url, params.to_json)
-
-    body = JSON.parse(res.body)
-
-    {
-      id:  body["ticket"]["number"],
-      url: body["ticket"]["url"]
-    }
+    post(url, params.to_json) do |response|
+      body = JSON.parse(response.body)
+      {
+        id: body["ticket"]["number"],
+        url: body["ticket"]["url"],
+      }
+    end
   end
 
 end

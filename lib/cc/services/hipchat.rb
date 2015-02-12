@@ -18,11 +18,9 @@ class CC::Service::HipChat < CC::Service
   self.description = "Send messages to a HipChat chat room"
 
   def receive_test
-    speak(formatter.format_test, "green")
-
-    { ok: true, message: "Test message sent" }
-  rescue => ex
-    { ok: false, message: ex.message }
+    speak(formatter.format_test, "green").merge(
+      message: "Test message sent"
+    )
   end
 
   def receive_coverage
@@ -44,14 +42,16 @@ class CC::Service::HipChat < CC::Service
   end
 
   def speak(message, color)
-    http_post("#{BASE_URL}/rooms/message", {
+    url = "#{BASE_URL}/rooms/message"
+    params = {
       from:       "Code Climate",
       message:    message,
       auth_token: config.auth_token,
       room_id:    config.room_id,
       notify:     !!config.notify,
       color:      color
-    })
+    }
+    post(url, params.to_json)
   end
 
 end

@@ -21,13 +21,9 @@ class CC::Service::GitHubIssues < CC::Service
 
   def receive_test
     result = create_issue("Test ticket from Code Climate", "")
-
-    {
-      ok: true,
+    result.merge(
       message: "Issue <a href='#{result[:url]}'>##{result[:number]}</a> created."
-    }
-  rescue => ex
-    { ok: false, message: ex.message }
+    )
   end
 
   def receive_quality
@@ -59,15 +55,14 @@ private
     http.headers["User-Agent"] = "Code Climate"
 
     url = "#{BASE_URL}/repos/#{config.project}/issues"
-    res = http_post(url, params.to_json)
-
-    body = JSON.parse(res.body)
-
-    {
-      id:     body["id"],
-      number: body["number"],
-      url:    body["html_url"]
-    }
+    post(url, params.to_json) do |response|
+      body = JSON.parse(response.body)
+      {
+        id: body["id"],
+        number: body["number"],
+        url: body["html_url"]
+      }
+    end
   end
 
 end

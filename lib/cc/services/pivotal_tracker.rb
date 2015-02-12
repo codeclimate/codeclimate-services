@@ -22,13 +22,9 @@ class CC::Service::PivotalTracker < CC::Service
 
   def receive_test
     result = create_story("Test ticket from Code Climate", "")
-
-    {
-      ok: true,
-      message: "Ticked <a href='#{result[:url]}'>#{result[:id]}</a> created."
-    }
-  rescue => ex
-    { ok: false, message: ex.message }
+    result.merge(
+      message: "Ticket <a href='#{result[:url]}'>#{result[:id]}</a> created."
+    )
   end
 
   def receive_quality
@@ -61,18 +57,14 @@ private
 
     http.headers["X-TrackerToken"] = config.api_token
     url = "#{BASE_URL}/projects/#{config.project_id}/stories"
-    res = http_post(url, params)
 
-    parse_story(res)
-  end
-
-  def parse_story(resp)
-    body = Nokogiri::XML(resp.body)
-
-    {
-      id:   (body / "story/id").text,
-      url:  (body / "story/url").text
-    }
+    post(url, params) do |response|
+      body = Nokogiri::XML(response.body)
+      {
+        id: (body / "story/id").text,
+        url: (body / "story/url").text
+      }
+    end
   end
 
 end

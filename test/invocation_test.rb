@@ -58,15 +58,15 @@ class TestInvocation < Test::Unit::TestCase
   end
 
   def test_error_handling
-    logger = FakeLogger.new
     service = FakeService.new
     service.raise_on_receive = true
+    logger = FakeLogger.new
 
     result = CC::Service::Invocation.invoke(service) do |i|
       i.with :error_handling, logger, "a_prefix"
     end
 
-    assert_nil result
+    assert_equal({ok: false, message: "Exception invoking service: [a_prefix] (RuntimeError) Boom"}, result)
     assert_equal 1, logger.logged_errors.length
     assert_match /^Exception invoking service: \[a_prefix\]/, logger.logged_errors.first
   end
@@ -81,7 +81,7 @@ class TestInvocation < Test::Unit::TestCase
       i.with :error_handling, logger
     end
 
-    assert_nil result
+    assert_equal({ok: false, message: "Exception invoking service: (RuntimeError) Boom"}, result)
     assert_equal 1 + 3, service.receive_count
     assert_equal 1, logger.logged_errors.length
   end
@@ -123,15 +123,4 @@ class TestInvocation < Test::Unit::TestCase
     end
   end
 
-  class FakeLogger
-    attr_reader :logged_errors
-
-    def initialize
-      @logged_errors = []
-    end
-
-    def error(message)
-      @logged_errors << message
-    end
-  end
 end

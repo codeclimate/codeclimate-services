@@ -8,24 +8,35 @@ class CC::Service::Invocation
 
     def call
       @invocation.call
-    rescue => ex
-      @logger.error(error_message(ex))
-
-      nil
+    rescue CC::Service::HTTPError => e
+      @logger.error(error_message(e))
+      {
+        ok: false,
+        params: e.params,
+        status: e.status,
+        endpoint_url: e.endpoint_url,
+        message: error_message(e)
+      }
+    rescue => e
+      @logger.error(error_message(e))
+      {
+        ok: false,
+        message: error_message(e)
+      }
     end
 
     private
 
-    def error_message(ex)
-      if ex.respond_to?(:response_body)
-        response_body = ". Response: <#{ex.response_body.inspect}>"
+    def error_message(e)
+      if e.respond_to?(:response_body)
+        response_body = ". Response: <#{e.response_body.inspect}>"
       else
         response_body = ""
       end
 
       message  = "Exception invoking service:"
       message << " [#{@prefix}]" if @prefix
-      message << " (#{ex.class}) #{ex.message}"
+      message << " (#{e.class}) #{e.message}"
       message << response_body
     end
   end

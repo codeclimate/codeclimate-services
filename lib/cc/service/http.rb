@@ -15,7 +15,23 @@ module CC::Service::HTTP
     end
   end
 
-  def http_get(url = nil, params = nil, headers = nil)
+  def get(url = nil, body = nil, headers = nil, &block)
+    raw_get(url, body, headers, &block)
+  end
+
+  def post(url, body = nil, headers = nil, &block)
+    block ||= lambda{|*args| Hash.new }
+    response = raw_post(url, body, headers)
+    {
+      ok: response.success?,
+      params: body.as_json,
+      endpoint_url: url,
+      status: response.status,
+      message: "Success"
+    }.merge(block.call(response))
+  end
+
+  def raw_get(url = nil, params = nil, headers = nil)
     http.get do |req|
       req.url(url)                if url
       req.params.update(params)   if params
@@ -24,7 +40,7 @@ module CC::Service::HTTP
     end
   end
 
-  def http_post(url = nil, body = nil, headers = nil)
+  def raw_post(url = nil, body = nil, headers = nil)
     block = Proc.new if block_given?
     http_method :post, url, body, headers, &block
   end

@@ -3,8 +3,8 @@ require File.expand_path('../helper', __FILE__)
 class TestFlowdock < CC::Service::TestCase
   def test_valid_project_parameter
     @stubs.post '/v1/messages/team_inbox/token' do |env|
-      body = Hash[URI.decode_www_form(env[:body])]
-      assert_equal "Exampleorg", body["project"]
+      body = env[:body]
+      assert_equal "Exampleorg", body[:project]
       [200, {}, '']
     end
 
@@ -101,22 +101,48 @@ class TestFlowdock < CC::Service::TestCase
     ].join(" "))
   end
 
-  private
-
-  def assert_flowdock_receives(subject, event_data, expected_body)
-    @stubs.post '/v1/messages/team_inbox/token' do |env|
-      body = Hash[URI.decode_www_form(env[:body])]
-      assert_equal "Code Climate", body["source"]
-      assert_equal "hello@codeclimate.com", body["from_address"]
-      assert_equal "Code Climate", body["from_name"]
-      assert_equal "html", body["format"]
-      assert_equal subject, body["subject"]
-      assert_equal "Example", body["project"]
-      assert_equal expected_body, body["content"]
-      assert_equal "https://codeclimate.com", body["link"]
+  def test_receive_test
+    @stubs.post request_url do |env|
       [200, {}, '']
     end
 
-    receive(CC::Service::Flowdock, { api_token: "token" }, event_data)
+    response = receive_event(name: "test", repo_name: "foo")
+
+    assert_equal "Test message sent", response[:message]
+  end
+
+  private
+
+  def endpoint_url
+    "https://api.flowdock.com#{request_url}"
+  end
+
+  def request_url
+    "/v1/messages/team_inbox/#{token}"
+  end
+
+  def token
+    "token"
+  end
+
+  def assert_flowdock_receives(subject, event_data, expected_body)
+    @stubs.post request_url do |env|
+      body = env[:body]
+      assert_equal "Code Climate", body[:source]
+      assert_equal "hello@codeclimate.com", body[:from_address]
+      assert_equal "Code Climate", body[:from_name]
+      assert_equal "html", body[:format]
+      assert_equal subject, body[:subject]
+      assert_equal "Example", body[:project]
+      assert_equal expected_body, body[:content]
+      assert_equal "https://codeclimate.com", body[:link]
+      [200, {}, '']
+    end
+
+    receive_event(event_data)
+  end
+
+  def receive_event(event_data = nil)
+    receive(CC::Service::Flowdock, { api_token: "token" }, event_data || event(:quality, from: "D", to: "C"))
   end
 end

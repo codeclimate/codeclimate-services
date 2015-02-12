@@ -15,11 +15,9 @@ class CC::Service::Campfire < CC::Service
   self.description = "Send messages to a Campfire chat room"
 
   def receive_test
-    speak(formatter.format_test)
-
-    { ok: true, message: "Test message sent" }
-  rescue => ex
-    { ok: false, message: ex.message }
+    speak(formatter.format_test).merge(
+      message: "Test message sent"
+    )
   end
 
   def receive_coverage
@@ -42,10 +40,10 @@ class CC::Service::Campfire < CC::Service
 
   def speak(line)
     http.headers['Content-Type']  = 'application/json'
-    body = { message: { body: line } }
+    params = { message: { body: line } }
 
     http.basic_auth(config.token, "X")
-    http_post(speak_uri, body.to_json)
+    post(speak_uri, params.to_json)
   end
 
   def speak_uri

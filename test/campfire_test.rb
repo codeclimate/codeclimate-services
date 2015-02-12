@@ -96,19 +96,49 @@ class TestCampfire < CC::Service::TestCase
     ].join(" "))
   end
 
+  def test_receive_test
+    @stubs.post request_url do |env|
+      [200, {}, '']
+    end
+
+    response = receive_event(name: "test")
+
+    assert_equal "Test message sent", response[:message]
+  end
+
   private
 
+  def speak_uri
+    "https://#{subdomain}.campfirenow.com#{request_url}"
+  end
+
+  def request_url
+    "/room/#{room}/speak.json"
+  end
+
+  def subdomain
+    "sub"
+  end
+
+  def room
+    "123"
+  end
+
   def assert_campfire_receives(event_data, expected_body)
-    @stubs.post '/room/123/speak.json' do |env|
+    @stubs.post request_url do |env|
       body = JSON.parse(env[:body])
       assert_equal expected_body, body["message"]["body"]
       [200, {}, '']
     end
 
+    receive_event(event_data)
+  end
+
+  def receive_event(event_data = nil)
     receive(
       CC::Service::Campfire,
-      { token: "token", subdomain: "sub", room_id: "123" },
-      event_data
+      { token: "token", subdomain: subdomain, room_id: room},
+      event_data || event(:quality, to: "D", from: "C")
     )
   end
 end

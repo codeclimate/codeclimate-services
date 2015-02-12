@@ -30,13 +30,9 @@ class CC::Service::Jira < CC::Service
 
   def receive_test
     result = create_ticket("Test ticket from Code Climate", "")
-
-    {
-      ok: true,
-      message: "Ticked <a href='#{result[:url]}'>#{result[:id]}</a> created."
-    }
-  rescue => ex
-    { ok: false, message: ex.message }
+    result.merge(
+      message: "Ticket <a href='#{result[:url]}'>#{result[:id]}</a> created."
+    )
   end
 
   def receive_quality
@@ -75,16 +71,15 @@ private
     http.basic_auth(config.username, config.password)
 
     url = "https://#{config.domain}/rest/api/2/issue/"
-    redirect_url = "https://#{config.domain}/"
 
-    res = http_post(url, params.to_json)
-
-    body = JSON.parse(res.body)
-
-    {
-      id:  body["id"],
-      url: redirect_url
-    }
+    post(url, params.to_json) do |response|
+      body = JSON.parse(response.body)
+      {
+        id: body["id"],
+        key: body["key"],
+        url: body["self"]
+      }
+    end
   end
 
 end

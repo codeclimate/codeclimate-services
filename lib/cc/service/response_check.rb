@@ -1,10 +1,12 @@
 class CC::Service
   class HTTPError < StandardError
-    attr_reader :response_body, :status
+    attr_reader :response_body, :status, :params, :endpoint_url
 
     def initialize(message, env)
       @response_body = env[:body]
       @status        = env[:status]
+      @params        = env[:params]
+      @endpoint_url  = env[:url]
 
       super(message)
     end
