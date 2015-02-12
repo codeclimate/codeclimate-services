@@ -1,6 +1,6 @@
 require File.expand_path('../helper', __FILE__)
 
-class TestGitHubPullRequests < CC::Service::TestCase
+class TestGithubEnterprisePullRequests < CC::Service::TestCase
   def test_pull_request_status_pending
     expect_status_update("pbrisbin/foo", "abc123", {
       "state"       => "pending",
@@ -40,7 +40,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
   end
 
   def test_response_aggregator_success
-    response = aggregrate_response({ok: true, message: "OK"})
+    response = aggregrate_response({ok: true, message: "OK"},)
     assert_equal response, { ok: true, message: "OK" }
   end
 
@@ -67,22 +67,22 @@ private
 
   def receive_pull_request(config, event_data)
     receive(
-      CC::Service::GitHubPullRequests,
-      { oauth_token: "123" }.merge(config),
+      CC::Service::GithubEnterprisePullRequest,
+      { oauth_token: "123", base_url: "http://github.test.com" }.merge(config),
       { name: "pull_request" }.merge(event_data)
     )
   end
 
   def receive_test(config, event_data = {})
     receive(
-      CC::Service::GitHubPullRequests,
-      { oauth_token: "123" }.merge(config),
+      CC::Service::GithubEnterprisePullRequest,
+      { oauth_token: "123", base_url: "http://github.test.com" }.merge(config),
       { name: "test" }.merge(event_data)
     )
   end
 
   def aggregrate_response(status_response)
-    CC::Service::GitHubPullRequests::ResponseAggregator.new(status_response).response
+    CC::Service::GithubEnterprisePullRequest::ResponseAggregator.new(status_response).response
   end
 
 end
