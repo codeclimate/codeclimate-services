@@ -27,6 +27,20 @@ class TestGitHubPullRequests < CC::Service::TestCase
     })
   end
 
+  def test_pull_request_status_error
+    expect_status_update("pbrisbin/foo", "abc123", {
+      "state"       => "error",
+      "description" => /encountered an error/,
+    })
+
+    receive_pull_request({ update_status: true }, {
+      github_slug: "pbrisbin/foo",
+      commit_sha:  "abc123",
+      state:       "error",
+    })
+
+  end
+
   def test_pull_request_status_test_success
     @stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") { |env| [422, {}, ""] }
 
