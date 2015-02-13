@@ -95,7 +95,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
   end
 
 
-  def test_response_aggregator_failure_status
+  def test_response_aggregator_failure_comment
     response = aggregrate_response({ok: true, message: "OK"}, {ok: false, message: "Bad Stuff"})
     assert !response[:ok], "Expected invalid response because comment response is invalid"
     assert_match /Bad Stuff/, response[:message]
