@@ -63,6 +63,12 @@ class CC::Service::GitHubPullRequests < CC::Service
     when "success"
       add_comment
       update_status("success", "Code Climate has analyzed this pull request.")
+    when "error"
+      update_status(
+        "error",
+        "Code Climate encountered an error while attempting to analyze this " +
+          "pull request."
+      )
     end
   end
 
