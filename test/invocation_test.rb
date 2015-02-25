@@ -12,7 +12,7 @@ class TestInvocation < Test::Unit::TestCase
 
   def test_retries
     service = FakeService.new
-    service.raise_on_receive = true
+    service.fake_error = RuntimeError.new
     error_occurred = false
 
     begin
@@ -41,7 +41,7 @@ class TestInvocation < Test::Unit::TestCase
   def test_metrics_on_errors
     statsd = FakeStatsd.new
     service = FakeService.new
-    service.raise_on_receive = true
+    service.fake_error = RuntimeError.new
     error_occurred = false
 
     begin
@@ -57,23 +57,37 @@ class TestInvocation < Test::Unit::TestCase
     assert_match /^services\.errors\.a_prefix/, statsd.incremented_keys.first
   end
 
-  def test_error_handling
+  def test_user_message
     service = FakeService.new
-    service.raise_on_receive = true
+    service.fake_error = CC::Service::HTTPError.new("Boom", {})
+    service.override_user_message = "Hey do this"
     logger = FakeLogger.new
 
     result = CC::Service::Invocation.invoke(service) do |i|
       i.with :error_handling, logger, "a_prefix"
     end
 
-    assert_equal({ok: false, message: "Exception invoking service: [a_prefix] (RuntimeError) Boom"}, result)
+    assert_equal "Hey do this", result[:message]
+    assert_match /Boom/, result[:log_message]
+  end
+
+  def test_error_handling
+    service = FakeService.new
+    service.fake_error = RuntimeError.new("Boom")
+    logger = FakeLogger.new
+
+    result = CC::Service::Invocation.invoke(service) do |i|
+      i.with :error_handling, logger, "a_prefix"
+    end
+
+    assert_equal({ok: false, message: "Boom", log_message: "Exception invoking service: [a_prefix] (RuntimeError) Boom"}, result)
     assert_equal 1, logger.logged_errors.length
     assert_match /^Exception invoking service: \[a_prefix\]/, logger.logged_errors.first
   end
 
   def test_multiple_middleware
     service = FakeService.new
-    service.raise_on_receive = true
+    service.fake_error = RuntimeError.new("Boom")
     logger = FakeLogger.new
 
     result = CC::Service::Invocation.invoke(service) do |i|
@@ -81,7 +95,7 @@ class TestInvocation < Test::Unit::TestCase
       i.with :error_handling, logger
     end
 
-    assert_equal({ok: false, message: "Exception invoking service: (RuntimeError) Boom"}, result)
+    assert_equal({ok: false, message: "Boom", log_message: "Exception invoking service: (RuntimeError) Boom"}, result)
     assert_equal 1 + 3, service.receive_count
     assert_equal 1, logger.logged_errors.length
   end
@@ -90,7 +104,7 @@ class TestInvocation < Test::Unit::TestCase
 
   class FakeService
     attr_reader :receive_count
-    attr_accessor :raise_on_receive
+    attr_accessor :fake_error, :override_user_message
 
     def initialize(result = nil)
       @result = result
@@ -100,8 +114,13 @@ class TestInvocation < Test::Unit::TestCase
     def receive
       @receive_count += 1
 
-      if @raise_on_receive
-        raise "Boom"
+      begin
+        raise @fake_error if @fake_error
+      rescue => e
+        if override_user_message
+          e.user_message = override_user_message
+        end
+        raise e
       end
 
       @result

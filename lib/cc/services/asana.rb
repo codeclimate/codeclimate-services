@@ -25,6 +25,10 @@ class CC::Service::Asana < CC::Service
     result.merge(
       message: "Ticket <a href='#{result[:url]}'>#{result[:id]}</a> created."
     )
+  rescue CC::Service::HTTPError => ex
+    body = JSON.parse(ex.response_body)
+    ex.user_message = body["errors"].map{|e| e["message"] }.join(" ")
+    raise ex
   end
 
 

@@ -15,13 +15,15 @@ class CC::Service::Invocation
         params: e.params,
         status: e.status,
         endpoint_url: e.endpoint_url,
-        message: error_message(e)
+        message: e.user_message || e.message,
+        log_message: error_message(e)
       }
     rescue => e
       @logger.error(error_message(e))
       {
         ok: false,
-        message: error_message(e)
+        message: e.message,
+        log_message: error_message(e)
       }
     end
 

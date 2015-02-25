@@ -30,7 +30,8 @@ class InvocationErrorHandling < CC::Service::TestCase
     assert_equal 401, result[:status]
     assert_equal "params", result[:params]
     assert_equal "url", result[:endpoint_url]
-    assert_equal "Exception invoking service: [prefix] (CC::Service::HTTPError) foo. Response: <nil>", result[:message]
+    assert_equal "foo", result[:message]
+    assert_equal "Exception invoking service: [prefix] (CC::Service::HTTPError) foo. Response: <nil>", result[:log_message]
   end
 
   def test_error_returns_a_hash_with_explanations
@@ -44,6 +45,7 @@ class InvocationErrorHandling < CC::Service::TestCase
 
     result = handler.call
     assert_equal false, result[:ok]
-    assert_equal "Exception invoking service: [prefix] (ArgumentError) lol", result[:message]
+    assert_equal "lol", result[:message]
+    assert_equal "Exception invoking service: [prefix] (ArgumentError) lol", result[:log_message]
   end
 end

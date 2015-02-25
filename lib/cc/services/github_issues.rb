@@ -24,6 +24,10 @@ class CC::Service::GitHubIssues < CC::Service
     result.merge(
       message: "Issue <a href='#{result[:url]}'>##{result[:number]}</a> created."
     )
+  rescue CC::Service::HTTPError => e
+    body = JSON.parse(e.response_body)
+    e.user_message = body["message"]
+    raise e
   end
 
   def receive_quality
