@@ -21,6 +21,15 @@ class TestService < CC::Service::TestCase
     ENV.delete("CODECLIMATE_CA_FILE")
   end
 
+  def test_nothing_has_a_handler
+    service = CC::Service.new({}, {name: "test"})
+
+    result = service.receive
+
+    assert_equal false, result[:ok]
+    assert_equal "No service handler found", result[:message]
+  end
+
   def test_post_success
     stub_http("/my/test/url", [200, {}, '{"ok": true, "thing": "123"}'])
 

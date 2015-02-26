@@ -34,7 +34,7 @@ class CC::Service::GitHubPullRequests < CC::Service
     elsif config.add_comment
       receive_test_comment
     else
-      { ok: true, message: "Nothing happened" }
+      simple_failure("Nothing happened")
     end
   end
 
@@ -43,20 +43,46 @@ class CC::Service::GitHubPullRequests < CC::Service
 
     case @payload["state"]
     when "pending"
-      update_status("pending", "Code Climate is analyzing this code.")
+      update_status_pending
     when "success"
-      add_comment
-      update_status("success", "Code Climate has analyzed this pull request.")
+      if config.update_status && config.add_comment
+        update_status_success
+        add_comment
+      elsif config.update_status
+        update_status_success
+      elsif config.add_comment
+        add_comment
+      else
+        simple_failure("Nothing happened")
+      end
     when "error"
-      update_status(
-        "error",
-        "Code Climate encountered an error while attempting to analyze this " +
-          "pull request."
-      )
+      update_status_error
+    else
+      simple_failure("Unknown state")
     end
   end
 
 private
+
+  def simple_failure(message)
+    { ok: false, message: message }
+  end
+
+  def update_status_success
+    update_status("success", "Code Climate has analyzed this pull request.")
+  end
+
+  def update_status_error
+    update_status(
+      "error",
+      "Code Climate encountered an error while attempting to analyze this " +
+      "pull request."
+    )
+  end
+
+  def update_status_pending
+    update_status("pending", "Code Climate is analyzing this code.")
+  end
 
   def update_status(state, description)
     if config.update_status
