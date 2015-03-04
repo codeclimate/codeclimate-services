@@ -30,7 +30,8 @@ class CC::Service::Invocation
     end
 
     def error_key(ex)
-      ["services.errors", @prefix, "#{ex.class.name.underscore}"].compact.join('.')
+      error_string = ex.class.name.underscore.gsub("/", "-")
+      ["services.errors", @prefix, error_string].compact.join('.')
     end
   end
 end
