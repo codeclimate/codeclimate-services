@@ -43,7 +43,7 @@ class CC::Service::Campfire < CC::Service
     params = { message: { body: line } }
 
     http.basic_auth(config.token, "X")
-    post(speak_uri, params.to_json)
+    service_post(speak_uri, params.to_json)
   end
 
   def speak_uri

@@ -58,7 +58,7 @@ private
     http.headers["X-TrackerToken"] = config.api_token
     url = "#{BASE_URL}/projects/#{config.project_id}/stories"
 
-    post(url, params) do |response|
+    service_post(url, params) do |response|
       body = Nokogiri::XML(response.body)
       {
         id: (body / "story/id").text,

@@ -59,7 +59,7 @@ private
     http.headers["User-Agent"] = "Code Climate"
 
     url = "#{BASE_URL}/repos/#{config.project}/issues"
-    post(url, params.to_json) do |response|
+    service_post(url, params.to_json) do |response|
       body = JSON.parse(response.body)
       {
         id: body["id"],

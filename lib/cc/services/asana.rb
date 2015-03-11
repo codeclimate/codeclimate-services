@@ -51,7 +51,7 @@ private
     params = generate_params(name)
     authenticate_http
     http.headers["Content-Type"] = "application/json"
-    post(ENDPOINT, params.to_json) do |response|
+    service_post(ENDPOINT, params.to_json) do |response|
       body = JSON.parse(response.body)
       id = body['data']['id']
       url = "https://app.asana.com/0/#{config.workspace_id}/#{id}"

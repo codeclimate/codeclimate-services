@@ -33,7 +33,7 @@ class TestService < CC::Service::TestCase
   def test_post_success
     stub_http("/my/test/url", [200, {}, '{"ok": true, "thing": "123"}'])
 
-    response = post("/my/test/url", {token: "1234"}.to_json, {}) do |response|
+    response = service_post("/my/test/url", {token: "1234"}.to_json, {}) do |response|
       body = JSON.parse(response.body)
       { thing: body["thing"] }
     end
@@ -48,7 +48,7 @@ class TestService < CC::Service::TestCase
     stub_http("/my/wrong/url", [404, {}, ""])
 
     assert_raises(CC::Service::HTTPError) do
-      post("/my/wrong/url", {token: "1234"}.to_json, {})
+      service_post("/my/wrong/url", {token: "1234"}.to_json, {})
     end
   end
 
@@ -56,7 +56,7 @@ class TestService < CC::Service::TestCase
     stub_http("/my/wrong/url"){ raise ArgumentError.new("lol") }
 
     assert_raises(ArgumentError) do
-      post("/my/wrong/url", {token: "1234"}.to_json, {})
+      service_post("/my/wrong/url", {token: "1234"}.to_json, {})
     end
   end
 end

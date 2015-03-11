@@ -72,7 +72,7 @@ private
 
     url = "https://#{config.domain}/rest/api/2/issue/"
 
-    post(url, params.to_json) do |response|
+    service_post(url, params.to_json) do |response|
       body = JSON.parse(response.body)
       {
         id: body["id"],

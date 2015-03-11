@@ -55,7 +55,7 @@ class CC::Service::Slack < CC::Service
     http.headers['Content-Type']  = 'application/json'
     url = config.webhook_url
 
-    post(url, params.to_json) do |response|
+    service_post(url, params.to_json) do |response|
       {
         ok: response.body == "ok",
         message: response.body

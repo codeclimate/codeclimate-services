@@ -59,7 +59,7 @@ private
     base_url = "https://#{config.subdomain}.lighthouseapp.com"
     url = "#{base_url}/projects/#{config.project_id}/tickets.json"
 
-    post(url, params.to_json) do |response|
+    service_post(url, params.to_json) do |response|
       body = JSON.parse(response.body)
       {
         id: body["ticket"]["number"],

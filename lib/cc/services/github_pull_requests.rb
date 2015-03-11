@@ -92,7 +92,7 @@ private
         target_url:  @payload["details_url"],
         context:     "codeclimate"
       }
-      post(status_url, params.to_json)
+      service_post(status_url, params.to_json)
     end
   end
 
@@ -102,7 +102,7 @@ private
         body: COMMENT_BODY % @payload["compare_url"]
       }.to_json
 
-      post(comments_url, body) do |response|
+      service_post(comments_url, body) do |response|
         doc = JSON.parse(response.body)
         { id: doc["id"] }
       end
@@ -128,7 +128,7 @@ private
   end
 
   def receive_test_comment
-    response = get(user_url)
+    response = service_get(user_url)
     if response_includes_repo_scope?(response)
       { ok: true, message: "OAuth token is valid" }
     else
@@ -139,7 +139,7 @@ private
   end
 
   def comment_present?
-    response = get(comments_url)
+    response = service_get(comments_url)
     comments = JSON.parse(response.body)
 
     comments.any? { |comment| comment["body"] =~ BODY_REGEX }

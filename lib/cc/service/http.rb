@@ -15,11 +15,11 @@ module CC::Service::HTTP
     end
   end
 
-  def get(url = nil, body = nil, headers = nil, &block)
+  def service_get(url = nil, body = nil, headers = nil, &block)
     raw_get(url, body, headers, &block)
   end
 
-  def post(url, body = nil, headers = nil, &block)
+  def service_post(url, body = nil, headers = nil, &block)
     block ||= lambda{|*args| Hash.new }
     response = raw_post(url, body, headers)
     {

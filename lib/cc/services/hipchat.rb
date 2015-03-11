@@ -51,7 +51,7 @@ class CC::Service::HipChat < CC::Service
       notify:     !!config.notify,
       color:      color
     }
-    post(url, params)
+    service_post(url, params)
   end
 
 end

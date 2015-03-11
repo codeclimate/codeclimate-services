@@ -56,6 +56,6 @@ class CC::Service::Flowdock < CC::Service
     url = "#{BASE_URL}/messages/team_inbox/#{config.api_token}"
     http.headers["User-Agent"] = "Code Climate"
 
-    post(url, params)
+    service_post(url, params)
   end
 end

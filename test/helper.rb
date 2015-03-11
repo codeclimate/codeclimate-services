@@ -35,12 +35,12 @@ class CC::Service::TestCase < Test::Unit::TestCase
     service(*args).receive
   end
 
-  def post(*args)
+  def service_post(*args)
     service(
       CC::Service,
       { data: "my data" },
       event(:quality, to: "D", from: "C")
-    ).post(*args)
+    ).service_post(*args)
   end
 
   def stub_http(url, response = nil, &block)
