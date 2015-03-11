@@ -3,8 +3,8 @@ require File.expand_path('../helper', __FILE__)
 class TestFlowdock < CC::Service::TestCase
   def test_valid_project_parameter
     @stubs.post '/v1/messages/team_inbox/token' do |env|
-      body = env[:body]
-      assert_equal "Exampleorg", body[:project]
+      body = Hash[URI.decode_www_form(env[:body])]
+      assert_equal "Exampleorg", body["project"]
       [200, {}, '']
     end
 
@@ -127,15 +127,15 @@ class TestFlowdock < CC::Service::TestCase
 
   def assert_flowdock_receives(subject, event_data, expected_body)
     @stubs.post request_url do |env|
-      body = env[:body]
-      assert_equal "Code Climate", body[:source]
-      assert_equal "hello@codeclimate.com", body[:from_address]
-      assert_equal "Code Climate", body[:from_name]
-      assert_equal "html", body[:format]
-      assert_equal subject, body[:subject]
-      assert_equal "Example", body[:project]
-      assert_equal expected_body, body[:content]
-      assert_equal "https://codeclimate.com", body[:link]
+      body = Hash[URI.decode_www_form(env[:body])]
+      assert_equal "Code Climate", body["source"]
+      assert_equal "hello@codeclimate.com", body["from_address"]
+      assert_equal "Code Climate", body["from_name"]
+      assert_equal "html", body["format"]
+      assert_equal subject, body["subject"]
+      assert_equal "Example", body["project"]
+      assert_equal expected_body, body["content"]
+      assert_equal "https://codeclimate.com", body["link"]
       [200, {}, '']
     end
 

@@ -108,10 +108,10 @@ class TestHipChat < CC::Service::TestCase
 
   def assert_hipchat_receives(color, event_data, expected_body)
     @stubs.post '/v1/rooms/message' do |env|
-      body = JSON.parse(env[:body])
+      body = Hash[URI.decode_www_form(env[:body])]
       assert_equal "token", body["auth_token"]
       assert_equal "123", body["room_id"]
-      assert_equal true, body["notify"]
+      assert_equal "true", body["notify"]
       assert_equal color, body["color"]
       assert_equal expected_body, body["message"]
       [200, {}, '']
