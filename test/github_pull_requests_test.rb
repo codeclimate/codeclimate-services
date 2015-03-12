@@ -38,7 +38,6 @@ class TestGitHubPullRequests < CC::Service::TestCase
       commit_sha:  "abc123",
       state:       "error",
     })
-
   end
 
   def test_pull_request_status_test_success
@@ -115,11 +114,13 @@ class TestGitHubPullRequests < CC::Service::TestCase
 
     # With no POST expectation, test will fail if request is made.
 
-    receive_pull_request({ add_comment: true }, {
+    rsp = receive_pull_request({ add_comment: true, update_status: false }, {
       github_slug: "pbrisbin/foo",
       number:      1,
       state:       "success",
     })
+    assert_not_nil rsp
+    assert_false rsp[:ok]
   end
 
 private
