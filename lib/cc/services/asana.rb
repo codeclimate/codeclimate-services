@@ -14,20 +14,23 @@ class CC::Service::Asana < CC::Service
     validates :workspace_id, presence: true
   end
 
+  ENDPOINT = "https://app.asana.com/api/1.0/tasks"
+
   self.title = "Asana"
   self.description = "Create tasks in Asana"
   self.issue_tracker = true
 
   def receive_test
     result = create_task("Test task from Code Climate")
-
-    {
-      ok: true,
-      message: "Ticked <a href='#{result[:url]}'>#{result[:id]}</a> created."
-    }
-  rescue => ex
-    { ok: false, message: ex.message }
+    result.merge(
+      message: "Ticket <a href='#{result[:url]}'>#{result[:id]}</a> created."
+    )
+  rescue CC::Service::HTTPError => ex
+    body = JSON.parse(ex.response_body)
+    ex.user_message = body["errors"].map{|e| e["message"] }.join(" ")
+    raise ex
   end
+
 
   def receive_quality
     title = "Refactor #{constant_name} from #{rating} on Code Climate"
@@ -45,6 +48,18 @@ class CC::Service::Asana < CC::Service
 private
 
   def create_task(name)
+    params = generate_params(name)
+    authenticate_http
+    http.headers["Content-Type"] = "application/json"
+    service_post(ENDPOINT, params.to_json) do |response|
+      body = JSON.parse(response.body)
+      id = body['data']['id']
+      url = "https://app.asana.com/0/#{config.workspace_id}/#{id}"
+      { id: id, url: url }
+    end
+  end
+
+  def generate_params(name)
     params = {
       data: { workspace: config.workspace_id, name: name }
     }
@@ -58,18 +73,11 @@ private
       params[:data][:assignee] = config.assignee
     end
 
-    http.headers["Content-Type"] = "application/json"
+    params
+  end
+
+  def authenticate_http
     http.basic_auth(config.api_key, "")
-
-    url = "https://app.asana.com/api/1.0/tasks"
-    res = http_post(url, params.to_json)
-
-    body = JSON.parse(res.body)
-
-    id = body['data']['id']
-    url = "https://app.asana.com/0/#{config.workspace_id}/#{id}"
-
-    { id: id, url: url }
   end
 
 end

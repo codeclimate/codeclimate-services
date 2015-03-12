@@ -6,8 +6,8 @@ class TestSlack < CC::Service::TestCase
   def test_test_hook
     assert_slack_receives(
       nil,
-      { name: "test", repo_name: "Rails" },
-      "[Rails] This is a test of the Slack service hook"
+      { name: "test", repo_name: "rails" },
+      "[rails] This is a test of the Slack service hook"
     )
   end
 
@@ -164,6 +164,26 @@ And <https://codeclimate.com/repos/1/feed|1 other change>""")
 And <https://codeclimate.com/repos/1/feed|1 other improvement>""")
   end
 
+  def test_received_success
+    response = assert_slack_receives(
+      nil,
+      { name: "test", repo_name: "rails" },
+      "[rails] This is a test of the Slack service hook"
+    )
+    assert_true response[:ok]
+    assert_equal "Test message sent", response[:message]
+  end
+
+  def test_receive_test
+    @stubs.post '/token' do |env|
+      [200, {}, 'ok']
+    end
+
+    response = receive_event(name: "test")
+
+    assert_equal "Test message sent", response[:message]
+  end
+
   private
 
   def assert_slack_receives(color, event_data, expected_body)
@@ -174,13 +194,16 @@ And <https://codeclimate.com/repos/1/feed|1 other improvement>""")
       assert_equal color, attachment["color"] # may be nil
       assert_equal expected_body, attachment["fallback"]
       assert_equal expected_body, field["value"]
-      [200, {}, '']
+      [200, {}, 'ok']
     end
+    receive_event(event_data)
+  end
 
+  def receive_event(event_data = nil)
     receive(
       CC::Service::Slack,
       { webhook_url: "http://api.slack.com/token", channel: "#general" },
-      event_data
+      event_data || event(:quality, from: "C", to: "D")
     )
   end
 end

@@ -101,10 +101,32 @@ class TestFlowdock < CC::Service::TestCase
     ].join(" "))
   end
 
+  def test_receive_test
+    @stubs.post request_url do |env|
+      [200, {}, '']
+    end
+
+    response = receive_event(name: "test", repo_name: "foo")
+
+    assert_equal "Test message sent", response[:message]
+  end
+
   private
 
+  def endpoint_url
+    "https://api.flowdock.com#{request_url}"
+  end
+
+  def request_url
+    "/v1/messages/team_inbox/#{token}"
+  end
+
+  def token
+    "token"
+  end
+
   def assert_flowdock_receives(subject, event_data, expected_body)
-    @stubs.post '/v1/messages/team_inbox/token' do |env|
+    @stubs.post request_url do |env|
       body = Hash[URI.decode_www_form(env[:body])]
       assert_equal "Code Climate", body["source"]
       assert_equal "hello@codeclimate.com", body["from_address"]
@@ -117,6 +139,10 @@ class TestFlowdock < CC::Service::TestCase
       [200, {}, '']
     end
 
-    receive(CC::Service::Flowdock, { api_token: "token" }, event_data)
+    receive_event(event_data)
+  end
+
+  def receive_event(event_data = nil)
+    receive(CC::Service::Flowdock, { api_token: "token" }, event_data || event(:quality, from: "D", to: "C"))
   end
 end

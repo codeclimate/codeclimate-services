@@ -13,11 +13,9 @@ class CC::Service::Flowdock < CC::Service
   self.description = "Send messages to a Flowdock inbox"
 
   def receive_test
-    notify("Test", repo_name, formatter.format_test)
-
-    { ok: true, message: "Test message sent" }
-  rescue => ex
-    { ok: false, message: ex.message }
+    notify("Test", repo_name, formatter.format_test).merge(
+      message: "Test message sent"
+    )
   end
 
   def receive_coverage
@@ -57,6 +55,7 @@ class CC::Service::Flowdock < CC::Service
 
     url = "#{BASE_URL}/messages/team_inbox/#{config.api_token}"
     http.headers["User-Agent"] = "Code Climate"
-    http_post(url, params)
+
+    service_post(url, params)
   end
 end

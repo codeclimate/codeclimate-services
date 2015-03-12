@@ -1,6 +1,15 @@
 require File.expand_path('../helper', __FILE__)
 
 class TestJira < CC::Service::TestCase
+  def test_successful_receive
+    response = assert_jira_receives(
+      event(:quality, to: "D", from: "C"),
+      "Refactor User from a D on Code Climate",
+      "https://codeclimate.com/repos/1/feed"
+    )
+    assert_equal "10000", response[:id]
+  end
+
   def test_quality
     assert_jira_receives(
       event(:quality, to: "D", from: "C"),
@@ -20,6 +29,16 @@ class TestJira < CC::Service::TestCase
     )
   end
 
+  def test_receive_test
+    @stubs.post '/rest/api/2/issue' do |env|
+      [200, {}, '{"id": 12345, "key": "CC-123", "self": "http://foo.bar"}']
+    end
+
+    response = receive_event(name: "test")
+
+    assert_equal "Ticket <a href='http://foo.bar'>12345</a> created.", response[:message]
+  end
+
   private
 
   def assert_jira_receives(event_data, title, ticket_body)
@@ -28,13 +47,17 @@ class TestJira < CC::Service::TestCase
       assert_equal "Basic Zm9vOmJhcg==", env[:request_headers]["Authorization"]
       assert_equal title, body["fields"]["summary"]
       assert_equal ticket_body, body["fields"]["description"]
-      [200, {}, '{"ticket":{}}']
+      [200, {}, '{"id":"10000"}']
     end
 
+    receive_event(event_data)
+  end
+
+  def receive_event(event_data = nil)
     receive(
       CC::Service::Jira,
       { domain: "foo.com", username: "foo", password: "bar", project_id: "100" },
-      event_data
+      event_data || event(:quality, from: "C", to: "D")
     )
   end
 end

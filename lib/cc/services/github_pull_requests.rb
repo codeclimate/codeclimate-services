@@ -13,25 +13,6 @@ class CC::Service::GitHubPullRequests < CC::Service
     validates :oauth_token, presence: true
   end
 
-  class ResponseAggregator
-    def initialize(status_response, comment_response)
-      @status_response = status_response
-      @comment_response = comment_response
-    end
-
-    def response
-      return @status_response if @status_response[:ok] && @comment_response[:ok]
-      message = if !@status_response[:ok] && !@comment_response[:ok]
-        "Unable to post comment or update status"
-      elsif !@status_response[:ok]
-        "Unable to update status: #{@status_response[:message]}"
-      elsif !@comment_response[:ok]
-        "Unable to post comment: #{@comment_response[:message]}"
-      end
-      { ok: false, message: message }
-    end
-  end
-
   self.title = "GitHub Pull Requests"
   self.description = "Update pull requests on GitHub"
 
@@ -46,11 +27,14 @@ class CC::Service::GitHubPullRequests < CC::Service
     setup_http
 
     if config.update_status && config.add_comment
-      ResponseAggregator.new(receive_test_status, receive_test_comment).response
+      receive_test_status
+      receive_test_comment
     elsif config.update_status
       receive_test_status
     elsif config.add_comment
       receive_test_comment
+    else
+      simple_failure("Nothing happened")
     end
   end
 
@@ -59,31 +43,56 @@ class CC::Service::GitHubPullRequests < CC::Service
 
     case @payload["state"]
     when "pending"
-      update_status("pending", "Code Climate is analyzing this code.")
+      update_status_pending
     when "success"
-      add_comment
-      update_status("success", "Code Climate has analyzed this pull request.")
+      if config.update_status && config.add_comment
+        update_status_success
+        add_comment
+      elsif config.update_status
+        update_status_success
+      elsif config.add_comment
+        add_comment
+      else
+        simple_failure("Nothing happened")
+      end
     when "error"
-      update_status(
-        "error",
-        "Code Climate encountered an error while attempting to analyze this " +
-          "pull request."
-      )
+      update_status_error
+    else
+      simple_failure("Unknown state")
     end
   end
 
 private
 
+  def simple_failure(message)
+    { ok: false, message: message }
+  end
+
+  def update_status_success
+    update_status("success", "Code Climate has analyzed this pull request.")
+  end
+
+  def update_status_error
+    update_status(
+      "error",
+      "Code Climate encountered an error while attempting to analyze this " +
+      "pull request."
+    )
+  end
+
+  def update_status_pending
+    update_status("pending", "Code Climate is analyzing this code.")
+  end
+
   def update_status(state, description)
     if config.update_status
-      body = {
+      params = {
         state:       state,
         description: description,
         target_url:  @payload["details_url"],
         context:     "codeclimate"
-      }.to_json
-
-      http_post(status_url, body)
+      }
+      service_post(status_url, params.to_json)
     end
   end
 
@@ -93,37 +102,44 @@ private
         body: COMMENT_BODY % @payload["compare_url"]
       }.to_json
 
-      http_post(comments_url, body)
+      service_post(comments_url, body) do |response|
+        doc = JSON.parse(response.body)
+        { id: doc["id"] }
+      end
     end
   end
 
   def receive_test_status
-    http_post(base_status_url("0" * 40), "{}")
-
-  rescue HTTPError => ex
-    if ex.status == 422 # response message: "No commit found for SHA"
-      { ok: true, message: "OAuth token is valid" }
-    else ex.status == 401 # response message: "Bad credentials"
-      { ok: false, message: ex.message }
+    url = base_status_url("0" * 40)
+    params = {}
+    raw_post(url, params.to_json)
+  rescue CC::Service::HTTPError => e
+    if e.status == 422
+      {
+        ok: true,
+        params: params.as_json,
+        status: e.status,
+        endpoint_url: url,
+        message: "OAuth token is valid"
+      }
+    else
+      raise
     end
-  rescue => ex
-    { ok: false, message: ex.message }
   end
 
   def receive_test_comment
-    response = http_get(user_url)
+    response = service_get(user_url)
     if response_includes_repo_scope?(response)
       { ok: true, message: "OAuth token is valid" }
     else
       { ok: false, message: "OAuth token requires 'repo' scope to post comments." }
     end
-
   rescue => ex
     { ok: false, message: ex.message }
   end
 
   def comment_present?
-    response = http_get(comments_url)
+    response = service_get(comments_url)
     comments = JSON.parse(response.body)
 
     comments.any? { |comment| comment["body"] =~ BODY_REGEX }

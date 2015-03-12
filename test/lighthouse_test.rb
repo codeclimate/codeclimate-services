@@ -2,11 +2,14 @@ require File.expand_path('../helper', __FILE__)
 
 class TestLighthouse < CC::Service::TestCase
   def test_quality
-    assert_lighthouse_receives(
+    response = assert_lighthouse_receives(
       event(:quality, to: "D", from: "C"),
       "Refactor User from a D on Code Climate",
       "https://codeclimate.com/repos/1/feed"
     )
+    assert_equal "123", response[:id]
+    assert_equal "http://lighthouse.com/projects/123/tickets/123.json",
+      response[:url]
   end
 
   def test_vulnerability
@@ -20,6 +23,16 @@ class TestLighthouse < CC::Service::TestCase
     )
   end
 
+  def test_receive_test
+    @stubs.post 'projects/123/tickets.json' do |env|
+      [200, {}, '{"ticket":{"number": "123", "url":"http://foo.bar"}}']
+    end
+
+    response = receive_event(name: "test")
+
+    assert_equal "Ticket <a href='http://foo.bar'>123</a> created.", response[:message]
+  end
+
   private
 
   def assert_lighthouse_receives(event_data, title, ticket_body)
@@ -28,13 +41,17 @@ class TestLighthouse < CC::Service::TestCase
       assert_equal "token", env[:request_headers]["X-LighthouseToken"]
       assert_equal title, body["ticket"]["title"]
       assert_equal ticket_body, body["ticket"]["body"]
-      [200, {}, '{"ticket":{}}']
+      [200, {}, '{"ticket":{"number": "123", "url":"http://lighthouse.com/projects/123/tickets/123.json"}}']
     end
 
+    receive_event(event_data)
+  end
+
+  def receive_event(event_data = nil)
     receive(
       CC::Service::Lighthouse,
       { subdomain: "foo", api_token: "token", project_id: "123" },
-      event_data
+      event_data || event(:quality, from: "C", to: "D")
     )
   end
 end

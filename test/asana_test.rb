@@ -18,6 +18,27 @@ class TestAsana < CC::Service::TestCase
     )
   end
 
+  def test_successful_post
+    @stubs.post '/api/1.0/tasks' do |env|
+      [200, {}, '{"data":{"id":"2"}}']
+    end
+
+    response = receive_event
+
+    assert_equal "2", response[:id]
+    assert_equal "https://app.asana.com/0/1/2", response[:url]
+  end
+
+  def test_receive_test
+    @stubs.post '/api/1.0/tasks' do |env|
+      [200, {}, '{"data":{"id":"4"}}']
+    end
+
+    response = receive_event(name: "test")
+
+    assert_equal "Ticket <a href='https://app.asana.com/0/1/4'>4</a> created.", response[:message]
+  end
+
   private
 
   def assert_asana_receives(event_data, name)
@@ -30,13 +51,17 @@ class TestAsana < CC::Service::TestCase
       assert_equal "jim@asana.com", data["assignee"]
       assert_equal name,            data["name"]
 
-      [200, {}, '{"data":{"id":{}}}']
+      [200, {}, '{"data":{"id":4}}']
     end
 
+    receive_event(event_data)
+  end
+
+  def receive_event(event_data = nil)
     receive(
       CC::Service::Asana,
       { api_key: "abc123", workspace_id: "1", project_id: "2", assignee: "jim@asana.com" },
-      event_data
+      event_data || event(:quality, to: "D", from: "C")
     )
   end
 end

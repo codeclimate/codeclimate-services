@@ -94,6 +94,16 @@ class TestHipChat < CC::Service::TestCase
     ].join(" "))
   end
 
+  def test_receive_test
+    @stubs.post '/v1/rooms/message' do |env|
+      [200, {}, '']
+    end
+
+    response = receive_event(name: "test")
+
+    assert_equal "Test message sent", response[:message]
+  end
+
   private
 
   def assert_hipchat_receives(color, event_data, expected_body)
@@ -107,10 +117,14 @@ class TestHipChat < CC::Service::TestCase
       [200, {}, '']
     end
 
+    receive_event(event_data)
+  end
+
+  def receive_event(event_data = nil)
     receive(
       CC::Service::HipChat,
       { auth_token: "token", room_id: "123", notify: true },
-      event_data
+      event_data || event(:quality, from: "C", to: "D")
     )
   end
 end

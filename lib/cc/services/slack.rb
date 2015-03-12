@@ -15,14 +15,11 @@ class CC::Service::Slack < CC::Service
   self.description = "Send messages to a Slack channel"
 
   def receive_test
-    speak(formatter.format_test)
-
     # payloads for test receivers include the weekly quality report.
     send_snapshot_to_slack(CC::Formatters::SnapshotFormatter::Sample.new(payload))
-
-    { ok: true, message: "Test message sent" }
-  rescue => ex
-    { ok: false, message: ex.message }
+    speak(formatter.format_test).merge(
+      message: "Test message sent"
+    )
   end
 
   def receive_snapshot
@@ -44,7 +41,7 @@ class CC::Service::Slack < CC::Service
   end
 
   def speak(message, color = nil)
-    body = { attachments: [{
+    params = { attachments: [{
       color: color,
       fallback: message,
       fields: [{ value: message }],
@@ -52,11 +49,18 @@ class CC::Service::Slack < CC::Service
     }]}
 
     if config.channel
-      body[:channel] = config.channel
+      params[:channel] = config.channel
     end
 
     http.headers['Content-Type']  = 'application/json'
-    http_post(config.webhook_url, body.to_json)
+    url = config.webhook_url
+
+    service_post(url, params.to_json) do |response|
+      {
+        ok: response.body == "ok",
+        message: response.body
+      }
+    end
   end
 
   def send_snapshot_to_slack(snapshot)
