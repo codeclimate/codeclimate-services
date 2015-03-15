@@ -9,7 +9,7 @@ class CC::Service::Slack < CC::Service
       description: "The Slack webhook URL you would like message posted to"
 
     attribute :channel, String,
-      description: "The channel to send to (optional)"
+      description: "The channel to send to (optional). Enter # before the channel name."
   end
 
   self.description = "Send messages to a Slack channel"
