@@ -10,6 +10,28 @@ class TestInvocation < Test::Unit::TestCase
     assert_equal :some_result, result
   end
 
+  def test_success_with_return_values
+    service = FakeService.new(:some_result)
+
+    result = CC::Service::Invocation.invoke(service) do |i|
+      i.with :return_values, "error"
+    end
+
+    assert_equal 1, service.receive_count
+    assert_equal :some_result, result
+  end
+
+  def test_failure_with_return_values
+    service = FakeService.new(nil)
+
+    result = CC::Service::Invocation.invoke(service) do |i|
+      i.with :return_values, "error"
+    end
+
+    assert_equal 1, service.receive_count
+    assert_equal( {ok: false, message: "error"}, result )
+  end
+
   def test_retries
     service = FakeService.new
     service.fake_error = RuntimeError.new
