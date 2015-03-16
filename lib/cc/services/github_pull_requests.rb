@@ -55,6 +55,10 @@ class CC::Service::GitHubPullRequests < CC::Service
       else
         simple_failure("Nothing happened")
       end
+    when "skipped"
+      if config.update_status
+        update_status_skipped
+      end
     when "error"
       update_status_error
     else
@@ -66,6 +70,10 @@ private
 
   def simple_failure(message)
     { ok: false, message: message }
+  end
+
+  def update_status_skipped
+    update_status("success", "Code Climate has skipped analysis of this commit.")
   end
 
   def update_status_success
