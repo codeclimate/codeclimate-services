@@ -85,19 +85,17 @@ private
   end
 
   def update_status(state, description)
-    if config.update_status
-      params = {
-        state:       state,
-        description: description,
-        target_url:  @payload["details_url"],
-        context:     "codeclimate"
-      }
-      service_post(status_url, params.to_json)
-    end
+    params = {
+      state:       state,
+      description: description,
+      target_url:  @payload["details_url"],
+      context:     "codeclimate"
+    }
+    service_post(status_url, params.to_json)
   end
 
   def add_comment
-    if config.add_comment && !comment_present?
+    if !comment_present?
       body = {
         body: COMMENT_BODY % @payload["compare_url"]
       }.to_json
@@ -106,6 +104,8 @@ private
         doc = JSON.parse(response.body)
         { id: doc["id"] }
       end
+    else
+      { ok: false, message: "Comment already present" }
     end
   end
 

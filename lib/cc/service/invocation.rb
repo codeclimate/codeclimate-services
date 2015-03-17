@@ -2,12 +2,14 @@ require 'cc/service/invocation/invocation_chain'
 require 'cc/service/invocation/with_retries'
 require 'cc/service/invocation/with_metrics'
 require 'cc/service/invocation/with_error_handling'
+require 'cc/service/invocation/with_return_values'
 
 class CC::Service::Invocation
   MIDDLEWARE = {
     retries: WithRetries,
     metrics: WithMetrics,
     error_handling: WithErrorHandling,
+    return_values: WithReturnValues,
   }
 
   attr_reader :result
