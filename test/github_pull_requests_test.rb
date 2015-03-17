@@ -40,6 +40,39 @@ class TestGitHubPullRequests < CC::Service::TestCase
     })
   end
 
+  def test_pull_request_status_skipped
+    expect_status_update("pbrisbin/foo", "abc123", {
+      "state"       => "success",
+      "description" => /skipped analysis/,
+    })
+
+    receive_pull_request({ update_status: true }, {
+      github_slug: "pbrisbin/foo",
+      commit_sha:  "abc123",
+      state:       "skipped",
+    })
+  end
+
+  def test_no_status_update_for_skips_when_update_status_config_is_falsey
+    # With no POST expectation, test will fail if request is made.
+
+    receive_pull_request({}, {
+      github_slug: "pbrisbin/foo",
+      commit_sha:  "abc123",
+      state:       "skipped",
+    })
+  end
+
+  def test_no_comment_for_skips_regardless_of_add_comment_config
+    # With no POST expectation, test will fail if request is made.
+
+    receive_pull_request({ add_comment: true }, {
+      github_slug: "pbrisbin/foo",
+      commit_sha:  "abc123",
+      state:       "skipped",
+    })
+  end
+
   def test_pull_request_status_test_success
     @stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") { |env| [422, {}, ""] }
 
@@ -169,5 +202,4 @@ private
       { name: "test" }.merge(event_data)
     )
   end
-
 end
