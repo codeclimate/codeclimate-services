@@ -63,6 +63,27 @@ class TestGitHubPullRequests < CC::Service::TestCase
     })
   end
 
+  def test_no_status_update_for_pending_when_update_status_config_is_falsey
+    # With no POST expectation, test will fail if request is made.
+
+    receive_pull_request({}, {
+      github_slug: "pbrisbin/foo",
+      commit_sha:  "abc123",
+      state:       "pending",
+    })
+  end
+
+  def test_no_status_update_for_error_when_update_status_config_is_falsey
+    # With no POST expectation, test will fail if request is made.
+
+    receive_pull_request({}, {
+      github_slug: "pbrisbin/foo",
+      commit_sha:  "abc123",
+      state:       "error",
+    })
+  end
+
+
   def test_no_comment_for_skips_regardless_of_add_comment_config
     # With no POST expectation, test will fail if request is made.
 
@@ -147,13 +168,28 @@ class TestGitHubPullRequests < CC::Service::TestCase
 
     # With no POST expectation, test will fail if request is made.
 
-    rsp = receive_pull_request({ add_comment: true, update_status: false }, {
+    response = receive_pull_request({
+      add_comment: true,
+      update_status: false
+    }, {
       github_slug: "pbrisbin/foo",
       number:      1,
       state:       "success",
     })
-    assert_not_nil rsp
-    assert_false rsp[:ok]
+
+    assert_equal({ ok: false, message: "Comment already present" }, response)
+  end
+
+  def test_pull_request_unknown_state
+    response = receive_pull_request({}, { state: "unknown" })
+
+    assert_equal({ ok: false, message: "Unknown state" }, response)
+  end
+
+  def test_pull_request_nothing_happened
+    response = receive_pull_request({}, { state: "success" })
+
+    assert_equal({ ok: false, message: "Nothing happened" }, response)
   end
 
 private

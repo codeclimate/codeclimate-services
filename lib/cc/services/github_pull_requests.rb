@@ -40,30 +40,15 @@ class CC::Service::GitHubPullRequests < CC::Service
 
   def receive_pull_request
     setup_http
+    state = @payload["state"]
 
-    case @payload["state"]
-    when "pending"
-      update_status_pending
-    when "success"
-      if config.update_status && config.add_comment
-        update_status_success
-        add_comment
-      elsif config.update_status
-        update_status_success
-      elsif config.add_comment
-        add_comment
-      else
-        simple_failure("Nothing happened")
-      end
-    when "skipped"
-      if config.update_status
-        update_status_skipped
-      end
-    when "error"
-      update_status_error
+    if %w(pending success skipped error).include?(state)
+      send("update_status_#{state}")
     else
-      simple_failure("Unknown state")
+      @response = simple_failure("Unknown state")
     end
+
+    response
   end
 
 private
@@ -72,19 +57,27 @@ private
     { ok: false, message: message }
   end
 
+  def response
+    @response || simple_failure("Nothing happened")
+  end
+
   def update_status_skipped
-    update_status("success", "Code Climate has skipped analysis of this commit.")
+    update_status(
+      "success",
+      "Code Climate has skipped analysis of this commit."
+    )
   end
 
   def update_status_success
     update_status("success", "Code Climate has analyzed this pull request.")
+    add_comment
   end
 
   def update_status_error
     update_status(
       "error",
       "Code Climate encountered an error while attempting to analyze this " +
-      "pull request."
+        "pull request."
     )
   end
 
@@ -93,27 +86,34 @@ private
   end
 
   def update_status(state, description)
-    params = {
-      state:       state,
-      description: description,
-      target_url:  @payload["details_url"],
-      context:     "codeclimate"
-    }
-    service_post(status_url, params.to_json)
+    if config.update_status
+      params = {
+        state:       state,
+        description: description,
+        target_url:  @payload["details_url"],
+        context:     "codeclimate"
+      }
+      @response = service_post(status_url, params.to_json)
+    end
   end
 
   def add_comment
-    if !comment_present?
-      body = {
-        body: COMMENT_BODY % @payload["compare_url"]
-      }.to_json
+    if config.add_comment
+      if !comment_present?
+        body = {
+          body: COMMENT_BODY % @payload["compare_url"]
+        }.to_json
 
-      service_post(comments_url, body) do |response|
-        doc = JSON.parse(response.body)
-        { id: doc["id"] }
+        @response = service_post(comments_url, body) do |response|
+          doc = JSON.parse(response.body)
+          { id: doc["id"] }
+        end
+      else
+        @response = {
+          ok: false,
+          message: "Comment already present"
+        }
       end
-    else
-      { ok: false, message: "Comment already present" }
     end
   end
 
