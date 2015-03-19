@@ -7,7 +7,7 @@ class CC::Service
       @response_body = env[:body]
       @status        = env[:status]
       @params        = env[:params]
-      @endpoint_url  = env[:url]
+      @endpoint_url  = env[:url].to_s
 
       super(message)
     end
