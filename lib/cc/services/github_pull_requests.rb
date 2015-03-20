@@ -69,8 +69,8 @@ private
   end
 
   def update_status_success
-    update_status("success", "Code Climate has analyzed this pull request.")
     add_comment
+    update_status("success", "Code Climate has analyzed this pull request.")
   end
 
   def update_status_error
