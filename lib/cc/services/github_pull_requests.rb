@@ -110,7 +110,7 @@ private
         end
       else
         @response = {
-          ok: false,
+          ok: true,
           message: "Comment already present"
         }
       end

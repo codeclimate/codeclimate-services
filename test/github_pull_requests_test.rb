@@ -177,7 +177,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
       state:       "success",
     })
 
-    assert_equal({ ok: false, message: "Comment already present" }, response)
+    assert_equal({ ok: true, message: "Comment already present" }, response)
   end
 
   def test_pull_request_unknown_state
