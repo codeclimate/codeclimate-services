@@ -70,7 +70,10 @@ private
 
   def update_status_success
     add_comment
-    update_status("success", "Code Climate has analyzed this pull request.")
+    update_status(
+      "success",
+      CC::Service::GitHubPullRequests::Presenter.new(@payload).success_message
+    )
   end
 
   def update_status_error
