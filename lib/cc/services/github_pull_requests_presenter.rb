@@ -1,7 +1,11 @@
 class CC::Service::GitHubPullRequests::Presenter
   def initialize(payload)
-    @fixed_count = payload["fixed_issue_count"]
-    @new_count = payload["new_issue_count"]
+    issue_comparison_counts = payload["issue_comparison_counts"]
+
+    if issue_comparison_counts
+      @fixed_count = issue_comparison_counts["fixed"]
+      @new_count = issue_comparison_counts["new"]
+    end
   end
 
   def success_message

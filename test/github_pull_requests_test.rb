@@ -24,8 +24,10 @@ class TestGitHubPullRequests < CC::Service::TestCase
       github_slug: "pbrisbin/foo",
       commit_sha:  "abc123",
       state:       "success",
-      new_issue_count: 1,
-      fixed_issue_count: 2,
+      issue_comparison_counts: {
+        "fixed" => 2,
+        "new"   => 1,
+      }
     })
   end
 
