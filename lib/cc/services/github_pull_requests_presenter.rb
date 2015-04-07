@@ -1,3 +1,5 @@
+require "cc/services/github_pull_requests"
+
 class CC::Service::GitHubPullRequests::Presenter
   def initialize(payload, repo_config)
     issue_comparison_counts = payload["issue_comparison_counts"]
