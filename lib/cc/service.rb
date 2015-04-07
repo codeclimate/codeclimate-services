@@ -69,10 +69,11 @@ module CC
       end
     end
 
-    def initialize(config, payload)
-      @payload = payload.stringify_keys
-      @config  = create_config(config)
-      @event   = @payload["name"].to_s
+    def initialize(config, payload, repo_config)
+      @payload     = payload.stringify_keys
+      @config      = create_config(config)
+      @event       = @payload["name"].to_s
+      @repo_config = repo_config
 
       load_helper
       validate_event

@@ -70,10 +70,11 @@ private
 
   def update_status_success
     add_comment
-    update_status(
-      "success",
-      CC::Service::GitHubPullRequests::Presenter.new(@payload).success_message
-    )
+    update_status("success", presenter.success_message)
+  end
+
+  def presenter
+    CC::Service::GitHubPullRequests::Presenter.new(@payload, @repo_config)
   end
 
   def update_status_error

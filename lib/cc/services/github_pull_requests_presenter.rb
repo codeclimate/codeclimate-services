@@ -1,15 +1,17 @@
 class CC::Service::GitHubPullRequests::Presenter
-  def initialize(payload)
+  def initialize(payload, repo_config)
     issue_comparison_counts = payload["issue_comparison_counts"]
 
     if issue_comparison_counts
       @fixed_count = issue_comparison_counts["fixed"]
       @new_count = issue_comparison_counts["new"]
     end
+
+    @repo_config = repo_config
   end
 
   def success_message
-    if issue_counts_in_payload?
+    if @repo_config.pr_status_quality_stats?
       if both_issue_counts_zero?
         "Code Climate didn't find any new or fixed issues."
       else
