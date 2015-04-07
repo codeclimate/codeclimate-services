@@ -20,13 +20,19 @@ class TestGitHubPullRequests < CC::Service::TestCase
       "description" => "Code Climate found 1 new issue and 2 fixed issues.",
     })
 
-    receive_pull_request({ update_status: true }, {
-      github_slug: "pbrisbin/foo",
-      commit_sha:  "abc123",
-      state:       "success",
-      new_issue_count: 1,
-      fixed_issue_count: 2,
-    })
+    receive_pull_request(
+      { update_status: true },
+      {
+        github_slug: "pbrisbin/foo",
+        commit_sha:  "abc123",
+        state:       "success",
+        issue_comparison_counts: {
+          "fixed" => 2,
+          "new"   => 1,
+        }
+      },
+      true
+    )
   end
 
   def test_pull_request_status_success_generic
@@ -238,11 +244,12 @@ private
     end
   end
 
-  def receive_pull_request(config, event_data)
+  def receive_pull_request(config, event_data, truthy_repo_config = false)
     receive(
       CC::Service::GitHubPullRequests,
       { oauth_token: "123" }.merge(config),
-      { name: "pull_request" }.merge(event_data)
+      { name: "pull_request" }.merge(event_data),
+      truthy_repo_config ? TruthyRepoConfig.new : FalsyRepoConfig.new
     )
   end
 

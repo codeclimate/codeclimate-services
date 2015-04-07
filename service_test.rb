@@ -31,6 +31,12 @@ class WithResponseLogging
   end
 end
 
+class FalsyRepoConfig
+  def method_missing(*args)
+    false
+  end
+end
+
 class ServiceTest
   def initialize(klass, *params)
     @klass = klass
@@ -68,7 +74,11 @@ private
   def test_service(klass, config, payload)
     repo_name = ENV["REPO_NAME"] || "App"
 
-    service = klass.new(config, { name: :test, repo_name: repo_name }.merge(payload))
+    service = klass.new(
+      config,
+      { name: :test, repo_name: repo_name }.merge(payload),
+      FalsyRepoConfig.new
+    )
 
     CC::Service::Invocation.new(service) do |i|
       i.wrap(WithResponseLogging)
