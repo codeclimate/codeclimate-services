@@ -8,18 +8,18 @@ module CC
     require "axiom/types/password"
 
     dir = File.expand_path '../helpers', __FILE__
-    Dir["#{dir}/*_helper.rb"].each do |helper|
+    Dir["#{dir}/*_helper.rb"].sort.each do |helper|
       require helper
     end
 
     dir = File.expand_path '../formatters', __FILE__
-    Dir["#{dir}/*_formatter.rb"].each do |formatter|
+    Dir["#{dir}/*_formatter.rb"].sort.each do |formatter|
       require formatter
     end
 
     def self.load_services
       path = File.expand_path("../services/**/*.rb", __FILE__)
-      Dir[path].each { |lib| require(lib) }
+      Dir[path].sort.each { |lib| require(lib) }
     end
 
     Error = Class.new(StandardError)

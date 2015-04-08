@@ -8,7 +8,7 @@ CodeClimate::TestReporter.start
 cwd = File.expand_path(File.dirname(__FILE__))
 require "#{cwd}/../config/load"
 require "#{cwd}/fixtures"
-Dir["#{cwd}/support/*.rb"].each do |helper|
+Dir["#{cwd}/support/*.rb"].sort.each do |helper|
   require helper
 end
 CC::Service.load_services
