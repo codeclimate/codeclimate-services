@@ -1,3 +1,5 @@
+require "cc/presenters/github_pull_requests_presenter"
+
 class CC::Service::GitHubPullRequests < CC::Service
   class Config < CC::Service::Config
     attribute :oauth_token, String,
@@ -74,7 +76,7 @@ private
   end
 
   def presenter
-    CC::Service::GitHubPullRequests::Presenter.new(@payload, @repo_config)
+    CC::Service::GitHubPullRequestsPresenter.new(@payload, @repo_config)
   end
 
   def update_status_error

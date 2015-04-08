@@ -1,4 +1,5 @@
-require File.expand_path('../helper', __FILE__)
+require "helper"
+require "cc/presenters/github_pull_requests_presenter"
 
 class TestGitHubPullRequestsPresenter < CC::Service::TestCase
   def test_message_quality_stats_not_enabled
@@ -50,7 +51,7 @@ private
   end
 
   def build_presenter(quality_stats_enabled, issue_counts)
-    CC::Service::GitHubPullRequests::Presenter.new(
+    CC::Service::GitHubPullRequestsPresenter.new(
       build_payload(issue_counts),
       OpenStruct.new(pr_status_quality_stats?: quality_stats_enabled)
     )
