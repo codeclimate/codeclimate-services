@@ -88,7 +88,7 @@ module CC
         end
       end
 
-      nil
+      { ok: false, ignored: true,  message: "No service handler found" }
     end
 
     private

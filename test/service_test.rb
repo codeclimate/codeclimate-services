@@ -26,7 +26,9 @@ class TestService < CC::Service::TestCase
 
     result = service.receive
 
-    assert_nil result
+    assert_equal false, result[:ok]
+    assert_true true, result[:ignored]
+    assert_equal "No service handler found", result[:message]
   end
 
   def test_post_success
