@@ -23,7 +23,13 @@ class CC::Service::Slack < CC::Service
   end
 
   def receive_snapshot
-    send_snapshot_to_slack(CC::Formatters::SnapshotFormatter::Base.new(payload))
+    snapshot = CC::Formatters::SnapshotFormatter::Base.new(payload)
+
+    if snapshot.changed?
+      send_snapshot_to_slack(snapshot)
+    else
+      { ok: false, ignored: true, message: "No changes in snapshot" }
+    end
   end
 
   def receive_coverage
