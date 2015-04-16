@@ -184,6 +184,17 @@ And <https://codeclimate.com/repos/1/feed|1 other improvement>""")
     assert_equal "Test message sent", response[:message]
   end
 
+  def test_no_changes_in_snapshot
+    data = { "name" => "snapshot", "repo_name" => "Rails",
+             "new_constants" => [],
+             "changed_constants" => [],
+    }
+    response = receive_event(data)
+
+    assert_equal false, response[:ok]
+    assert response[:ignored]
+  end
+
   private
 
   def assert_slack_receives(color, event_data, expected_body)

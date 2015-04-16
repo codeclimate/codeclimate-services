@@ -59,6 +59,10 @@ module CC::Formatters
         @improved_constants_payload = data.merge("constants" => improved_constants) if improved_constants.any?
       end
 
+      def changed?
+        alert_constants_payload.present? || improved_constants_payload.present?
+      end
+
     private
 
       def new_constants_selector
