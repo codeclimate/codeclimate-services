@@ -60,7 +60,7 @@ module CC::Formatters
       end
 
       def changed?
-        alert_constants_payload || improved_constants_payload
+        alert_constants_payload.present? || improved_constants_payload.present?
       end
 
     private
