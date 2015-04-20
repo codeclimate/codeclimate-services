@@ -13,7 +13,7 @@ module CC
       end
 
       def success_message
-        if @repo_config.pr_status_quality_stats?
+        if issue_counts_in_payload?
           if both_issue_counts_zero?
             "Code Climate didn't find any new or fixed issues."
           else

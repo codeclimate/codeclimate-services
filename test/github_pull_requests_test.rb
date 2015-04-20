@@ -179,6 +179,10 @@ class TestGitHubPullRequests < CC::Service::TestCase
       number:      1,
       state:       "success",
       compare_url: "http://example.com",
+      issue_comparison_counts: {
+        "fixed" => 2,
+        "new"   => 1,
+      }
     })
   end
 
