@@ -13,14 +13,10 @@ module CC
       end
 
       def success_message
-        if @repo_config.pr_status_quality_stats?
-          if both_issue_counts_zero?
-            "Code Climate didn't find any new or fixed issues."
-          else
-            "Code Climate found #{formatted_issue_counts}."
-          end
+        if both_issue_counts_zero?
+          "Code Climate didn't find any new or fixed issues."
         else
-          "Code Climate has analyzed this pull request."
+          "Code Climate found #{formatted_issue_counts}."
         end
       end
 
@@ -52,10 +48,6 @@ module CC
 
       def issue_counts
         [@new_count, @fixed_count]
-      end
-
-      def issue_counts_in_payload?
-        issue_counts.all?
       end
     end
   end
