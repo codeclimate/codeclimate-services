@@ -26,8 +26,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
         github_slug: "pbrisbin/foo",
         commit_sha:  "abc123",
         state:       "success"
-      },
-      true
+      }
     )
   end
 
@@ -244,12 +243,11 @@ private
     end
   end
 
-  def receive_pull_request(config, event_data, truthy_repo_config = false)
+  def receive_pull_request(config, event_data)
     receive(
       CC::Service::GitHubPullRequests,
       { oauth_token: "123" }.merge(config),
-      { name: "pull_request", issue_comparison_counts: {'fixed' => 1, 'new' => 2} }.merge(event_data),
-      truthy_repo_config ? TruthyRepoConfig.new : FalsyRepoConfig.new
+      { name: "pull_request", issue_comparison_counts: {'fixed' => 1, 'new' => 2} }.merge(event_data)
     )
   end
 

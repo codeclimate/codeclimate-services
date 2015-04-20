@@ -1,15 +1,13 @@
 module CC
   class Service
     class GitHubPullRequestsPresenter
-      def initialize(payload, repo_config)
+      def initialize(payload)
         issue_comparison_counts = payload["issue_comparison_counts"]
 
         if issue_comparison_counts
           @fixed_count = issue_comparison_counts["fixed"]
           @new_count = issue_comparison_counts["new"]
         end
-
-        @repo_config = repo_config
       end
 
       def success_message
