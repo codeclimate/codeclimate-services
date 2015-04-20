@@ -17,7 +17,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
   def test_pull_request_status_success_detailed
     expect_status_update("pbrisbin/foo", "abc123", {
       "state"       => "success",
-      "description" => "Code Climate found 1 new issue and 2 fixed issues.",
+      "description" => "Code Climate found 2 new issues and 1 fixed issue.",
     })
 
     receive_pull_request(
@@ -25,11 +25,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
       {
         github_slug: "pbrisbin/foo",
         commit_sha:  "abc123",
-        state:       "success",
-        issue_comparison_counts: {
-          "fixed" => 2,
-          "new"   => 1,
-        }
+        state:       "success"
       },
       true
     )
@@ -38,7 +34,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
   def test_pull_request_status_success_generic
     expect_status_update("pbrisbin/foo", "abc123", {
       "state"       => "success",
-      "description" => /has analyzed/,
+      "description" => /found 2 new issues and 1 fixed issue/,
     })
 
     receive_pull_request({ update_status: true }, {
@@ -252,7 +248,7 @@ private
     receive(
       CC::Service::GitHubPullRequests,
       { oauth_token: "123" }.merge(config),
-      { name: "pull_request" }.merge(event_data),
+      { name: "pull_request", issue_comparison_counts: {'fixed' => 1, 'new' => 2} }.merge(event_data),
       truthy_repo_config ? TruthyRepoConfig.new : FalsyRepoConfig.new
     )
   end
@@ -261,7 +257,7 @@ private
     receive(
       CC::Service::GitHubPullRequests,
       { oauth_token: "123" }.merge(config),
-      { name: "test" }.merge(event_data)
+      { name: "test", issue_comparison_counts: {'fixed' => 1, 'new' => 2} }.merge(event_data)
     )
   end
 end

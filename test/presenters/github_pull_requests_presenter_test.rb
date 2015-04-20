@@ -37,13 +37,6 @@ class TestGitHubPullRequestsPresenter < CC::Service::TestCase
     )
   end
 
-  def test_message_no_issue_counts
-    assert_equal(
-      "Code Climate has analyzed this pull request.",
-      build_presenter({}).success_message
-    )
-  end
-
 private
 
   def build_payload(issue_counts)
