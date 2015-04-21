@@ -76,7 +76,7 @@ private
   end
 
   def presenter
-    CC::Service::GitHubPullRequestsPresenter.new(@payload, @repo_config)
+    CC::Service::GitHubPullRequestsPresenter.new(@payload)
   end
 
   def update_status_error

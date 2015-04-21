@@ -44,9 +44,6 @@ private
   end
 
   def build_presenter(issue_counts)
-    CC::Service::GitHubPullRequestsPresenter.new(
-      build_payload(issue_counts),
-      OpenStruct.new
-    )
+    CC::Service::GitHubPullRequestsPresenter.new(build_payload(issue_counts))
   end
 end

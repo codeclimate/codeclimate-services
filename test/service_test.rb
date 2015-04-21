@@ -8,21 +8,21 @@ class TestService < CC::Service::TestCase
   end
 
   def test_default_path_to_ca_file
-    s = CC::Service.new({}, {name: "test"}, FalsyRepoConfig.new)
+    s = CC::Service.new({}, {name: "test"})
     assert_equal(File.expand_path("../../config/cacert.pem", __FILE__), s.ca_file)
     assert File.exist?(s.ca_file)
   end
 
   def test_custom_path_to_ca_file
     ENV["CODECLIMATE_CA_FILE"] = "/tmp/cacert.pem"
-    s = CC::Service.new({}, {name: "test"}, FalsyRepoConfig.new)
+    s = CC::Service.new({}, {name: "test"})
     assert_equal("/tmp/cacert.pem", s.ca_file)
   ensure
     ENV.delete("CODECLIMATE_CA_FILE")
   end
 
   def test_nothing_has_a_handler
-    service = CC::Service.new({}, {name: "test"}, FalsyRepoConfig.new)
+    service = CC::Service.new({}, {name: "test"})
 
     result = service.receive
 

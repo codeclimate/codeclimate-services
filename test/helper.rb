@@ -25,8 +25,8 @@ class CC::Service::TestCase < Test::Unit::TestCase
     @stubs.verify_stubbed_calls
   end
 
-  def service(klass, data, payload, repo_config = FalsyRepoConfig.new)
-    service = klass.new(data, payload, repo_config)
+  def service(klass, data, payload)
+    service = klass.new(data, payload)
     service.http :adapter => [:test, @stubs]
     service
   end
@@ -46,17 +46,5 @@ class CC::Service::TestCase < Test::Unit::TestCase
   def stub_http(url, response = nil, &block)
     block ||= lambda{|*args| response }
     @stubs.post(url, &block)
-  end
-
-  class FalsyRepoConfig
-    def method_missing(*args)
-      false
-    end
-  end
-
-  class TruthyRepoConfig
-    def method_missing(*args)
-      true
-    end
   end
 end
