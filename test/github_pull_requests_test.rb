@@ -30,6 +30,22 @@ class TestGitHubPullRequests < CC::Service::TestCase
     )
   end
 
+  def test_pull_request_status_failure
+    expect_status_update("pbrisbin/foo", "abc123", {
+      "state"       => "failure",
+      "description" => "Code Climate found 2 new issues and 1 fixed issue.",
+    })
+
+    receive_pull_request(
+      { update_status: true },
+      {
+        github_slug: "pbrisbin/foo",
+        commit_sha:  "abc123",
+        state:       "failure"
+      }
+    )
+  end
+
   def test_pull_request_status_success_generic
     expect_status_update("pbrisbin/foo", "abc123", {
       "state"       => "success",
