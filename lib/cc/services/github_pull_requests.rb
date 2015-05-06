@@ -44,7 +44,7 @@ class CC::Service::GitHubPullRequests < CC::Service
     setup_http
     state = @payload["state"]
 
-    if %w(pending success skipped error).include?(state)
+    if %w[pending success failure skipped error].include?(state)
       send("update_status_#{state}")
     else
       @response = simple_failure("Unknown state")
@@ -73,6 +73,11 @@ private
   def update_status_success
     add_comment
     update_status("success", presenter.success_message)
+  end
+
+  def update_status_failure
+    add_comment
+    update_status("failure", presenter.success_message)
   end
 
   def presenter
