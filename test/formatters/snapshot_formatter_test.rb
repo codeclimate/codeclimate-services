@@ -44,16 +44,4 @@ class TestSnapshotFormatter < Test::Unit::TestCase
     refute_nil f.alert_constants_payload
     refute_nil f.improved_constants_payload
   end
-
-  def test_changed_when_snapshot_changed
-    f = described_class.new({"new_constants" => [],
-                             "changed_constants" => [{"to" => {"rating" => "A"}, "from" => {"rating" => "D"}}]
-    })
-    assert f.changed?
-  end
-
-  def test_changed_when_no_changes
-    f = described_class.new({"new_constants" => [], "changed_constants" => []})
-    refute f.changed?
-  end
 end
