@@ -80,11 +80,13 @@ class TestSlack < CC::Service::TestCase
              "changed_constants" => [],
              "compare_url" => "https://codeclimate.com/repos/1/compare/a...z" }
 
-    assert_slack_receives(CC::Service::Slack::RED_HEX, data,
+    response = assert_slack_receives(CC::Service::Slack::RED_HEX, data,
 """Quality alert triggered for *Rails* (<https://codeclimate.com/repos/1/compare/a...z|Compare>)
 
 • _Foo_ was just created and is a *D*
 • _bar.js_ was just created and is an *F*""")
+
+    assert response[:ok]
   end
 
   def test_quality_alert_with_new_constants_and_declined_constants

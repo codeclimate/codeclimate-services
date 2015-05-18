@@ -23,13 +23,7 @@ class CC::Service::Slack < CC::Service
   end
 
   def receive_snapshot
-    snapshot = CC::Formatters::SnapshotFormatter::Base.new(payload)
-
-    if snapshot.changed?
-      send_snapshot_to_slack(snapshot)
-    else
-      { ok: false, ignored: true, message: "No changes in snapshot" }
-    end
+    send_snapshot_to_slack(CC::Formatters::SnapshotFormatter::Base.new(payload))
   end
 
   def receive_coverage
@@ -71,12 +65,14 @@ class CC::Service::Slack < CC::Service
 
   def send_snapshot_to_slack(snapshot)
     if snapshot.alert_constants_payload
-      speak(alerts_message(snapshot.alert_constants_payload), RED_HEX)
+      @response = speak(alerts_message(snapshot.alert_constants_payload), RED_HEX)
     end
 
     if snapshot.improved_constants_payload
-      speak(improvements_message(snapshot.improved_constants_payload), GREEN_HEX)
+      @response = speak(improvements_message(snapshot.improved_constants_payload), GREEN_HEX)
     end
+
+    @response || { ok: false, ignored: true, message: "No changes in snapshot" }
   end
 
   def alerts_message(constants_payload)
