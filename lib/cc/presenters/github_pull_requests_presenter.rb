@@ -1,6 +1,8 @@
 module CC
   class Service
     class GitHubPullRequestsPresenter
+      include ActiveSupport::NumberHelper
+
       def initialize(payload)
         issue_comparison_counts = payload["issue_comparison_counts"]
 
@@ -26,7 +28,7 @@ module CC
 
       def formatted_fixed_issues
         if @fixed_count > 0
-          "#{@fixed_count} fixed #{"issue".pluralize(@fixed_count)}"
+          "#{number_to_delimited(@fixed_count)} fixed #{"issue".pluralize(@fixed_count)}"
         else
           nil
         end
@@ -34,7 +36,7 @@ module CC
 
       def formatted_new_issues
         if @new_count > 0
-          "#{@new_count} new #{"issue".pluralize(@new_count)}"
+          "#{number_to_delimited(@new_count)} new #{"issue".pluralize(@new_count)}"
         else
           nil
         end
