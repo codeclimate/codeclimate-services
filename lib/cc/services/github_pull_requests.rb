@@ -24,6 +24,11 @@ class CC::Service::GitHubPullRequests < CC::Service
   # Just make sure we can access GH using the configured token. Without
   # additional information (github-slug, PR number, etc) we can't test much
   # else.
+
+  MESSAGES = [
+    DEFAULT_ERROR = "Code Climate encountered an error attempting to analyze this pull request",
+  ]
+
   def receive_test
     setup_http
 
