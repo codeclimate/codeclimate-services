@@ -91,7 +91,7 @@ private
   def update_status_error
     update_status(
       "error",
-      message
+      @payload["message"] || DEFAULT_ERROR
     )
   end
 
@@ -195,10 +195,6 @@ private
 
   def commit_sha
     @payload.fetch("commit_sha")
-  end
-
-  def message
-    @payload.fetch("message")
   end
 
   def number
