@@ -69,6 +69,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
       github_slug: "pbrisbin/foo",
       commit_sha:  "abc123",
       state:       "error",
+      message:     "Code Climate encountered an error while attempting to analyze this pull request.",
     })
   end
 
@@ -112,6 +113,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
       github_slug: "pbrisbin/foo",
       commit_sha:  "abc123",
       state:       "error",
+      message:     "Code Climate encountered an error while attempting to analyze this pull request.",
     })
   end
 
