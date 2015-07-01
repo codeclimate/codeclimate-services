@@ -62,14 +62,28 @@ class TestGitHubPullRequests < CC::Service::TestCase
   def test_pull_request_status_error
     expect_status_update("pbrisbin/foo", "abc123", {
       "state"       => "error",
-      "description" => /encountered an error/,
+      "description" => CC::Service::GitHubPullRequests::DEFAULT_ERROR,
     })
 
     receive_pull_request({ update_status: true }, {
       github_slug: "pbrisbin/foo",
       commit_sha:  "abc123",
       state:       "error",
-      message:     "Code Climate encountered an error while attempting to analyze this pull request.",
+      message:     nil,
+    })
+  end
+
+    def test_pull_request_status_error_message_provided
+    expect_status_update("pbrisbin/foo", "abc123", {
+      "state"       => "error",
+      "description" => "descriptive message",
+    })
+
+    receive_pull_request({ update_status: true }, {
+      github_slug: "pbrisbin/foo",
+      commit_sha:  "abc123",
+      state:       "error",
+      message:     "descriptive message",
     })
   end
 
@@ -113,7 +127,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
       github_slug: "pbrisbin/foo",
       commit_sha:  "abc123",
       state:       "error",
-      message:     "Code Climate encountered an error while attempting to analyze this pull request.",
+      message:     nil,
     })
   end
 
