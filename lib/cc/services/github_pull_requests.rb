@@ -21,10 +21,14 @@ class CC::Service::GitHubPullRequests < CC::Service
   BASE_URL = "https://api.github.com"
   BODY_REGEX = %r{<b>Code Climate</b> has <a href=".*">analyzed this pull request</a>}
   COMMENT_BODY = '<img src="https://codeclimate.com/favicon.png" width="20" height="20" />&nbsp;<b>Code Climate</b> has <a href="%s">analyzed this pull request</a>.'
-
   # Just make sure we can access GH using the configured token. Without
   # additional information (github-slug, PR number, etc) we can't test much
   # else.
+
+  MESSAGES = [
+    DEFAULT_ERROR = "Code Climate encountered an error attempting to analyze this pull request",
+  ]
+
   def receive_test
     setup_http
 
@@ -87,8 +91,7 @@ private
   def update_status_error
     update_status(
       "error",
-      "Code Climate encountered an error while attempting to analyze this " +
-        "pull request."
+      @payload["message"] || DEFAULT_ERROR
     )
   end
 
@@ -104,6 +107,9 @@ private
         target_url:  @payload["details_url"],
         context:     "codeclimate"
       }
+      if state == "error"
+        params.delete(:target_url)
+      end
       @response = service_post(status_url, params.to_json)
     end
   end
