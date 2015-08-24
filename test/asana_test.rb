@@ -18,6 +18,23 @@ class TestAsana < CC::Service::TestCase
     )
   end
 
+  def test_issue
+    payload = {
+      issue: {
+        "check_name" => "Style/LongLine",
+        "description" => "Line is too long [1000/80]"
+      },
+      constant_name: "foo.rb",
+      details_url: "http://example.com/repos/id/foo.rb#issue_123"
+    }
+
+    assert_asana_receives(
+      event(:issue, payload),
+      "Fix \"Style/LongLine\" issue in foo.rb",
+      "Line is too long [1000/80]\n\nhttp://example.com/repos/id/foo.rb#issue_123"
+    )
+  end
+
   def test_successful_post
     @stubs.post '/api/1.0/tasks' do |env|
       [200, {}, '{"data":{"id":"2"}}']
@@ -41,7 +58,7 @@ class TestAsana < CC::Service::TestCase
 
   private
 
-  def assert_asana_receives(event_data, name)
+  def assert_asana_receives(event_data, name, notes = nil)
     @stubs.post '/api/1.0/tasks' do |env|
       body = JSON.parse(env[:body])
       data = body["data"]
@@ -50,6 +67,7 @@ class TestAsana < CC::Service::TestCase
       assert_equal "2",             data["projects"].first
       assert_equal "jim@asana.com", data["assignee"]
       assert_equal name,            data["name"]
+      assert_equal notes,           data["notes"]
 
       [200, {}, '{"data":{"id":4}}']
     end

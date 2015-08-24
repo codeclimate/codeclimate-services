@@ -31,6 +31,13 @@ class CC::Service::Asana < CC::Service
     raise ex
   end
 
+  def receive_issue
+    title = %{Fix "#{issue["check_name"]}" issue in #{constant_name}}
+
+    body = [issue["description"], details_url].join("\n\n")
+
+    create_task(title, body)
+  end
 
   def receive_quality
     title = "Refactor #{constant_name} from #{rating} on Code Climate"
@@ -47,8 +54,8 @@ class CC::Service::Asana < CC::Service
 
 private
 
-  def create_task(name)
-    params = generate_params(name)
+  def create_task(name, notes = nil)
+    params = generate_params(name, notes)
     authenticate_http
     http.headers["Content-Type"] = "application/json"
     service_post(ENDPOINT, params.to_json) do |response|
@@ -59,9 +66,9 @@ private
     end
   end
 
-  def generate_params(name)
+  def generate_params(name, notes = nil)
     params = {
-      data: { workspace: config.workspace_id, name: name }
+      data: { workspace: config.workspace_id, name: name, notes: notes }
     }
 
     if config.project_id.present?
