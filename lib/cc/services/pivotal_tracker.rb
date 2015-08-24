@@ -33,6 +33,14 @@ class CC::Service::PivotalTracker < CC::Service
     create_story(name, details_url)
   end
 
+  def receive_issue
+    title = %{Fix "#{issue["check_name"]}" issue in #{constant_name}}
+
+    body = [issue["description"], details_url].join("\n\n")
+
+    create_story(title, body)
+  end
+
   def receive_vulnerability
     formatter = CC::Formatters::TicketFormatter.new(self)
 
