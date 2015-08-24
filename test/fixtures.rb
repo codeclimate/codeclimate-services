@@ -51,6 +51,10 @@ class EventFixtures
     options.merge(name: "vulnerability")
   end
 
+  def issue
+    options.merge(name: "issue")
+  end
+
 end
 
 def event(name, options = {})
