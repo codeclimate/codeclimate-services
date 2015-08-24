@@ -35,6 +35,14 @@ class CC::Service::Lighthouse < CC::Service
     create_ticket(title, details_url)
   end
 
+  def receive_issue
+    title = %{Fix "#{issue["check_name"]}" issue in #{constant_name}}
+
+    body = [issue["description"], details_url].join("\n\n")
+
+    create_ticket(title, body)
+  end
+
   def receive_vulnerability
     formatter = CC::Formatters::TicketFormatter.new(self)
 
