@@ -45,6 +45,14 @@ class CC::Service::GitHubIssues < CC::Service
     )
   end
 
+  def receive_issue
+    title = %{Fix "#{issue["check_name"]}" issue in #{constant_name}}
+
+    body = [issue["description"], details_url].join("\n\n")
+
+    create_issue(title, body)
+  end
+
 private
 
   def create_issue(title, issue_body)

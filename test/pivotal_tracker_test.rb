@@ -23,6 +23,23 @@ class TestPivotalTracker < CC::Service::TestCase
     )
   end
 
+  def test_issue
+    payload = {
+      issue: {
+        "check_name" => "Style/LongLine",
+        "description" => "Line is too long [1000/80]"
+      },
+      constant_name: "foo.rb",
+      details_url: "http://example.com/repos/id/foo.rb#issue_123"
+    }
+
+    assert_pivotal_receives(
+      event(:issue, payload),
+      "Fix \"Style/LongLine\" issue in foo.rb",
+      "Line is too long [1000/80]\n\nhttp://example.com/repos/id/foo.rb#issue_123"
+    )
+  end
+
   def test_receive_test
     @stubs.post 'services/v3/projects/123/stories' do |env|
       [200, {}, '<story><id>123</id><url>http://foo.bar</url></story>']

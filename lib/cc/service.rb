@@ -30,7 +30,7 @@ module CC
 
     attr_reader :event, :config, :payload
 
-    ALL_EVENTS = %w[test unit coverage quality vulnerability snapshot pull_request]
+    ALL_EVENTS = %w[test unit coverage quality vulnerability snapshot pull_request issue]
 
     # Tracks the defined services.
     def self.services
