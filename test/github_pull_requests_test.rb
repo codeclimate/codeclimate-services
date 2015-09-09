@@ -244,6 +244,15 @@ class TestGitHubPullRequests < CC::Service::TestCase
     assert_equal({ ok: false, message: "Nothing happened" }, response)
   end
 
+  def test_different_base_url
+    @stubs.get("/user") do |env|
+      assert env[:url].to_s == "http://example.com/user"
+      [200, { "x-oauth-scopes" => "gist, user, repo" }, ""]
+    end
+
+    assert receive_test({ add_comment: true, base_url: "http://example.com" })[:ok], "Expected test of pull request to be true"
+  end
+
 private
 
   def expect_status_update(repo, commit_sha, params)

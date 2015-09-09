@@ -11,6 +11,10 @@ class CC::Service::GitHubPullRequests < CC::Service
     attribute :add_comment, Boolean,
       label: "Add a comment?",
       description: "Comment on the pull request after analyzing?"
+    attribute :base_url, String,
+      label: "Github API Base URL",
+      description: "Base URL for the Github API",
+      default: "https://api.github.com"
 
     validates :oauth_token, presence: true
   end
@@ -18,7 +22,6 @@ class CC::Service::GitHubPullRequests < CC::Service
   self.title = "GitHub Pull Requests"
   self.description = "Update pull requests on GitHub"
 
-  BASE_URL = "https://api.github.com"
   BODY_REGEX = %r{<b>Code Climate</b> has <a href=".*">analyzed this pull request</a>}
   COMMENT_BODY = '<img src="https://codeclimate.com/favicon.png" width="20" height="20" />&nbsp;<b>Code Climate</b> has <a href="%s">analyzed this pull request</a>.'
   MESSAGES = [
@@ -180,15 +183,15 @@ private
   end
 
   def base_status_url(commit_sha)
-    "#{BASE_URL}/repos/#{github_slug}/statuses/#{commit_sha}"
+    "#{config.base_url}/repos/#{github_slug}/statuses/#{commit_sha}"
   end
 
   def comments_url
-    "#{BASE_URL}/repos/#{github_slug}/issues/#{number}/comments"
+    "#{config.base_url}/repos/#{github_slug}/issues/#{number}/comments"
   end
 
   def user_url
-    "#{BASE_URL}/user"
+    "#{config.base_url}/user"
   end
 
   def github_slug
