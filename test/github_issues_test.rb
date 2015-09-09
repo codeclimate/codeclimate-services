@@ -60,6 +60,17 @@ class TestGitHubIssues < CC::Service::TestCase
     assert_equal "Issue <a href='http://foo.bar'>#2</a> created.", response[:message]
   end
 
+  def test_different_base_url
+    @stubs.post request_url do |env|
+      assert env[:url].to_s == "http://example.com/#{request_url}"
+      [200, {}, '{"number": 2, "html_url": "http://foo.bar"}']
+    end
+
+    response = receive_event({ name: "test" }, base_url: "http://example.com")
+
+    assert_equal "Issue <a href='http://foo.bar'>#2</a> created.", response[:message]
+  end
+
   private
 
   def project
@@ -86,10 +97,10 @@ class TestGitHubIssues < CC::Service::TestCase
     receive_event(event_data)
   end
 
-  def receive_event(event_data = nil)
+  def receive_event(event_data = nil, config = {})
     receive(
       CC::Service::GitHubIssues,
-      { oauth_token: "123", project: project },
+      { oauth_token: "123", project: project }.merge(config),
       event_data || event(:quality, from: "D", to: "C")
     )
   end

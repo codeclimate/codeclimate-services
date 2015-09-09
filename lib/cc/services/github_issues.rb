@@ -9,6 +9,10 @@ class CC::Service::GitHubIssues < CC::Service
     attribute :labels, String,
       label: "Labels (comma separated)",
       description: "Comma separated list of labels to apply to the issue"
+    attribute :base_url, String,
+      label: "Github API Base URL",
+      description: "Base URL for the Github API",
+      default: "https://api.github.com"
 
     validates :oauth_token, presence: true
   end
@@ -16,8 +20,6 @@ class CC::Service::GitHubIssues < CC::Service
   self.title = "GitHub Issues"
   self.description = "Open issues on GitHub"
   self.issue_tracker = true
-
-  BASE_URL = "https://api.github.com"
 
   def receive_test
     result = create_issue("Test ticket from Code Climate", "")
@@ -66,7 +68,7 @@ private
     http.headers["Authorization"] = "token #{config.oauth_token}"
     http.headers["User-Agent"] = "Code Climate"
 
-    url = "#{BASE_URL}/repos/#{config.project}/issues"
+    url = "#{config.base_url}/repos/#{config.project}/issues"
     service_post(url, params.to_json) do |response|
       body = JSON.parse(response.body)
       {
