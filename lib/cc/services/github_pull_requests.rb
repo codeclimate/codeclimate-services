@@ -109,9 +109,6 @@ private
         target_url:  @payload["details_url"],
         context:     "codeclimate"
       }
-      if state == "error"
-        params.delete(:target_url)
-      end
       @response = service_post(status_url, params.to_json)
     end
   end
