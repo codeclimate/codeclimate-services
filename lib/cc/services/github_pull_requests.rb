@@ -1,4 +1,4 @@
-require "cc/presenters/github_pull_requests_presenter"
+require "cc/presenters/pull_requests_presenter"
 
 class CC::Service::GitHubPullRequests < CC::Service
   class Config < CC::Service::Config
@@ -87,7 +87,7 @@ private
   end
 
   def presenter
-    CC::Service::GitHubPullRequestsPresenter.new(@payload)
+    CC::Service::PullRequestsPresenter.new(@payload)
   end
 
   def update_status_error

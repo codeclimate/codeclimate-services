@@ -1,7 +1,7 @@
 require "helper"
-require "cc/presenters/github_pull_requests_presenter"
+require "cc/presenters/pull_requests_presenter"
 
-class TestGitHubPullRequestsPresenter < CC::Service::TestCase
+class TestPullRequestsPresenter < CC::Service::TestCase
   def test_message_singular
     assert_equal(
       "Code Climate found 1 new issue and 1 fixed issue.",
@@ -44,6 +44,6 @@ private
   end
 
   def build_presenter(issue_counts)
-    CC::Service::GitHubPullRequestsPresenter.new(build_payload(issue_counts))
+    CC::Service::PullRequestsPresenter.new(build_payload(issue_counts))
   end
 end

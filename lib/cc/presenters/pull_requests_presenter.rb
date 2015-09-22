@@ -1,6 +1,6 @@
 module CC
   class Service
-    class GitHubPullRequestsPresenter
+    class PullRequestsPresenter
       include ActiveSupport::NumberHelper
 
       def initialize(payload)
