@@ -1,4 +1,4 @@
-require "cc/presenters/github_pull_requests_presenter"
+require "cc/presenters/pull_requests_presenter"
 
 class CC::Service::GitHubPullRequests < CC::Service
   class Config < CC::Service::Config
@@ -24,9 +24,6 @@ class CC::Service::GitHubPullRequests < CC::Service
 
   BODY_REGEX = %r{<b>Code Climate</b> has <a href=".*">analyzed this pull request</a>}
   COMMENT_BODY = '<img src="https://codeclimate.com/favicon.png" width="20" height="20" />&nbsp;<b>Code Climate</b> has <a href="%s">analyzed this pull request</a>.'
-  MESSAGES = [
-    DEFAULT_ERROR = "Code Climate encountered an error attempting to analyze this pull request",
-  ]
 
   # Just make sure we can access GH using the configured token. Without
   # additional information (github-slug, PR number, etc) we can't test much
@@ -70,10 +67,7 @@ private
   end
 
   def update_status_skipped
-    update_status(
-      "success",
-      "Code Climate has skipped analysis of this commit."
-    )
+    update_status("success", presenter.skipped_message)
   end
 
   def update_status_success
@@ -87,18 +81,21 @@ private
   end
 
   def presenter
-    CC::Service::GitHubPullRequestsPresenter.new(@payload)
+    CC::Service::PullRequestsPresenter.new(@payload)
   end
 
   def update_status_error
     update_status(
       "error",
-      @payload["message"] || DEFAULT_ERROR
+      @payload["message"] || presenter.error_message
     )
   end
 
   def update_status_pending
-    update_status("pending", "Code Climate is analyzing this code.")
+    update_status(
+      "pending",
+      @payload["message"] || presenter.pending_message
+    )
   end
 
   def update_status(state, description)

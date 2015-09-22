@@ -62,7 +62,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
   def test_pull_request_status_error
     expect_status_update("pbrisbin/foo", "abc123", {
       "state"       => "error",
-      "description" => CC::Service::GitHubPullRequests::DEFAULT_ERROR,
+      "description" => "Code Climate encountered an error attempting to analyze this pull request.",
     })
 
     receive_pull_request({ update_status: true }, {

@@ -1,6 +1,6 @@
 module CC
   class Service
-    class GitHubPullRequestsPresenter
+    class PullRequestsPresenter
       include ActiveSupport::NumberHelper
 
       def initialize(payload)
@@ -10,6 +10,18 @@ module CC
           @fixed_count = issue_comparison_counts["fixed"]
           @new_count = issue_comparison_counts["new"]
         end
+      end
+
+      def error_message
+        "Code Climate encountered an error attempting to analyze this pull request."
+      end
+
+      def pending_message
+        "Code Climate is analyzing this code."
+      end
+
+      def skipped_message
+        "Code Climate has skipped analysis of this commit."
       end
 
       def success_message
