@@ -92,7 +92,10 @@ private
   end
 
   def update_status_pending
-    update_status("pending", presenter.pending_message)
+    update_status(
+      "pending",
+      @payload["message"] || presenter.pending_message
+    )
   end
 
   def update_status(state, description)
