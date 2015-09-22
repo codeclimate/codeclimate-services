@@ -66,13 +66,13 @@ class CC::Service::StashPullRequests < CC::Service
 
     case @payload["state"]
     when "pending"
-      "Code Climate is analyzing this code."
+      presenter.pending_message
     when "success", "failure"
       presenter.success_message
     when "skipped"
-      "Code Climate has skipped analysis of this commit."
+      presenter.skipped_message
     when "error"
-      "Code Climate encountered an error attempting to analyze this pull request."
+      presenter.error_message
     end
   end
 
