@@ -29,7 +29,7 @@ class CC::Service::Jira < CC::Service
   self.issue_tracker = true
 
   def receive_test
-    result = create_ticket("Test ticket from Code Climate", "")
+    result = create_ticket("Test ticket from Code Climate", "Test ticket from Code Climate")
     result.merge(
       message: "Ticket <a href='#{result[:url]}'>#{result[:id]}</a> created."
     )
@@ -85,7 +85,7 @@ private
       {
         id: body["id"],
         key: body["key"],
-        url: body["self"]
+        url: "https://#{config.domain}/browse/#{body["id"]}"
       }
     end
   end
