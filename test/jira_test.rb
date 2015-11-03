@@ -53,7 +53,7 @@ class TestJira < CC::Service::TestCase
 
     response = receive_event(name: "test")
 
-    assert_equal "Ticket <a href='https://foo.com/browse/12345'>12345</a> created.", response[:message]
+    assert_equal "Ticket <a href='https://foo.com/browse/CC-123'>12345</a> created.", response[:message]
   end
 
   private
