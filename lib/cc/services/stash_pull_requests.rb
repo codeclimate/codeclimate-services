@@ -50,11 +50,11 @@ class CC::Service::StashPullRequests < CC::Service
   private
 
   def test_url
-    "http://#{config.domain}/rest/api/1.0/users"
+    "https://#{config.domain}/rest/api/1.0/users"
   end
 
   def url
-    "http://#{config.domain}/rest/build-status/1.0/commits/#{commit_sha}"
+    "https://#{config.domain}/rest/build-status/1.0/commits/#{commit_sha}"
   end
 
   def commit_sha
