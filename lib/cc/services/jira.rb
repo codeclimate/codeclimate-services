@@ -85,7 +85,7 @@ private
       {
         id: body["id"],
         key: body["key"],
-        url: "https://#{config.domain}/browse/#{body["id"]}"
+        url: "https://#{config.domain}/browse/#{body["key"]}"
       }
     end
   end
