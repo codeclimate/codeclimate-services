@@ -253,6 +253,32 @@ class TestGitHubPullRequests < CC::Service::TestCase
     assert receive_test({ add_comment: true, base_url: "http://example.com" })[:ok], "Expected test of pull request to be true"
   end
 
+  def test_default_context
+    expect_status_update("gordondiggs/ellis", "abc123", {
+      "context" => "codeclimate",
+      "state" => "pending",
+    })
+
+    response = receive_pull_request({ update_status: true }, {
+      github_slug: "gordondiggs/ellis",
+      commit_sha:  "abc123",
+      state:       "pending",
+    })
+  end
+
+  def test_different_context
+    expect_status_update("gordondiggs/ellis", "abc123", {
+      "context" => "sup",
+      "state" => "pending",
+    })
+
+    response = receive_pull_request({ context: "sup", update_status: true }, {
+      github_slug: "gordondiggs/ellis",
+      commit_sha:  "abc123",
+      state:       "pending",
+    })
+  end
+
 private
 
   def expect_status_update(repo, commit_sha, params)
