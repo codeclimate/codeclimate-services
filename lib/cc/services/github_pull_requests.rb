@@ -15,6 +15,10 @@ class CC::Service::GitHubPullRequests < CC::Service
       label: "Github API Base URL",
       description: "Base URL for the Github API",
       default: "https://api.github.com"
+    attribute :context, String,
+      label: "Github Context",
+      description: "The integration name next to the pull request status",
+      default: "codeclimate"
 
     validates :oauth_token, presence: true
   end
@@ -104,7 +108,7 @@ private
         state:       state,
         description: description,
         target_url:  @payload["details_url"],
-        context:     "codeclimate"
+        context:     config.context,
       }
       @response = service_post(status_url, params.to_json)
     end
