@@ -35,12 +35,12 @@ class CC::Service::GitHubPullRequests < CC::Service
   def receive_test
     setup_http
 
-    if update_status? && add_comment?
+    if config.update_status && config.add_comment
       receive_test_status
       receive_test_comment
-    elsif update_status?
+    elsif config.update_status
       receive_test_status
-    elsif add_comment?
+    elsif config.add_comment
       receive_test_comment
     else
       simple_failure("Nothing happened")
@@ -61,14 +61,6 @@ class CC::Service::GitHubPullRequests < CC::Service
   end
 
 private
-
-  def add_comment?
-    [true, "1"].include?(config.add_comment)
-  end
-
-  def update_status?
-    [true, "1"].include?(config.update_status)
-  end
 
   def simple_failure(message)
     { ok: false, message: message }
@@ -111,7 +103,7 @@ private
   end
 
   def update_status(state, description)
-    if update_status?
+    if config.update_status
       params = {
         state:       state,
         description: description,
@@ -123,7 +115,7 @@ private
   end
 
   def add_comment
-    if add_comment?
+    if config.add_comment
       if !comment_present?
         body = {
           body: COMMENT_BODY % @payload["compare_url"]
