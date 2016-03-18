@@ -1,13 +1,13 @@
 class CC::Service::Asana < CC::Service
   class Config < CC::Service::Config
-    attribute :api_key, String, label: "API key"
+    attribute :api_key, Axiom::Types::String, label: "API key"
 
-    attribute :workspace_id, String, label: "Workspace ID"
+    attribute :workspace_id, Axiom::Types::String, label: "Workspace ID"
 
-    attribute :project_id, String, label: "Project ID",
+    attribute :project_id, Axiom::Types::String, label: "Project ID",
       description: "(optional)"
 
-    attribute :assignee, String, label: "Assignee",
+    attribute :assignee, Axiom::Types::String, label: "Assignee",
       description: "Assignee email address (optional)"
 
     validates :api_key, presence: true
