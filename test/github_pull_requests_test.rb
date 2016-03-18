@@ -279,6 +279,18 @@ class TestGitHubPullRequests < CC::Service::TestCase
     })
   end
 
+  def test_config_coerce_bool_true
+    c = CC::Service::GitHubPullRequests::Config.new(oauth_token: "a1b2c3", add_comment: "1")
+    assert c.valid?
+    assert_equal true, c.add_comment
+  end
+
+  def test_config_coerce_bool_false
+    c = CC::Service::GitHubPullRequests::Config.new(oauth_token: "a1b2c3", add_comment: "0")
+    assert c.valid?
+    assert_equal false, c.add_comment
+  end
+
 private
 
   def expect_status_update(repo, commit_sha, params)
