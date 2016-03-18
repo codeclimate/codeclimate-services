@@ -1,4 +1,4 @@
 class CC::Service::Config
-  include Virtus.model(coerce: true)
+  include Virtus.model
   include ActiveModel::Validations
 end
