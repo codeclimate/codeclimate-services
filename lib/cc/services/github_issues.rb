@@ -1,15 +1,15 @@
 class CC::Service::GitHubIssues < CC::Service
   class Config < CC::Service::Config
-    attribute :oauth_token, String,
+    attribute :oauth_token, Axiom::Types::String,
       label: "OAuth Token",
       description: "A personal OAuth token with permissions for the repo"
-    attribute :project, String,
+    attribute :project, Axiom::Types::String,
       label: "Project",
       description: "Project name on GitHub (e.g 'thoughtbot/paperclip')"
-    attribute :labels, String,
+    attribute :labels, Axiom::Types::String,
       label: "Labels (comma separated)",
       description: "Comma separated list of labels to apply to the issue"
-    attribute :base_url, String,
+    attribute :base_url, Axiom::Types::String,
       label: "Github API Base URL",
       description: "Base URL for the Github API",
       default: "https://api.github.com"

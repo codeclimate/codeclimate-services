@@ -2,20 +2,20 @@ require "cc/presenters/pull_requests_presenter"
 
 class CC::Service::GitHubPullRequests < CC::Service
   class Config < CC::Service::Config
-    attribute :oauth_token, String,
+    attribute :oauth_token, Axiom::Types::String,
       label: "OAuth Token",
       description: "A personal OAuth token with permissions for the repo."
-    attribute :update_status, Boolean,
+    attribute :update_status, Axiom::Types::Boolean,
       label: "Update status?",
       description: "Update the pull request status after analyzing?"
-    attribute :add_comment, Boolean,
+    attribute :add_comment, Axiom::Types::Boolean,
       label: "Add a comment?",
       description: "Comment on the pull request after analyzing?"
-    attribute :base_url, String,
+    attribute :base_url, Axiom::Types::String,
       label: "Github API Base URL",
       description: "Base URL for the Github API",
       default: "https://api.github.com"
-    attribute :context, String,
+    attribute :context, Axiom::Types::String,
       label: "Github Context",
       description: "The integration name next to the pull request status",
       default: "codeclimate"

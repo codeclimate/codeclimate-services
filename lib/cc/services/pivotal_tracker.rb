@@ -1,12 +1,12 @@
 class CC::Service::PivotalTracker < CC::Service
   class Config < CC::Service::Config
-    attribute :api_token, String,
+    attribute :api_token, Axiom::Types::String,
       description: "Your Pivotal Tracker API Token, from your profile page"
 
-    attribute :project_id, String,
+    attribute :project_id, Axiom::Types::String,
       description: "Your Pivotal Tracker project ID"
 
-    attribute :labels, String,
+    attribute :labels, Axiom::Types::String,
       label: "Labels (comma separated)",
       description: "Comma separated list of labels to apply to the story"
 

@@ -2,20 +2,20 @@ require 'base64'
 
 class CC::Service::Jira < CC::Service
   class Config < CC::Service::Config
-    attribute :domain, String,
+    attribute :domain, Axiom::Types::String,
       description: "Your JIRA host domain (e.g. yourjira.com:PORT, please exclude https://)"
 
-    attribute :username, String,
+    attribute :username, Axiom::Types::String,
       description: "Must exactly match the 'username' that appears on your JIRA profile page."
 
-    attribute :password, Password,
+    attribute :password, Axiom::Types::Password,
       label: "JIRA password",
       description: "Your JIRA password"
 
-    attribute :project_id, String,
+    attribute :project_id, Axiom::Types::String,
       description: "Your JIRA project ID number (located in your JIRA admin panel). Project must support 'task' issue types and contain only the default required fields."
 
-    attribute :labels, String,
+    attribute :labels, Axiom::Types::String,
       description: "Which labels to add to issues, comma delimited"
 
     validates :domain, presence: true

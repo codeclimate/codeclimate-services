@@ -4,11 +4,11 @@ class CC::Service::Slack < CC::Service
   include CC::Service::QualityHelper
 
   class Config < CC::Service::Config
-    attribute :webhook_url, String,
+    attribute :webhook_url, Axiom::Types::String,
       label: "Webhook URL",
       description: "The Slack webhook URL you would like message posted to"
 
-    attribute :channel, String,
+    attribute :channel, Axiom::Types::String,
       description: "The channel to send to (optional). Enter # before the channel name."
   end
 

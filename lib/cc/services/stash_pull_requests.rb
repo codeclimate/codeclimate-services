@@ -3,10 +3,10 @@ require "cc/presenters/pull_requests_presenter"
 
 class CC::Service::StashPullRequests < CC::Service
   class Config < CC::Service::Config
-    attribute :domain, String,
+    attribute :domain, Axiom::Types::String,
       description: "Your Stash host domain (e.g. yourstash.com:PORT, please exclude https://)"
-    attribute :username, String
-    attribute :password, Password
+    attribute :username, Axiom::Types::String
+    attribute :password, Axiom::Types::Password
 
     validates :domain, presence: true
     validates :username, presence: true
