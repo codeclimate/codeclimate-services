@@ -73,7 +73,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
     })
   end
 
-    def test_pull_request_status_error_message_provided
+  def test_pull_request_status_error_message_provided
     expect_status_update("pbrisbin/foo", "abc123", {
       "state"       => "error",
       "description" => "descriptive message",
@@ -131,21 +131,16 @@ class TestGitHubPullRequests < CC::Service::TestCase
     })
   end
 
-
-  def test_no_comment_for_skips_regardless_of_add_comment_config
-    # With no POST expectation, test will fail if request is made.
-
-    receive_pull_request({ add_comment: true }, {
-      github_slug: "pbrisbin/foo",
-      commit_sha:  "abc123",
-      state:       "skipped",
-    })
-  end
-
   def test_pull_request_status_test_success
     @stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") { |env| [422, {}, ""] }
 
     assert receive_test({ update_status: true }, { github_slug: "pbrisbin/foo" })[:ok], "Expected test of pull request to be true"
+  end
+
+  def test_pull_request_status_test_doesnt_blow_up_when_unused_keys_present_in_config
+    @stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") { |env| [422, {}, ""] }
+
+    assert receive_test({ update_status: true, add_comment: true, wild_flamingo: true }, { github_slug: "pbrisbin/foo" })[:ok], "Expected test of pull request to be true"
   end
 
   def test_pull_request_status_test_failure
@@ -154,82 +149,6 @@ class TestGitHubPullRequests < CC::Service::TestCase
     assert_raises(CC::Service::HTTPError) do
       receive_test({ update_status: true }, { github_slug: "pbrisbin/foo" })
     end
-  end
-
-  def test_pull_request_comment_test_success
-    @stubs.get("/user") { |env| [200, { "x-oauth-scopes" => "gist, user, repo" }, ""] }
-
-    assert receive_test({ add_comment: true })[:ok], "Expected test of pull request to be true"
-  end
-
-  def test_pull_request_comment_test_failure_insufficient_permissions
-    @stubs.get("/user") { |env| [200, { "x-oauth-scopes" => "gist, user" }, ""] }
-
-    assert !receive_test({ add_comment: true })[:ok], "Expected failed test of pull request"
-  end
-
-  def test_pull_request_comment_test_failure_bad_token
-    @stubs.get("/user") { |env| [401, {}, ""] }
-
-    assert !receive_test({ add_comment: true })[:ok], "Expected failed test of pull request"
-  end
-
-  def test_pull_request_failure_on_status_requesting_both
-    @stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") { |env| [401, {}, ""] }
-
-    assert_raises(CC::Service::HTTPError) do
-      receive_test({ update_status: true, add_comment: true }, { github_slug: "pbrisbin/foo" })
-    end
-  end
-
-  def test_pull_request_failure_on_comment_requesting_both
-    @stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") { |env| [422, {}, ""] }
-    @stubs.get("/user") { |env| [401, { "x-oauth-scopes" => "gist, user, repo" }, ""] }
-
-    assert_false receive_test({ update_status: true, add_comment: true }, { github_slug: "pbrisbin/foo" })[:ok]
-  end
-
-  def test_pull_request_success_both
-    @stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") { |env| [422, {}, ""] }
-    @stubs.get("/user") { |env| [200, { "x-oauth-scopes" => "gist, user, repo" }, ""] }
-
-    assert receive_test({ update_status: true, add_comment: true }, { github_slug: "pbrisbin/foo" })[:ok], "Expected test of pull request to be true"
-  end
-
-  def test_pull_request_comment
-    stub_existing_comments("pbrisbin/foo", 1, %w[Hey Yo])
-
-    expect_comment("pbrisbin/foo", 1, %r{href="http://example.com">analyzed})
-
-    receive_pull_request({ add_comment: true }, {
-      github_slug: "pbrisbin/foo",
-      number:      1,
-      state:       "success",
-      compare_url: "http://example.com",
-      issue_comparison_counts: {
-        "fixed" => 2,
-        "new"   => 1,
-      }
-    })
-  end
-
-  def test_pull_request_comment_already_present
-    stub_existing_comments("pbrisbin/foo", 1, [
-      '<b>Code Climate</b> has <a href="">analyzed this pull request</a>'
-    ])
-
-    # With no POST expectation, test will fail if request is made.
-
-    response = receive_pull_request({
-      add_comment: true,
-      update_status: false
-    }, {
-      github_slug: "pbrisbin/foo",
-      number:      1,
-      state:       "success",
-    })
-
-    assert_equal({ ok: true, message: "Comment already present" }, response)
   end
 
   def test_pull_request_unknown_state
@@ -245,12 +164,12 @@ class TestGitHubPullRequests < CC::Service::TestCase
   end
 
   def test_different_base_url
-    @stubs.get("/user") do |env|
-      assert env[:url].to_s == "http://example.com/user"
-      [200, { "x-oauth-scopes" => "gist, user, repo" }, ""]
+    @stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") do |env|
+      assert env[:url].to_s == "http://example.com/repos/pbrisbin/foo/statuses/#{"0" * 40}"
+      [422, { "x-oauth-scopes" => "gist, user, repo" }, ""]
     end
 
-    assert receive_test({ add_comment: true, base_url: "http://example.com" })[:ok], "Expected test of pull request to be true"
+    assert receive_test({ update_status: true, base_url: "http://example.com" }, { github_slug: "pbrisbin/foo" })[:ok], "Expected test of pull request to be true"
   end
 
   def test_default_context
@@ -280,15 +199,15 @@ class TestGitHubPullRequests < CC::Service::TestCase
   end
 
   def test_config_coerce_bool_true
-    c = CC::Service::GitHubPullRequests::Config.new(oauth_token: "a1b2c3", add_comment: "1")
+    c = CC::Service::GitHubPullRequests::Config.new(oauth_token: "a1b2c3", update_status: "1")
     assert c.valid?
-    assert_equal true, c.add_comment
+    assert_equal true, c.update_status
   end
 
   def test_config_coerce_bool_false
-    c = CC::Service::GitHubPullRequests::Config.new(oauth_token: "a1b2c3", add_comment: "0")
+    c = CC::Service::GitHubPullRequests::Config.new(oauth_token: "a1b2c3", update_status: "0")
     assert c.valid?
-    assert_equal false, c.add_comment
+    assert_equal false, c.update_status
   end
 
 private
@@ -303,22 +222,6 @@ private
         assert v === body[k],
           "Unexpected value for #{k}. #{v.inspect} !== #{body[k].inspect}"
       end
-    end
-  end
-
-  def stub_existing_comments(repo, number, bodies)
-    body = bodies.map { |b| { body: b } }.to_json
-
-    @stubs.get("repos/#{repo}/issues/#{number}/comments") { [200, {}, body] }
-  end
-
-  def expect_comment(repo, number, content)
-    @stubs.post "repos/#{repo}/issues/#{number}/comments" do |env|
-      body = JSON.parse(env[:body])
-      assert_equal "token 123", env[:request_headers]["Authorization"]
-      assert content === body["body"],
-        "Unexpected comment body. #{content.inspect} !== #{body["body"].inspect}"
-      [200, {}, '{"id": 2}']
     end
   end
 

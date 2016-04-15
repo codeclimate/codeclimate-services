@@ -11,7 +11,7 @@
 # Example:
 #
 #   $ SLACK_WEBHOOK_URL="http://..." bundle exec ruby service_test.rb
-#   $ GITHUBPULLREQUESTS_UPDATE_STATUS=false GITHUBPULLREQUESTS_ADD_COMMENT=true GITHUBPULLREQUESTS_OAUTH_TOKEN=06083a4a060d358ca709939b1f00645777661c44 bundle exec ruby service_test.rb
+#   $ GITHUBPULLREQUESTS_UPDATE_STATUS=false GITHUBPULLREQUESTS_OAUTH_TOKEN=06083a4a060d358ca709939b1f00645777661c44 bundle exec ruby service_test.rb
 #
 # Other Environment variables used:
 #

@@ -8,9 +8,6 @@ class CC::Service::GitHubPullRequests < CC::Service
     attribute :update_status, Axiom::Types::Boolean,
       label: "Update status?",
       description: "Update the pull request status after analyzing?"
-    attribute :add_comment, Axiom::Types::Boolean,
-      label: "Add a comment?",
-      description: "Comment on the pull request after analyzing?"
     attribute :base_url, Axiom::Types::String,
       label: "Github API Base URL",
       description: "Base URL for the Github API",
@@ -26,22 +23,14 @@ class CC::Service::GitHubPullRequests < CC::Service
   self.title = "GitHub Pull Requests"
   self.description = "Update pull requests on GitHub"
 
-  BODY_REGEX = %r{<b>Code Climate</b> has <a href=".*">analyzed this pull request</a>}
-  COMMENT_BODY = '<img src="https://codeclimate.com/favicon.png" width="20" height="20" />&nbsp;<b>Code Climate</b> has <a href="%s">analyzed this pull request</a>.'
-
   # Just make sure we can access GH using the configured token. Without
   # additional information (github-slug, PR number, etc) we can't test much
   # else.
   def receive_test
     setup_http
 
-    if update_status? && add_comment?
+    if update_status?
       receive_test_status
-      receive_test_comment
-    elsif update_status?
-      receive_test_status
-    elsif add_comment?
-      receive_test_comment
     else
       simple_failure("Nothing happened")
     end
@@ -62,10 +51,6 @@ class CC::Service::GitHubPullRequests < CC::Service
 
 private
 
-  def add_comment?
-    [true, "1"].include?(config.add_comment)
-  end
-
   def update_status?
     [true, "1"].include?(config.update_status)
   end
@@ -83,12 +68,10 @@ private
   end
 
   def update_status_success
-    add_comment
     update_status("success", presenter.success_message)
   end
 
   def update_status_failure
-    add_comment
     update_status("failure", presenter.success_message)
   end
 
@@ -122,26 +105,6 @@ private
     end
   end
 
-  def add_comment
-    if add_comment?
-      if !comment_present?
-        body = {
-          body: COMMENT_BODY % @payload["compare_url"]
-        }.to_json
-
-        @response = service_post(comments_url, body) do |response|
-          doc = JSON.parse(response.body)
-          { id: doc["id"] }
-        end
-      else
-        @response = {
-          ok: true,
-          message: "Comment already present"
-        }
-      end
-    end
-  end
-
   def receive_test_status
     url = base_status_url("0" * 40)
     params = {}
@@ -160,24 +123,6 @@ private
     end
   end
 
-  def receive_test_comment
-    response = service_get(user_url)
-    if response_includes_repo_scope?(response)
-      { ok: true, message: "OAuth token is valid" }
-    else
-      { ok: false, message: "OAuth token requires 'repo' scope to post comments." }
-    end
-  rescue => ex
-    { ok: false, message: ex.message }
-  end
-
-  def comment_present?
-    response = service_get(comments_url)
-    comments = JSON.parse(response.body)
-
-    comments.any? { |comment| comment["body"] =~ BODY_REGEX }
-  end
-
   def setup_http
     http.headers["Content-Type"]  = "application/json"
     http.headers["Authorization"] = "token #{config.oauth_token}"
@@ -190,10 +135,6 @@ private
 
   def base_status_url(commit_sha)
     "#{config.base_url}/repos/#{github_slug}/statuses/#{commit_sha}"
-  end
-
-  def comments_url
-    "#{config.base_url}/repos/#{github_slug}/issues/#{number}/comments"
   end
 
   def user_url
