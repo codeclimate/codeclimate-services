@@ -1,0 +1,23 @@
+#!/bin/sh
+#
+# Release a new version of this repository.
+#
+# Assumes bin/prep-release was run and the PR merged.
+#
+# Usage: bin/release
+#
+###
+set -e
+
+git checkout master
+git pull
+
+version=$(< VERSION)
+
+printf "RELEASE %s\n" "$version"
+rake release
+
+echo "Be sure to update release notes:"
+echo ""
+echo "  https://github.com/codeclimate/codeclimate-services/releases/new?tag=v$version"
+echo ""
