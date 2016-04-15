@@ -1,11 +1,11 @@
 # coding: utf-8
-lib = File.expand_path('../lib', __FILE__)
+lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'cc/services/version'
+VERSION = File.read(File.expand_path("../VERSION", __FILE__))
 
 Gem::Specification.new do |spec|
   spec.name          = "codeclimate-services"
-  spec.version       = CC::Services::VERSION
+  spec.version       = VERSION
   spec.authors       = ["Bryan Helmkamp"]
   spec.email         = ["bryan@brynary.com"]
   spec.summary       = %q{Service classes for Code Climate}
