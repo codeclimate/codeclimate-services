@@ -7,7 +7,8 @@ class CC::Service::GitHubPullRequests < CC::Service
       description: "A personal OAuth token with permissions for the repo."
     attribute :update_status, Axiom::Types::Boolean,
       label: "Update status?",
-      description: "Update the pull request status after analyzing?"
+      description: "Update the pull request status after analyzing?",
+      default: true
     attribute :base_url, Axiom::Types::String,
       label: "Github API Base URL",
       description: "Base URL for the Github API",
