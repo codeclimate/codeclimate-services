@@ -103,7 +103,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
   def test_no_status_update_for_skips_when_update_status_config_is_falsey
     # With no POST expectation, test will fail if request is made.
 
-    receive_pull_request({}, {
+    receive_pull_request({ update_status: false }, {
       github_slug: "pbrisbin/foo",
       commit_sha:  "abc123",
       state:       "skipped",
@@ -113,7 +113,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
   def test_no_status_update_for_pending_when_update_status_config_is_falsey
     # With no POST expectation, test will fail if request is made.
 
-    receive_pull_request({}, {
+    receive_pull_request({ update_status: false }, {
       github_slug: "pbrisbin/foo",
       commit_sha:  "abc123",
       state:       "pending",
@@ -123,7 +123,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
   def test_no_status_update_for_error_when_update_status_config_is_falsey
     # With no POST expectation, test will fail if request is made.
 
-    receive_pull_request({}, {
+    receive_pull_request({ update_status: false }, {
       github_slug: "pbrisbin/foo",
       commit_sha:  "abc123",
       state:       "error",
@@ -158,7 +158,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
   end
 
   def test_pull_request_nothing_happened
-    response = receive_pull_request({}, { state: "success" })
+    response = receive_pull_request({ update_status: false }, { state: "success" })
 
     assert_equal({ ok: false, message: "Nothing happened" }, response)
   end
