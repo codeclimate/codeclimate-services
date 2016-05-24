@@ -74,7 +74,8 @@ private
       {
         id: body["id"],
         number: body["number"],
-        url: body["html_url"]
+        url: body["html_url"],
+        message: "Issue <a href='#{body["html_url"]}'>##{body["number"]}</a> created.",
       }
     end
   end
