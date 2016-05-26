@@ -12,6 +12,7 @@ class TestGitHubIssues < CC::Service::TestCase
     assert_equal id, response[:id]
     assert_equal number, response[:number]
     assert_equal url, response[:url]
+    assert_equal "Issue <a href='#{url}'>##{number}</a> created.", response[:message]
   end
 
   def test_quality
