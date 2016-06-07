@@ -54,7 +54,7 @@ class CC::Service::Asana < CC::Service
 
 private
 
-  def create_task(name, notes = nil)
+  def create_task(name, notes = "")
     params = generate_params(name, notes)
     authenticate_http
     http.headers["Content-Type"] = "application/json"

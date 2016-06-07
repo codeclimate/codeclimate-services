@@ -58,7 +58,7 @@ class TestAsana < CC::Service::TestCase
 
   private
 
-  def assert_asana_receives(event_data, name, notes = nil)
+  def assert_asana_receives(event_data, name, notes = "")
     @stubs.post '/api/1.0/tasks' do |env|
       body = JSON.parse(env[:body])
       data = body["data"]
