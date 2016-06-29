@@ -33,9 +33,7 @@ class CC::Service::GitHubIssues < CC::Service
   end
 
   def receive_quality
-    title = "Refactor #{constant_name} from #{rating} on Code Climate"
-
-    create_issue(title, details_url)
+    create_issue(quality_title, details_url)
   end
 
   def receive_vulnerability

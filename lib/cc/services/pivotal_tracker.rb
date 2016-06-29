@@ -28,9 +28,7 @@ class CC::Service::PivotalTracker < CC::Service
   end
 
   def receive_quality
-    name = "Refactor #{constant_name} from #{rating} on Code Climate"
-
-    create_story(name, details_url)
+    create_story(quality_title, details_url)
   end
 
   def receive_issue

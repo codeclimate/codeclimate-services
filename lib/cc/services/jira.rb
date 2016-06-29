@@ -36,9 +36,7 @@ class CC::Service::Jira < CC::Service
   end
 
   def receive_quality
-    title = "Refactor #{constant_name} from #{rating} on Code Climate"
-
-    create_ticket(title, details_url)
+    create_ticket(quality_title, details_url)
   end
 
   def receive_issue
