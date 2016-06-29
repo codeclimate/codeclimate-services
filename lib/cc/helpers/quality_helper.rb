@@ -7,6 +7,10 @@ module CC::Service::QualityHelper
     payload["constant_name"]
   end
 
+  def quality_title
+    "Refactor #{constant_name} from #{rating} on Code Climate"
+  end
+
   def rating
     with_article(payload["rating"])
   end
