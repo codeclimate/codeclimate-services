@@ -22,6 +22,14 @@ class TestGitHubIssues < CC::Service::TestCase
     )
   end
 
+  def test_quality_without_rating
+    assert_github_receives(
+      event(:quality, to: nil),
+      "Refactor User on Code Climate",
+      "https://codeclimate.com/repos/1/feed"
+    )
+  end
+
   def test_issue
     payload = {
       issue: {
