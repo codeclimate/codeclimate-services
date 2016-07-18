@@ -4,6 +4,8 @@ require "cc/service/response_check"
 module CC::Service::HTTP
   extend ActiveSupport::Concern
 
+  REDIRECT_CODES = [302, 307]
+
   module ClassMethods
     def default_http_options
       @@default_http_options ||= {
@@ -22,6 +24,22 @@ module CC::Service::HTTP
   def service_post(url, body = nil, headers = nil, &block)
     block ||= lambda{|*args| Hash.new }
     response = raw_post(url, body, headers)
+    {
+      ok: response.success?,
+      params: body.as_json,
+      endpoint_url: url,
+      status: response.status,
+      message: "Success"
+    }.merge(block.call(response))
+  end
+
+  def service_post_with_redirects(url, body = nil, headers = nil, &block)
+    block ||= lambda{|*args| Hash.new }
+    response = raw_post(url, body, headers)
+    if REDIRECT_CODES.include?(response.status)
+      response = raw_post(response.headers["location"], body, headers)
+    end
+
     {
       ok: response.success?,
       params: body.as_json,

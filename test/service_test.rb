@@ -45,6 +45,21 @@ class TestService < CC::Service::TestCase
     assert_equal 200, response[:status]
   end
 
+  def test_post_redirect_success
+    stub_http("/my/test/url", [307, {"Location" => "/my/redirect/url"}, '{"ok": false, "redirect": true}'])
+    stub_http("/my/redirect/url", [200, {}, '{"ok": true, "thing": "123"}'])
+
+    response = service_post_with_redirects("/my/test/url", {token: "1234"}.to_json, {}) do |response|
+      body = JSON.parse(response.body)
+      { thing: body["thing"] }
+    end
+
+    assert_true response[:ok]
+    assert_equal '{"token":"1234"}', response[:params]
+    assert_equal "/my/test/url", response[:endpoint_url]
+    assert_equal 200, response[:status]
+  end
+
   def test_post_http_failure
     stub_http("/my/wrong/url", [404, {}, ""])
 
