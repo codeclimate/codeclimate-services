@@ -4,6 +4,8 @@ require "cc/service/response_check"
 module CC::Service::HTTP
   extend ActiveSupport::Concern
 
+  REDIRECT_CODES = [302, 307]
+
   module ClassMethods
     def default_http_options
       @@default_http_options ||= {
@@ -20,15 +22,19 @@ module CC::Service::HTTP
   end
 
   def service_post(url, body = nil, headers = nil, &block)
-    block ||= lambda{|*args| Hash.new }
+    block ||= lambda{|*_args| Hash.new }
     response = raw_post(url, body, headers)
-    {
-      ok: response.success?,
-      params: body.as_json,
-      endpoint_url: url,
-      status: response.status,
-      message: "Success"
-    }.merge(block.call(response))
+    formatted_post_response(response, url, body).merge(block.call(response))
+  end
+
+  def service_post_with_redirects(url, body = nil, headers = nil, &block)
+    block ||= lambda{|*_args| Hash.new }
+    response = raw_post(url, body, headers)
+    if REDIRECT_CODES.include?(response.status)
+      response = raw_post(response.headers["location"], body, headers)
+    end
+
+    formatted_post_response(response, url, body).merge(block.call(response))
   end
 
   def raw_get(url = nil, params = nil, headers = nil)
@@ -84,4 +90,13 @@ module CC::Service::HTTP
     @ca_file ||= ENV.fetch("CODECLIMATE_CA_FILE", File.expand_path('../../../../config/cacert.pem', __FILE__))
   end
 
+  def formatted_post_response(response, url, body)
+    {
+      ok: response.success?,
+      params: body.as_json,
+      endpoint_url: url,
+      status: response.status,
+      message: "Success",
+    }
+  end
 end

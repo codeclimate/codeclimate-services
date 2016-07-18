@@ -43,6 +43,14 @@ class CC::Service::TestCase < Test::Unit::TestCase
     ).service_post(*args)
   end
 
+  def service_post_with_redirects(*args)
+    service(
+      CC::Service,
+      { data: "my data" },
+      event(:quality, to: "D", from: "C")
+    ).service_post_with_redirects(*args)
+  end
+
   def stub_http(url, response = nil, &block)
     block ||= lambda{|*args| response }
     @stubs.post(url, &block)
