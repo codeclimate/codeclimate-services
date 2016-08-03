@@ -17,6 +17,10 @@ class CC::Service::GitHubPullRequests < CC::Service
       label: "Github Context",
       description: "The integration name next to the pull request status",
       default: "codeclimate"
+    attribute :coverage_context, Axiom::Types::String,
+      label: "Github Coverage Context",
+      description: "The integration name next to the pull request status for coverage",
+      default: "codeclimate-coverage"
 
     validates :oauth_token, presence: true
   end
@@ -48,6 +52,19 @@ class CC::Service::GitHubPullRequests < CC::Service
     end
 
     response
+  end
+
+  def receive_pull_request_coverage
+    setup_http
+
+    params = {
+      state:       "success",
+      description: "Coverage Info",
+      target_url:  @payload["details_url"],
+      context:     config.coverage_context,
+    }
+
+    service_post(status_url, params.to_json)
   end
 
 private
