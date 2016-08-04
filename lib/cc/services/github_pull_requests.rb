@@ -6,9 +6,13 @@ class CC::Service::GitHubPullRequests < CC::Service
       label: "OAuth Token",
       description: "A personal OAuth token with permissions for the repo."
     attribute :update_status, Axiom::Types::Boolean,
-      label: "Update status?",
+      label: "Update analysis status?",
       description: "Update the pull request status after analyzing?",
       default: true
+    attribute :update_coverage_coverage, Axiom::Types::Boolean,
+      label: "Update coverage status?",
+      description: "Update the pull request status with test coverage reports?",
+      default: false
     attribute :base_url, Axiom::Types::String,
       label: "Github API Base URL",
       description: "Base URL for the Github API",
@@ -50,10 +54,31 @@ class CC::Service::GitHubPullRequests < CC::Service
     response
   end
 
+  def receive_pull_request_coverage
+    setup_http
+    state = @payload["state"]
+
+    if %w[pending success].include?(state)
+      send("update_coverage_status_#{state}")
+    else
+      @response = simple_failure("Unknown state")
+    end
+
+    response
+  end
+
 private
 
   def update_status?
-    [true, "1"].include?(config.update_status)
+    effective_boolean?(config.update_status)
+  end
+
+  def update_coverage_status?
+    effective_boolean?(config.update_coverage_status)
+  end
+
+  def effective_boolean?(value)
+    [true, "1"].include?(value)
   end
 
   def simple_failure(message)
@@ -70,6 +95,14 @@ private
 
   def update_status_success
     update_status("success", presenter.success_message)
+  end
+
+  def update_coverage_status_pending
+    update_status("pending", presenter.coverage_pending_message, "#{config.context}/coverage")
+  end
+
+  def update_coverage_status_success
+    update_status("success", presenter.coverage_success_message, "#{config.context}/coverage")
   end
 
   def update_status_failure
@@ -94,13 +127,13 @@ private
     )
   end
 
-  def update_status(state, description)
+  def update_status(state, description, context = config.context)
     if update_status?
       params = {
         state:       state,
         description: description,
         target_url:  @payload["details_url"],
-        context:     config.context,
+        context:     context,
       }
       @response = service_post(status_url, params.to_json)
     end

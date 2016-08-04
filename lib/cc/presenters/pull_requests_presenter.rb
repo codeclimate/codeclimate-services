@@ -24,6 +24,14 @@ module CC
         "Code Climate has skipped analysis of this commit."
       end
 
+      def coverage_pending_message
+        "Code Climate is waiting for a test report for this commit."
+      end
+
+      def coverage_success_message
+        "Code Climate received a test coverage report for this commit."
+      end
+
       def success_message
         if both_issue_counts_zero?
           "Code Climate didn't find any new or fixed issues."

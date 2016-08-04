@@ -95,6 +95,22 @@ Event-specific attributes:
 }
 ```
 
+### Pull Request Coverage
+
+Event name: `pull_request_coverage`
+
+Event-specific attributes:
+
+```javascript
+{
+  "state": String, // "pending", "success", or "failure"
+  "github_slug": String, // user/repo
+  "number": String,
+  "commit_sha": String,
+  "covered_percent_delta": Float,
+}
+```
+
 ## Other Events
 
 The following are not fully implemented yet.
