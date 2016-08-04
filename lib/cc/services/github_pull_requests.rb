@@ -42,26 +42,30 @@ class CC::Service::GitHubPullRequests < CC::Service
   end
 
   def receive_pull_request
-    setup_http
-    state = @payload["state"]
+    if update_status?
+      setup_http
+      state = @payload["state"]
 
-    if %w[pending success failure skipped error].include?(state)
-      send("update_status_#{state}")
-    else
-      @response = simple_failure("Unknown state")
+      if %w[pending success failure skipped error].include?(state)
+        send("update_status_#{state}")
+      else
+        @response = simple_failure("Unknown state")
+      end
     end
 
     response
   end
 
   def receive_pull_request_coverage
-    setup_http
-    state = @payload["state"]
+    if update_coverage_status?
+      setup_http
+      state = @payload["state"]
 
-    if state == "success"
-      update_coverage_status_success
-    else
-      @response = simple_failure("Unknown state")
+      if state == "success"
+        update_coverage_status_success
+      else
+        @response = simple_failure("Unknown state")
+      end
     end
 
     response
@@ -124,15 +128,13 @@ private
   end
 
   def update_status(state, description, context = config.context)
-    if update_status?
-      params = {
-        state:       state,
-        description: description,
-        target_url:  @payload["details_url"],
-        context:     context,
-      }
-      @response = service_post(status_url, params.to_json)
-    end
+    params = {
+      state:       state,
+      description: description,
+      target_url:  @payload["details_url"],
+      context:     context,
+    }
+    @response = service_post(status_url, params.to_json)
   end
 
   def receive_test_status

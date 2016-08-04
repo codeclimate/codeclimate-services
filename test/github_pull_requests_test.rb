@@ -106,7 +106,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
       "description" => "Test coverage for this commit: 87%",
     })
 
-    receive_pull_request_coverage({ update_status_coverage: true }, {
+    receive_pull_request_coverage({ update_coverage_status: true }, {
       github_slug:     "pbrisbin/foo",
       commit_sha:      "abc123",
       state:           "success",
