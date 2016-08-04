@@ -9,7 +9,7 @@ class CC::Service::GitHubPullRequests < CC::Service
       label: "Update analysis status?",
       description: "Update the pull request status after analyzing?",
       default: true
-    attribute :update_coverage_coverage, Axiom::Types::Boolean,
+    attribute :update_coverage_status, Axiom::Types::Boolean,
       label: "Update coverage status?",
       description: "Update the pull request status with test coverage reports?",
       default: false
@@ -58,8 +58,8 @@ class CC::Service::GitHubPullRequests < CC::Service
     setup_http
     state = @payload["state"]
 
-    if %w[pending success].include?(state)
-      send("update_coverage_status_#{state}")
+    if state == "success"
+      update_coverage_status_success
     else
       @response = simple_failure("Unknown state")
     end
@@ -95,10 +95,6 @@ private
 
   def update_status_success
     update_status("success", presenter.success_message)
-  end
-
-  def update_coverage_status_pending
-    update_status("pending", presenter.coverage_pending_message, "#{config.context}/coverage")
   end
 
   def update_coverage_status_success
