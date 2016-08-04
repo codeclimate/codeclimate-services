@@ -100,6 +100,20 @@ class TestGitHubPullRequests < CC::Service::TestCase
     })
   end
 
+  def test_pull_request_coverage_status_success
+    expect_status_update("pbrisbin/foo", "abc123", {
+      "state"       => "success",
+      "description" => "Test coverage for this commit: 87%",
+    })
+
+    receive_pull_request_coverage({ update_coverage_status: true }, {
+      github_slug:     "pbrisbin/foo",
+      commit_sha:      "abc123",
+      state:           "success",
+      covered_percent: 87
+    })
+  end
+
   def test_no_status_update_for_skips_when_update_status_config_is_falsey
     # With no POST expectation, test will fail if request is made.
 
@@ -230,6 +244,14 @@ private
       CC::Service::GitHubPullRequests,
       { oauth_token: "123" }.merge(config),
       { name: "pull_request", issue_comparison_counts: {'fixed' => 1, 'new' => 2} }.merge(event_data)
+    )
+  end
+
+  def receive_pull_request_coverage(config, event_data)
+    receive(
+      CC::Service::GitHubPullRequests,
+      { oauth_token: "123" }.merge(config),
+      { name: "pull_request_coverage", issue_comparison_counts: {'fixed' => 1, 'new' => 2} }.merge(event_data)
     )
   end
 

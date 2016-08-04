@@ -10,6 +10,8 @@ module CC
           @fixed_count = issue_comparison_counts["fixed"]
           @new_count = issue_comparison_counts["new"]
         end
+
+        @covered_percent = payload["covered_percent"]
       end
 
       def error_message
@@ -22,6 +24,10 @@ module CC
 
       def skipped_message
         "Code Climate has skipped analysis of this commit."
+      end
+
+      def coverage_success_message
+        "Test coverage for this commit: #{@covered_percent}%"
       end
 
       def success_message

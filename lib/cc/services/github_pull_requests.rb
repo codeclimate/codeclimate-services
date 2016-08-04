@@ -6,9 +6,13 @@ class CC::Service::GitHubPullRequests < CC::Service
       label: "OAuth Token",
       description: "A personal OAuth token with permissions for the repo."
     attribute :update_status, Axiom::Types::Boolean,
-      label: "Update status?",
+      label: "Update analysis status?",
       description: "Update the pull request status after analyzing?",
       default: true
+    attribute :update_coverage_status, Axiom::Types::Boolean,
+      label: "Update coverage status?",
+      description: "Update the pull request status with test coverage reports?",
+      default: false
     attribute :base_url, Axiom::Types::String,
       label: "Github API Base URL",
       description: "Base URL for the Github API",
@@ -38,13 +42,30 @@ class CC::Service::GitHubPullRequests < CC::Service
   end
 
   def receive_pull_request
-    setup_http
-    state = @payload["state"]
+    if update_status?
+      setup_http
+      state = @payload["state"]
 
-    if %w[pending success failure skipped error].include?(state)
-      send("update_status_#{state}")
-    else
-      @response = simple_failure("Unknown state")
+      if %w[pending success failure skipped error].include?(state)
+        send("update_status_#{state}")
+      else
+        @response = simple_failure("Unknown state")
+      end
+    end
+
+    response
+  end
+
+  def receive_pull_request_coverage
+    if update_coverage_status?
+      setup_http
+      state = @payload["state"]
+
+      if state == "success"
+        update_coverage_status_success
+      else
+        @response = simple_failure("Unknown state")
+      end
     end
 
     response
@@ -53,7 +74,15 @@ class CC::Service::GitHubPullRequests < CC::Service
 private
 
   def update_status?
-    [true, "1"].include?(config.update_status)
+    effective_boolean?(config.update_status)
+  end
+
+  def update_coverage_status?
+    effective_boolean?(config.update_coverage_status)
+  end
+
+  def effective_boolean?(value)
+    [true, "1"].include?(value)
   end
 
   def simple_failure(message)
@@ -70,6 +99,10 @@ private
 
   def update_status_success
     update_status("success", presenter.success_message)
+  end
+
+  def update_coverage_status_success
+    update_status("success", presenter.coverage_success_message, "#{config.context}/coverage")
   end
 
   def update_status_failure
@@ -94,16 +127,14 @@ private
     )
   end
 
-  def update_status(state, description)
-    if update_status?
-      params = {
-        state:       state,
-        description: description,
-        target_url:  @payload["details_url"],
-        context:     config.context,
-      }
-      @response = service_post(status_url, params.to_json)
-    end
+  def update_status(state, description, context = config.context)
+    params = {
+      state:       state,
+      description: description,
+      target_url:  @payload["details_url"],
+      context:     context,
+    }
+    @response = service_post(status_url, params.to_json)
   end
 
   def receive_test_status
