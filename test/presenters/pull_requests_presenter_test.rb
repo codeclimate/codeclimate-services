@@ -37,13 +37,34 @@ class TestPullRequestsPresenter < CC::Service::TestCase
     )
   end
 
+  def test_message_coverage_same
+    assert_equal(
+      "85% test coverage",
+      build_presenter({}, "covered_percent" => 85, "covered_percent_delta" => 0).coverage_message
+    )
+  end
+
+  def test_message_coverage_up
+    assert_equal(
+      "85.5% test coverage (+2.46%)",
+      build_presenter({}, "covered_percent" => 85.5, "covered_percent_delta" => 2.4567).coverage_message
+    )
+  end
+
+  def test_message_coverage_down
+    assert_equal(
+      "85.35% test coverage (-3%)",
+      build_presenter({}, "covered_percent" => 85.348, "covered_percent_delta" => -3.0).coverage_message
+    )
+  end
+
 private
 
   def build_payload(issue_counts)
     { "issue_comparison_counts" => issue_counts }
   end
 
-  def build_presenter(issue_counts)
-    CC::Service::PullRequestsPresenter.new(build_payload(issue_counts))
+  def build_presenter(issue_counts, payload = {})
+    CC::Service::PullRequestsPresenter.new(build_payload(issue_counts).merge(payload))
   end
 end
