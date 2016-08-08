@@ -5,14 +5,6 @@ class CC::Service::GitHubPullRequests < CC::Service
     attribute :oauth_token, Axiom::Types::String,
       label: "OAuth Token",
       description: "A personal OAuth token with permissions for the repo."
-    attribute :update_status, Axiom::Types::Boolean,
-      label: "Update analysis status?",
-      description: "Update the pull request status after analyzing?",
-      default: true
-    attribute :update_coverage_status, Axiom::Types::Boolean,
-      label: "Update coverage status?",
-      description: "Update the pull request status with test coverage reports?",
-      default: false
     attribute :base_url, Axiom::Types::String,
       label: "Github API Base URL",
       description: "Base URL for the Github API",
@@ -34,56 +26,36 @@ class CC::Service::GitHubPullRequests < CC::Service
   def receive_test
     setup_http
 
-    if update_status?
-      receive_test_status
-    else
-      simple_failure("Nothing happened")
-    end
+    receive_test_status
   end
 
   def receive_pull_request
-    if update_status?
-      setup_http
-      state = @payload["state"]
+    setup_http
+    state = @payload["state"]
 
-      if %w[pending success failure skipped error].include?(state)
-        send("update_status_#{state}")
-      else
-        @response = simple_failure("Unknown state")
-      end
+    if %w[pending success failure skipped error].include?(state)
+      send("update_status_#{state}")
+    else
+      @response = simple_failure("Unknown state")
     end
 
     response
   end
 
   def receive_pull_request_coverage
-    if update_coverage_status?
-      setup_http
-      state = @payload["state"]
+    setup_http
+    state = @payload["state"]
 
-      if state == "success"
-        update_coverage_status_success
-      else
-        @response = simple_failure("Unknown state")
-      end
+    if state == "success"
+      update_coverage_status_success
+    else
+      @response = simple_failure("Unknown state")
     end
 
     response
   end
 
 private
-
-  def update_status?
-    effective_boolean?(config.update_status)
-  end
-
-  def update_coverage_status?
-    effective_boolean?(config.update_coverage_status)
-  end
-
-  def effective_boolean?(value)
-    [true, "1"].include?(value)
-  end
 
   def simple_failure(message)
     { ok: false, message: message }

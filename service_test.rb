@@ -83,4 +83,4 @@ ServiceTest.new(CC::Service::Slack, :webhook_url).test
 ServiceTest.new(CC::Service::Flowdock, :api_token).test
 ServiceTest.new(CC::Service::Jira, :username, :password, :domain, :project_id).test
 ServiceTest.new(CC::Service::Asana, :api_key, :workspace_id, :project_id).test
-ServiceTest.new(CC::Service::GitHubPullRequests, :oauth_token, :update_status, :add_comment).test({ github_slug: "codeclimate/codeclimate" })
+ServiceTest.new(CC::Service::GitHubPullRequests, :oauth_token, :add_comment).test({ github_slug: "codeclimate/codeclimate" })
