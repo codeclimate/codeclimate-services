@@ -123,7 +123,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
   def test_pull_request_status_test_doesnt_blow_up_when_unused_keys_present_in_config
     @stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") { |env| [422, {}, ""] }
 
-    assert receive_test({ add_comment: true, wild_flamingo: true }, { github_slug: "pbrisbin/foo" })[:ok], "Expected test of pull request to be true"
+    assert receive_test({ wild_flamingo: true }, { github_slug: "pbrisbin/foo" })[:ok], "Expected test of pull request to be true"
   end
 
   def test_pull_request_status_test_failure
