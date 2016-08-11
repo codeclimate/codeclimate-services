@@ -30,7 +30,6 @@ end
 
 service = CC::Service::GitHubPullRequests.new({
   oauth_token:   ENV.fetch("OAUTH_TOKEN"),
-  update_status: true,
 }, {
   name:        "pull_request",
   # https://github.com/codeclimate/nillson/pull/33
