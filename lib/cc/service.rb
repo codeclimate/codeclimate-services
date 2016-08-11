@@ -42,13 +42,19 @@ module CC
       vulnerability
     ].freeze
 
+    ABSTRACT_SLUGS = %w[
+      pullrequests
+    ].freeze
+
     # Tracks the defined services.
     def self.services
       @services ||= []
     end
 
     def self.inherited(svc)
-      Service.services << svc
+      unless ABSTRACT_SLUGS.include?(svc.slug)
+        Service.services << svc
+      end
       super
     end
 

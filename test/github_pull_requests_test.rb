@@ -37,7 +37,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
     })
 
     receive_pull_request(
-      { },
+      {},
       {
         github_slug: "pbrisbin/foo",
         commit_sha:  "abc123",
