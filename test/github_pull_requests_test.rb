@@ -100,17 +100,18 @@ class TestGitHubPullRequests < CC::Service::TestCase
     })
   end
 
-  def test_pull_request_coverage_status_success
+  def test_pull_request_coverage_status
     expect_status_update("pbrisbin/foo", "abc123", {
       "state"       => "success",
-      "description" => "Test coverage for this commit: 87%",
+      "description" => "87% test coverage (+2%)",
     })
 
     receive_pull_request_coverage({},
       github_slug:     "pbrisbin/foo",
       commit_sha:      "abc123",
       state:           "success",
-      covered_percent: 87
+      covered_percent: 87,
+      covered_percent_delta: 2.0,
     )
   end
 

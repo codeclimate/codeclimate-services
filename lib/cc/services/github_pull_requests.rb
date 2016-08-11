@@ -74,7 +74,7 @@ private
   end
 
   def update_coverage_status_success
-    update_status("success", presenter.coverage_success_message, "#{config.context}/coverage")
+    update_status("success", presenter.coverage_message, "#{config.context}/coverage")
   end
 
   def update_status_failure

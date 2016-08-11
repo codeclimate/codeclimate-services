@@ -12,6 +12,7 @@ module CC
         end
 
         @covered_percent = payload["covered_percent"]
+        @covered_percent_delta = payload["covered_percent_delta"]
       end
 
       def error_message
@@ -26,8 +27,16 @@ module CC
         "Code Climate has skipped analysis of this commit."
       end
 
-      def coverage_success_message
-        "Test coverage for this commit: #{@covered_percent}%"
+      def coverage_message
+        message = "#{formatted_percent(@covered_percent)}% test coverage"
+
+        if @covered_percent_delta.positive?
+          message += " (+#{formatted_percent(@covered_percent_delta)}%)"
+        elsif @covered_percent_delta.negative?
+          message += " (#{formatted_percent(@covered_percent_delta)}%)"
+        end
+
+        message
       end
 
       def success_message
@@ -62,6 +71,10 @@ module CC
 
       def formatted_issue_counts
         [formatted_new_issues, formatted_fixed_issues].compact.to_sentence
+      end
+
+      def formatted_percent(value)
+        "%g" % ("%.2f" % value)
       end
 
       def issue_counts
