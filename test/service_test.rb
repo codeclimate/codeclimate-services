@@ -75,4 +75,10 @@ class TestService < CC::Service::TestCase
       service_post("/my/wrong/url", {token: "1234"}.to_json, {})
     end
   end
+
+  def test_services
+    services = CC::Service.services
+
+    assert !services.include?(CC::PullRequests)
+  end
 end
