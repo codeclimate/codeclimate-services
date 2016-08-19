@@ -71,7 +71,7 @@ module CC
     def self.title
       @title ||= begin
         hook = name.dup
-        hook.sub! /.*:/, ''
+        hook.sub!(/.*:/, '')
         hook
       end
     end
@@ -80,7 +80,7 @@ module CC
       @slug ||= begin
         hook = name.dup
         hook.downcase!
-        hook.sub! /.*:/, ''
+        hook.sub!(/.*:/, '')
         hook
       end
     end
