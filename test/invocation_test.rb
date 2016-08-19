@@ -137,7 +137,7 @@ class TestInvocation < Test::Unit::TestCase
       @receive_count += 1
 
       begin
-        raise @fake_error if @fake_error
+        raise fake_error if fake_error
       rescue => e
         if override_user_message
           e.user_message = override_user_message
