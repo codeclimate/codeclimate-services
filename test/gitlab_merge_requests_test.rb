@@ -146,38 +146,6 @@ class TestGitlabMergeRequests < CC::Service::TestCase
     assert receive_test({ base_url: "https://gitlab.hal.org" }, { git_url: "ssh://git@gitlab.com/hal/hal9000.git" })[:ok], "Expected test of pull request to be true"
   end
 
-  def test_different_context
-    expect_status_update(
-      "gordondiggs/ellis",
-      "abc123",
-      "context" => "sup",
-      "state" => "running",
-    )
-
-    response = receive_merge_request(
-      { context: "sup" },
-      git_url: "https://gitlab.com/gordondiggs/ellis.git",
-      commit_sha: "abc123",
-      state: "pending",
-    )
-  end
-
-  def test_default_context
-    expect_status_update(
-      "gordondiggs/ellis",
-      "abc123",
-      "context" => "codeclimate",
-      "state" => "running",
-    )
-
-    response = receive_merge_request(
-      {},
-      git_url: "https://gitlab.com/gordondiggs/ellis.git",
-      commit_sha: "abc123",
-      state: "pending",
-    )
-  end
-
   private
 
   def expect_status_update(repo, commit_sha, params)
