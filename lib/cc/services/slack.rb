@@ -72,7 +72,11 @@ class CC::Service::Slack < CC::Service
       @response = speak(improvements_message(snapshot.improved_constants_payload), GREEN_HEX)
     end
 
-    @response || { ok: false, ignored: true, message: "No changes in snapshot" }
+    if defined?(@response)
+      @response
+    else
+      { ok: false, ignored: true, message: "No changes in snapshot" }
+    end
   end
 
   def alerts_message(constants_payload)

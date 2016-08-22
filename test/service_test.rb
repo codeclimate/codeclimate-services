@@ -34,8 +34,8 @@ class TestService < CC::Service::TestCase
   def test_post_success
     stub_http("/my/test/url", [200, {}, '{"ok": true, "thing": "123"}'])
 
-    response = service_post("/my/test/url", {token: "1234"}.to_json, {}) do |response|
-      body = JSON.parse(response.body)
+    response = service_post("/my/test/url", {token: "1234"}.to_json, {}) do |inner_response|
+      body = JSON.parse(inner_response.body)
       { thing: body["thing"] }
     end
 
@@ -49,8 +49,8 @@ class TestService < CC::Service::TestCase
     stub_http("/my/test/url", [307, {"Location" => "/my/redirect/url"}, '{"ok": false, "redirect": true}'])
     stub_http("/my/redirect/url", [200, {}, '{"ok": true, "thing": "123"}'])
 
-    response = service_post_with_redirects("/my/test/url", {token: "1234"}.to_json, {}) do |response|
-      body = JSON.parse(response.body)
+    response = service_post_with_redirects("/my/test/url", {token: "1234"}.to_json, {}) do |inner_response|
+      body = JSON.parse(inner_response.body)
       { thing: body["thing"] }
     end
 

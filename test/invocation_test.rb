@@ -76,7 +76,7 @@ class TestInvocation < Test::Unit::TestCase
 
     assert error_occurred
     assert_equal 1, statsd.incremented_keys.length
-    assert_match /^services\.errors\.a_prefix/, statsd.incremented_keys.first
+    assert_match(/^services\.errors\.a_prefix/, statsd.incremented_keys.first)
   end
 
   def test_user_message
@@ -90,7 +90,7 @@ class TestInvocation < Test::Unit::TestCase
     end
 
     assert_equal "Hey do this", result[:message]
-    assert_match /Boom/, result[:log_message]
+    assert_match(/Boom/, result[:log_message])
   end
 
   def test_error_handling
@@ -104,7 +104,7 @@ class TestInvocation < Test::Unit::TestCase
 
     assert_equal({ok: false, message: "Boom", log_message: "Exception invoking service: [a_prefix] (RuntimeError) Boom"}, result)
     assert_equal 1, logger.logged_errors.length
-    assert_match /^Exception invoking service: \[a_prefix\]/, logger.logged_errors.first
+    assert_match(/^Exception invoking service: \[a_prefix\]/, logger.logged_errors.first)
   end
 
   def test_multiple_middleware
@@ -137,7 +137,7 @@ class TestInvocation < Test::Unit::TestCase
       @receive_count += 1
 
       begin
-        raise @fake_error if @fake_error
+        raise fake_error if fake_error
       rescue => e
         if override_user_message
           e.user_message = override_user_message

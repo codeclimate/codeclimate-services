@@ -156,7 +156,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
       "state" => "pending",
     })
 
-    response = receive_pull_request({}, {
+    receive_pull_request({}, {
       github_slug: "gordondiggs/ellis",
       commit_sha:  "abc123",
       state:       "pending",
@@ -169,7 +169,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
       "state" => "pending",
     })
 
-    response = receive_pull_request({ context: "sup" }, {
+    receive_pull_request({ context: "sup" }, {
       github_slug: "gordondiggs/ellis",
       commit_sha:  "abc123",
       state:       "pending",
