@@ -2,17 +2,19 @@ require "cc/presenters/pull_requests_presenter"
 
 class CC::Service::GitlabMergeRequests < CC::PullRequests
   class Config < CC::Service::Config
+    CONTEXT = "codeclimate".freeze
+
     attribute :access_token, Axiom::Types::String,
       label: "Access Token",
       description: "A personal access token with permissions for the repo."
-    attribute :context, Axiom::Types::String,
-      label: "Context",
-      description: "The integration name for the merge request status",
-      default: "codeclimate"
     attribute :base_url, Axiom::Types::String,
       label: "GitLab API Base URL",
       description: "Base URL for the GitLab API",
       default: "https://gitlab.com"
+
+    def context
+      CONTEXT
+    end
   end
 
   self.title = "GitLab Merge Requests"
