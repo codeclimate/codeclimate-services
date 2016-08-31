@@ -64,6 +64,7 @@ class TestJira < CC::Service::TestCase
       assert_equal "Basic Zm9vOmJhcg==", env[:request_headers]["Authorization"]
       assert_equal title, body["fields"]["summary"]
       assert_equal ticket_body, body["fields"]["description"]
+      assert_equal "Task", body["fields"]["issuetype"]["name"]
       [200, {}, '{"id":"10000"}']
     end
 
