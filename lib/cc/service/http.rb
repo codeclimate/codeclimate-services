@@ -1,4 +1,6 @@
 require "active_support/concern"
+require "cc/service/generic_response_formatter"
+require "cc/service/body_extracting_response_formatter"
 require "cc/service/response_check"
 
 module CC::Service::HTTP
@@ -21,20 +23,9 @@ module CC::Service::HTTP
     raw_get(url, body, headers, &block)
   end
 
-  def service_post(url, body = nil, headers = nil, &block)
-    block ||= ->(*_args) { Hash.new }
-    response = raw_post(url, body, headers)
-    formatted_post_response(response, url, body).merge(block.call(response))
-  end
-
-  def service_post_with_redirects(url, body = nil, headers = nil, &block)
-    block ||= ->(*_args) { Hash.new }
-    response = raw_post(url, body, headers)
-    if REDIRECT_CODES.include?(response.status)
-      response = raw_post(response.headers["location"], body, headers)
-    end
-
-    formatted_post_response(response, url, body).merge(block.call(response))
+  def service_post(url, body, formatter = CC::Service::GenericResponseFormatter.new)
+    response = raw_post(url, body)
+    formatter.post(url, body, response)
   end
 
   def raw_get(url = nil, params = nil, headers = nil)
@@ -46,9 +37,9 @@ module CC::Service::HTTP
     end
   end
 
-  def raw_post(url = nil, body = nil, headers = nil)
+  def raw_post(url = nil, body = nil)
     block = Proc.new if block_given?
-    http_method :post, url, body, headers, &block
+    http_method :post, url, body, nil, &block
   end
 
   def http_method(method, url = nil, body = nil, headers = nil)
@@ -88,15 +79,5 @@ module CC::Service::HTTP
   # Returns a String path.
   def ca_file
     @ca_file ||= ENV.fetch("CODECLIMATE_CA_FILE", File.expand_path("../../../../config/cacert.pem", __FILE__))
-  end
-
-  def formatted_post_response(response, url, body)
-    {
-      ok: response.success?,
-      params: body.as_json,
-      endpoint_url: url,
-      status: response.status,
-      message: "Success",
-    }
   end
 end

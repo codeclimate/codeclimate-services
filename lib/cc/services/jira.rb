@@ -82,13 +82,11 @@ class CC::Service::Jira < CC::Service
 
     url = "https://#{config.domain}/rest/api/2/issue/"
 
-    service_post(url, params.to_json) do |response|
-      body = JSON.parse(response.body)
-      {
-        id: body["id"],
-        key: body["key"],
-        url: "https://#{config.domain}/browse/#{body["key"]}",
-      }
-    end
+    formatter = BodyExtractingResponseFormatter.new(
+      id: "id",
+      key: "key",
+      url: -> (body) { "https://#{config.domain}/browse/#{body["key"]}" },
+    )
+    service_post(url, params.to_json, formatter)
   end
 end

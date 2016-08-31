@@ -65,12 +65,11 @@ class CC::Service::Lighthouse < CC::Service
     base_url = "https://#{config.subdomain}.lighthouseapp.com"
     url = "#{base_url}/projects/#{config.project_id}/tickets.json"
 
-    service_post(url, params.to_json) do |response|
-      body = JSON.parse(response.body)
-      {
-        id: body["ticket"]["number"],
-        url: body["ticket"]["url"],
-      }
-    end
+    formatter = BodyExtractingResponseFormatter.new(
+      id: ->(body) { body["ticket"]["number"] },
+      url: ->(body) { body["ticket"]["url"] },
+    )
+
+    service_post(url, params.to_json, formatter)
   end
 end

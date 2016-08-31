@@ -13,6 +13,17 @@ class CC::Service::GitHubPullRequests < CC::PullRequests
       label: "Github Context",
       description: "The integration name next to the pull request status",
       default: "codeclimate"
+    attribute :welcome_comment_enabled, Axiom::Types::Boolean, default: false
+    attribute :welcome_comment_markdown, Axiom::Types::String,
+      label: "Welcome comment",
+      description: "The markdown body of the auto-comment to welcome new contributors",
+      default: <<-COMMENT
+* This repository is using Code Climate to automatically check for code quality issues.
+* You can see results for this analysis in the PR status below.
+* You can install [the Code Climate browser extension](https://codeclimate.com/browser) to see analysis without leaving GitHub.
+
+Thanks for your contribution!
+      COMMENT
 
     validates :oauth_token, presence: true
   end
@@ -50,6 +61,10 @@ class CC::Service::GitHubPullRequests < CC::PullRequests
       "pending",
       @payload["message"] || presenter.pending_message,
     )
+
+    if should_post_welcome_comment?
+      post_welcome_comment
+    end
   end
 
   def setup_http
@@ -72,5 +87,70 @@ class CC::Service::GitHubPullRequests < CC::PullRequests
 
   def test_status_code
     422
+  end
+
+  def welcome_comment_implemented?
+    true
+  end
+
+  def should_post_welcome_comment?
+    config.welcome_comment_enabled && @payload.fetch("first_contribution", false)
+  end
+
+  HEADER_TEMPLATE = <<-HEADER.freeze
+Hey, @%s-- Since this is the first PR we've seen from you, here's some things you should know about contributing to %s:
+
+  HEADER
+
+  def welcome_comment_markdown_header
+    format HEADER_TEMPLATE, @payload.fetch("author_username"), github_slug
+  end
+
+  ADMIN_ONLY_FOOTER_TEMPLATE = <<-FOOTER.freeze
+
+* * *
+
+Quick note: By default, Code Climate will post the above comment on the *first* PR it sees from each contributor. If you'd like to customize this message or disable this, go [here](%s).
+  FOOTER
+
+  def admin_only_footer
+    format ADMIN_ONLY_FOOTER_TEMPLATE, @payload.fetch("pull_request_integration_edit_url")
+  end
+
+  def author_is_site_admin?
+    @payload.fetch("author_is_site_admin")
+  end
+
+  def welcome_comment_markdown
+    header = welcome_comment_markdown_header
+    body = config.welcome_comment_markdown
+    if author_is_site_admin?
+      header + body + admin_only_footer
+    else
+      header + body
+    end
+  end
+
+  def comments_url
+    "#{config.base_url}/repos/#{github_slug}/issues/#{number}/comments"
+  end
+
+  def post_welcome_comment
+    formatter = GenericResponseFormatter.new(http_prefix: :welcome_comment_)
+    comment_response = service_post(comments_url, { body: welcome_comment_markdown }.to_json, formatter)
+    @response.merge!(comment_response)
+  end
+
+  def user_url
+    "#{config.base_url}/user"
+  end
+
+  def check_if_able_to_comment
+    response = service_get(user_url)
+    {
+      able_to_comment_status: response.status,
+      able_to_comment_endpoint_url: user_url,
+      ok: response_includes_repo_scope?(response),
+    }
   end
 end

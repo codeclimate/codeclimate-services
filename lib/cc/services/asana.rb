@@ -56,12 +56,12 @@ class CC::Service::Asana < CC::Service
     params = generate_params(name, notes)
     authenticate_http
     http.headers["Content-Type"] = "application/json"
-    service_post(ENDPOINT, params.to_json) do |response|
-      body = JSON.parse(response.body)
-      id = body["data"]["id"]
-      url = "https://app.asana.com/0/#{config.workspace_id}/#{id}"
-      { id: id, url: url }
-    end
+
+    formatter = BodyExtractingResponseFormatter.new(
+      id: ->(body) { body["data"]["id"] },
+      url: ->(body) { "https://app.asana.com/0/#{config.workspace_id}/#{body["data"]["id"]}" },
+    )
+    service_post(ENDPOINT, params.to_json, formatter)
   end
 
   def generate_params(name, notes = nil)

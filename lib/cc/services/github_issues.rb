@@ -67,13 +67,8 @@ class CC::Service::GitHubIssues < CC::Service
     http.headers["User-Agent"] = "Code Climate"
 
     url = "#{config.base_url}/repos/#{config.project}/issues"
-    service_post(url, params.to_json) do |response|
-      body = JSON.parse(response.body)
-      {
-        id: body["id"],
-        number: body["number"],
-        url: body["html_url"],
-      }
-    end
+
+    formatter = BodyExtractingResponseFormatter.new(id: "id", number: "number", url: "html_url")
+    service_post(url, params.to_json, formatter)
   end
 end

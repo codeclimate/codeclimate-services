@@ -16,10 +16,15 @@ class TestGitHubPullRequests < CC::Service::TestCase
 
     receive_pull_request(
       {},
-      github_slug: "pbrisbin/foo",
-      commit_sha:  "abc123",
-      state:       "success",
-    )
+      {
+        github_slug: "pbrisbin/foo",
+        commit_sha:  "abc123",
+        state:       "success"
+      }
+    ).tap do |response|
+      assert response[:ok]
+      assert_equal response.keys.sort, [:ok, :update_status_params, :update_status_endpoint_url, :update_status_status, :message].sort
+    end
   end
 
   def test_pull_request_status_failure
@@ -96,6 +101,27 @@ class TestGitHubPullRequests < CC::Service::TestCase
     assert receive_test({ wild_flamingo: true }, github_slug: "pbrisbin/foo")[:ok], "Expected test of pull request to be true"
   end
 
+  def test_pull_request_status_test_when_welcome_comments_enabled
+    @stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") { |env| [422, {}, ""] }
+    @stubs.get("/user") { |env| [200, {'x-oauth-scopes' => "foo,repo,bar" }, ""] }
+
+    receive_test({ welcome_comment_enabled: true }, { github_slug: "pbrisbin/foo" }).tap do |response|
+      assert response[:ok]
+      assert_equal 200, response.fetch(:able_to_comment_status)
+      assert_equal 422, response.fetch(:able_to_update_status_status)
+    end
+  end
+
+  def test_pull_request_status_test_when_welcome_comments_enabled_but_wrong_permission
+    @stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") { |env| [422, {}, ""] }
+    @stubs.get("/user") { |env| [200, {'x-oauth-scopes' => "foo,zepo,bar" }, ""] }
+
+    receive_test({ welcome_comment_enabled: true }, { github_slug: "pbrisbin/foo" }).tap do |response|
+      assert_equal response[:ok], false
+      assert_equal response[:message], "OAuth token requires 'repo' scope to post comments."
+    end
+  end
+
   def test_pull_request_status_test_failure
     @stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") { |_env| [401, {}, ""] }
 
@@ -125,7 +151,10 @@ class TestGitHubPullRequests < CC::Service::TestCase
 
     receive_pull_request({}, github_slug: "gordondiggs/ellis",
       commit_sha:  "abc123",
-      state:       "pending")
+      state:       "pending",
+    ).tap do |response|
+      assert response[:ok]
+    end
   end
 
   def test_different_context
@@ -134,7 +163,85 @@ class TestGitHubPullRequests < CC::Service::TestCase
 
     receive_pull_request({ context: "sup" }, github_slug: "gordondiggs/ellis",
       commit_sha:  "abc123",
-      state:       "pending")
+      state:       "pending",
+    ).tap do |response|
+      assert response[:ok]
+    end
+  end
+
+  def test_welcome_comment
+    expect_status_update("gordondiggs/ellis", "abc123", {
+      "context" => "sup",
+      "state" => "pending",
+    })
+
+    expect_welcome_comment(
+      "gordondiggs/ellis",
+      "45",
+      contains: [/mrb/, /extension/, /ellis/],
+      does_not_contain: [/Quick note/, %r{githubpullrequests/edit}]
+    )
+
+    receive_pull_request({ context: "sup", welcome_comment_enabled: true }, {
+      github_slug: "gordondiggs/ellis",
+      commit_sha: "abc123",
+      state: "pending",
+      number: 45,
+      first_contribution: true,
+      author_username: "mrb",
+      author_is_site_admin: false,
+      pull_request_integration_edit_url: "https://codeclimate.com/repos/579148d9d370051f2100166b/services/githubpullrequests/edit",
+    }).tap do |response|
+      assert response[:ok]
+      assert_match(/Code Climate is analyzing this code/, response[:update_status_params])
+      assert_match(/Hey, @mrb/, response[:welcome_comment_params])
+    end
+  end
+
+  def test_no_welcome_comment_for_second_contribution
+    expect_status_update("gordondiggs/ellis", "abc123", {
+      "context" => "sup",
+      "state" => "pending",
+    })
+
+    receive_pull_request({ context: "sup", welcome_comment_enabled: true }, {
+      github_slug: "gordondiggs/ellis",
+      commit_sha: "abc123",
+      state: "pending",
+      number: 45,
+      first_contribution: false,
+      author_username: "mrb",
+      author_is_site_admin: false,
+      pull_request_integration_edit_url: "https://codeclimate.com/repos/579148d9d370051f2100166b/services/githubpullrequests/edit",
+    }).tap do |response|
+      assert response[:ok]
+    end
+  end
+
+  def test_welcome_comment_for_admins
+    expect_status_update("gordondiggs/ellis", "abc123", {
+      "context" => "sup",
+      "state" => "pending",
+    })
+
+    expect_welcome_comment(
+      "gordondiggs/ellis",
+      "45",
+      contains: [/mrb/, /extension/, /ellis/, /Quick note/, %r{githubpullrequests/edit}]
+    )
+
+    receive_pull_request({ context: "sup", welcome_comment_enabled: true }, {
+      github_slug: "gordondiggs/ellis",
+      commit_sha: "abc123",
+      state: "pending",
+      number: 45,
+      first_contribution: true,
+      author_username: "mrb",
+      author_is_site_admin: true,
+      pull_request_integration_edit_url: "https://codeclimate.com/repos/579148d9d370051f2100166b/services/githubpullrequests/edit",
+    }).tap do |response|
+      assert response[:ok]
+    end
   end
 
   private
@@ -149,6 +256,28 @@ class TestGitHubPullRequests < CC::Service::TestCase
         assert v === body[k],
           "Unexpected value for #{k}. #{v.inspect} !== #{body[k].inspect}"
       end
+
+      [201, {}, {}]
+    end
+  end
+
+  def expect_welcome_comment(repo, number, contains: [], does_not_contain: [])
+    @stubs.post "repos/#{repo}/issues/#{number}/comments" do |env|
+      assert_equal "token 123", env[:request_headers]["Authorization"]
+
+      body = JSON.parse(env[:body])
+      assert_equal body.keys, %w[body]
+
+      comment_body = body["body"]
+      contains.each do |pattern|
+        assert_match pattern, comment_body
+      end
+
+      does_not_contain.each do |pattern|
+        assert_not_match pattern, comment_body
+      end
+
+      [201, {}, {}]
     end
   end
 
