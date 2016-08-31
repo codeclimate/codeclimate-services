@@ -25,7 +25,6 @@ class CC::Service::GitHubPullRequests < CC::PullRequests
 Thanks for your contribution!
       COMMENT
 
-
     validates :oauth_token, presence: true
   end
 
@@ -98,16 +97,16 @@ Thanks for your contribution!
     config.welcome_comment_enabled && @payload.fetch("first_contribution", false)
   end
 
-  HEADER_TEMPLATE = <<-HEADER
+  HEADER_TEMPLATE = <<-HEADER.freeze
 Hey, @%s-- Since this is the first PR we've seen from you, here's some things you should know about contributing to %s:
 
   HEADER
 
   def welcome_comment_markdown_header
-    HEADER_TEMPLATE % [@payload.fetch("author_username"), github_slug]
+    format HEADER_TEMPLATE, @payload.fetch("author_username"), github_slug
   end
 
-  ADMIN_ONLY_FOOTER_TEMPLATE = <<-FOOTER
+  ADMIN_ONLY_FOOTER_TEMPLATE = <<-FOOTER.freeze
 
 * * *
 
@@ -115,7 +114,7 @@ Quick note: By default, Code Climate will post the above comment on the *first* 
   FOOTER
 
   def admin_only_footer
-    ADMIN_ONLY_FOOTER_TEMPLATE % @payload.fetch("pull_request_integration_edit_url")
+    format ADMIN_ONLY_FOOTER_TEMPLATE, @payload.fetch("pull_request_integration_edit_url")
   end
 
   def author_is_site_admin?

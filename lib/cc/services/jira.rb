@@ -85,7 +85,7 @@ class CC::Service::Jira < CC::Service
     formatter = BodyExtractingResponseFormatter.new(
       id: "id",
       key: "key",
-      url: -> (body) { "https://#{config.domain}/browse/#{body['key']}" }
+      url: -> (body) { "https://#{config.domain}/browse/#{body["key"]}" }
     )
     service_post(url, params.to_json, formatter)
   end

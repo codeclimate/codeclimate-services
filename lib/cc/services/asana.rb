@@ -59,7 +59,7 @@ class CC::Service::Asana < CC::Service
 
     formatter = BodyExtractingResponseFormatter.new(
       id: ->(body) { body["data"]["id"] },
-      url: ->(body) { "https://app.asana.com/0/#{config.workspace_id}/#{body['data']['id']}" },
+      url: ->(body) { "https://app.asana.com/0/#{config.workspace_id}/#{body["data"]["id"]}" },
     )
     service_post(ENDPOINT, params.to_json, formatter)
   end
