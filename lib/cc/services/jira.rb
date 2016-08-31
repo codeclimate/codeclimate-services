@@ -13,7 +13,11 @@ class CC::Service::Jira < CC::Service
       description: "Your JIRA password"
 
     attribute :project_id, Axiom::Types::String,
-      description: "Your JIRA project ID number (located in your JIRA admin panel). Project must support 'task' issue types and contain only the default required fields."
+      description: "Your JIRA project ID number (located in your JIRA admin panel). Project must contain only the default required fields."
+
+    attribute :issue_type, Axiom::Types::String,
+      description: "The type of Issue to be created.",
+      default: "Task"
 
     attribute :labels, Axiom::Types::String,
       description: "Which labels to add to issues, comma delimited"
@@ -65,7 +69,7 @@ private
           project: { id: config.project_id },
           summary: title,
           description: ticket_body,
-          issuetype: { name: "Task" }
+          issuetype: { name: config.issue_type }
         }
     }
 
