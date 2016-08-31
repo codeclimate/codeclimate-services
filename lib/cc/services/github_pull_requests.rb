@@ -136,7 +136,6 @@ Quick note: By default, Code Climate will post the above comment on the *first* 
   end
 
   def post_welcome_comment
-    # This will raise an HTTPError if it doesn't succeed
     formatter = GenericResponseFormatter.new(http_prefix: :welcome_comment_)
     comment_response = service_post(comments_url, { body: welcome_comment_markdown }.to_json, formatter)
     @response.merge!(comment_response)
@@ -151,8 +150,7 @@ Quick note: By default, Code Climate will post the above comment on the *first* 
     {
       able_to_comment_status: response.status,
       able_to_comment_endpoint_url: user_url,
-    }.merge(
       ok: response_includes_repo_scope?(response),
-    )
+    }
   end
 end

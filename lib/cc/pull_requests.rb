@@ -6,7 +6,6 @@ class CC::PullRequests < CC::Service
   def receive_test
     setup_http
 
-    # this will raise an HTTPError or be successful:
     able_to_update_status_response = check_if_able_to_update_status
 
     if welcome_comment_implemented? && config.welcome_comment_enabled
