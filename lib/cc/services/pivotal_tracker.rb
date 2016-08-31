@@ -64,12 +64,13 @@ class CC::Service::PivotalTracker < CC::Service
     http.headers["X-TrackerToken"] = config.api_token
     url = "#{BASE_URL}/projects/#{config.project_id}/stories"
 
-    service_post(url, params) do |response|
-      body = Nokogiri::XML(response.body)
-      {
+    formatter = GenericResponseFormatter.new do |raw_response, formatted_response|
+      body = Nokogiri::XML(raw_response.body)
+      formatted_response.merge(
         id: (body / "story/id").text,
         url: (body / "story/url").text,
-      }
+      )
     end
+    service_post(url, params, formatter)
   end
 end

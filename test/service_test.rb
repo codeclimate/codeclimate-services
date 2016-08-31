@@ -34,25 +34,8 @@ class TestService < CC::Service::TestCase
   def test_post_success
     stub_http("/my/test/url", [200, {}, '{"ok": true, "thing": "123"}'])
 
-    response = service_post("/my/test/url", { token: "1234" }.to_json, {}) do |inner_response|
-      body = JSON.parse(inner_response.body)
-      { thing: body["thing"] }
-    end
-
-    assert_true response[:ok]
-    assert_equal '{"token":"1234"}', response[:params]
-    assert_equal "/my/test/url", response[:endpoint_url]
-    assert_equal 200, response[:status]
-  end
-
-  def test_post_redirect_success
-    stub_http("/my/test/url", [307, { "Location" => "/my/redirect/url" }, '{"ok": false, "redirect": true}'])
-    stub_http("/my/redirect/url", [200, {}, '{"ok": true, "thing": "123"}'])
-
-    response = service_post_with_redirects("/my/test/url", { token: "1234" }.to_json, {}) do |inner_response|
-      body = JSON.parse(inner_response.body)
-      { thing: body["thing"] }
-    end
+    formatter = CC::Service::BodyExtractingResponseFormatter.new(thing: "thing")
+    response = service_post("/my/test/url", {token: "1234"}.to_json, formatter)
 
     assert_true response[:ok]
     assert_equal '{"token":"1234"}', response[:params]
@@ -64,7 +47,7 @@ class TestService < CC::Service::TestCase
     stub_http("/my/wrong/url", [404, {}, ""])
 
     assert_raises(CC::Service::HTTPError) do
-      service_post("/my/wrong/url", { token: "1234" }.to_json, {})
+      service_post("/my/wrong/url", {token: "1234"}.to_json)
     end
   end
 
@@ -72,7 +55,7 @@ class TestService < CC::Service::TestCase
     stub_http("/my/wrong/url") { raise ArgumentError, "lol" }
 
     assert_raises(ArgumentError) do
-      service_post("/my/wrong/url", { token: "1234" }.to_json, {})
+      service_post("/my/wrong/url", {token: "1234"}.to_json)
     end
   end
 

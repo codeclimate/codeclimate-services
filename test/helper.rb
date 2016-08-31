@@ -1,6 +1,7 @@
 require "test/unit"
 require "mocha/test_unit"
 require "pp"
+require "pry"
 
 require "codeclimate-test-reporter"
 CodeClimate::TestReporter.start

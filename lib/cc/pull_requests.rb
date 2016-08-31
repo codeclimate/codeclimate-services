@@ -1,8 +1,29 @@
 class CC::PullRequests < CC::Service
+  ABLE_TO_UPDATE_STATUS_MESSAGE = "Access token is valid".freeze
+  ABLE_TO_UPDATE_STATUS_AND_COMMENT_MESSAGE = "Access token is valid".freeze
+  ABLE_TO_UPDATE_STATUS_BUT_NOT_COMMENT_MESSAGE = "OAuth token requires 'repo' scope to post comments.".freeze
+
   def receive_test
     setup_http
 
-    receive_test_status
+    # this will raise an HTTPError or be successful:
+    able_to_update_status_response = check_if_able_to_update_status
+
+    if welcome_comment_implemented? && config.welcome_comment_enabled
+      able_to_comment_response = check_if_able_to_comment
+
+      ok, message =
+        if able_to_comment_response.fetch(:ok)
+          [true, ABLE_TO_UPDATE_STATUS_AND_COMMENT_MESSAGE]
+        else
+          [false, ABLE_TO_UPDATE_STATUS_BUT_NOT_COMMENT_MESSAGE]
+        end
+
+      able_to_comment_response.merge(able_to_update_status_response).
+        merge(ok: ok, message: message)
+    else
+      able_to_update_status_response
+    end
   end
 
   def receive_pull_request
@@ -69,7 +90,7 @@ class CC::PullRequests < CC::Service
     raise NotImplementedError
   end
 
-  def receive_test_status
+  def check_if_able_to_update_status
     url = base_status_url("0" * 40)
     params = { state: "success" }
     raw_post(url, params.to_json)
@@ -77,10 +98,10 @@ class CC::PullRequests < CC::Service
     if e.status == test_status_code
       {
         ok: true,
-        params: params.as_json,
-        status: e.status,
-        endpoint_url: url,
-        message: "Access token is valid",
+        able_to_update_status_params: params.as_json,
+        able_to_update_status_status: e.status,
+        able_to_update_status_endpoint_url: url,
+        message: ABLE_TO_UPDATE_STATUS_MESSAGE,
       }
     else
       raise
@@ -98,7 +119,8 @@ class CC::PullRequests < CC::Service
       state: state,
       target_url: @payload["details_url"],
     }
-    @response = service_post(status_url, params.to_json)
+    formatter = GenericResponseFormatter.new(http_prefix: :update_status_)
+    @response = service_post(status_url, params.to_json, formatter)
   end
 
   def status_url
@@ -111,6 +133,10 @@ class CC::PullRequests < CC::Service
 
   def setup_http
     raise NotImplementedError
+  end
+
+  def welcome_comment_implemented?
+    false
   end
 
   def commit_sha
