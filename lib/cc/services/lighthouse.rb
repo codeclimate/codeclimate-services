@@ -25,7 +25,7 @@ class CC::Service::Lighthouse < CC::Service
   def receive_test
     result = create_ticket("Test ticket from Code Climate", "")
     result.merge(
-      message: "Ticket <a href='#{result[:url]}'>#{result[:id]}</a> created."
+      message: "Ticket <a href='#{result[:url]}'>#{result[:id]}</a> created.",
     )
   end
 
@@ -34,7 +34,7 @@ class CC::Service::Lighthouse < CC::Service
   end
 
   def receive_issue
-    title = %{Fix "#{issue["check_name"]}" issue in #{constant_name}}
+    title = %(Fix "#{issue["check_name"]}" issue in #{constant_name})
 
     body = [issue["description"], details_url].join("\n\n")
 
@@ -46,11 +46,11 @@ class CC::Service::Lighthouse < CC::Service
 
     create_ticket(
       formatter.format_vulnerability_title,
-      formatter.format_vulnerability_body
+      formatter.format_vulnerability_body,
     )
   end
 
-private
+  private
 
   def create_ticket(title, ticket_body)
     params = { ticket: { title: title, body: ticket_body } }
@@ -73,5 +73,4 @@ private
       }
     end
   end
-
 end

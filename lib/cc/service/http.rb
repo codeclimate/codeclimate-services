@@ -4,7 +4,7 @@ require "cc/service/response_check"
 module CC::Service::HTTP
   extend ActiveSupport::Concern
 
-  REDIRECT_CODES = [302, 307]
+  REDIRECT_CODES = [302, 307].freeze
 
   module ClassMethods
     def default_http_options
@@ -12,7 +12,7 @@ module CC::Service::HTTP
         adapter: :net_http,
         request: { timeout: 10, open_timeout: 5 },
         ssl:     { verify_depth: 5 },
-        headers: {}
+        headers: {},
       }
     end
   end
@@ -22,13 +22,13 @@ module CC::Service::HTTP
   end
 
   def service_post(url, body = nil, headers = nil, &block)
-    block ||= lambda{|*_args| Hash.new }
+    block ||= ->(*_args) { Hash.new }
     response = raw_post(url, body, headers)
     formatted_post_response(response, url, body).merge(block.call(response))
   end
 
   def service_post_with_redirects(url, body = nil, headers = nil, &block)
-    block ||= lambda{|*_args| Hash.new }
+    block ||= ->(*_args) { Hash.new }
     response = raw_post(url, body, headers)
     if REDIRECT_CODES.include?(response.status)
       response = raw_post(response.headers["location"], body, headers)
@@ -39,8 +39,8 @@ module CC::Service::HTTP
 
   def raw_get(url = nil, params = nil, headers = nil)
     http.get do |req|
-      req.url(url)                if url
-      req.params.update(params)   if params
+      req.url(url) if url
+      req.params.update(params) if params
       req.headers.update(headers) if headers
       yield req if block_given?
     end
@@ -55,9 +55,9 @@ module CC::Service::HTTP
     block = Proc.new if block_given?
 
     http.send(method) do |req|
-      req.url(url)                if url
+      req.url(url) if url
       req.headers.update(headers) if headers
-      req.body = body             if body
+      req.body = body if body
       block.call req if block
     end
   end
@@ -87,7 +87,7 @@ module CC::Service::HTTP
   #
   # Returns a String path.
   def ca_file
-    @ca_file ||= ENV.fetch("CODECLIMATE_CA_FILE", File.expand_path('../../../../config/cacert.pem', __FILE__))
+    @ca_file ||= ENV.fetch("CODECLIMATE_CA_FILE", File.expand_path("../../../../config/cacert.pem", __FILE__))
   end
 
   def formatted_post_response(response, url, body)

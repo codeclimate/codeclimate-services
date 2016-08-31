@@ -7,14 +7,14 @@ class CC::Service::Flowdock < CC::Service
     validates :api_token, presence: true
   end
 
-  BASE_URL = "https://api.flowdock.com/v1"
+  BASE_URL = "https://api.flowdock.com/v1".freeze
   INVALID_PROJECT_CHARACTERS = /[^0-9a-z\-_ ]+/i
 
   self.description = "Send messages to a Flowdock inbox"
 
   def receive_test
     notify("Test", repo_name, formatter.format_test).merge(
-      message: "Test message sent"
+      message: "Test message sent",
     )
   end
 
@@ -37,7 +37,7 @@ class CC::Service::Flowdock < CC::Service
       self,
       prefix: "",
       prefix_with_repo: false,
-      link_style: :html
+      link_style: :html,
     )
   end
 
@@ -48,9 +48,9 @@ class CC::Service::Flowdock < CC::Service
       from_name:    "Code Climate",
       format:       "html",
       subject:      subject,
-      project:      project.gsub(INVALID_PROJECT_CHARACTERS, ''),
+      project:      project.gsub(INVALID_PROJECT_CHARACTERS, ""),
       content:      content,
-      link:         "https://codeclimate.com"
+      link:         "https://codeclimate.com",
     }
 
     url = "#{BASE_URL}/messages/team_inbox/#{config.api_token}"

@@ -1,4 +1,4 @@
-require 'delegate'
+require "delegate"
 
 class CC::Service::Formatter < SimpleDelegator
   attr_reader :options
@@ -8,7 +8,7 @@ class CC::Service::Formatter < SimpleDelegator
 
     @options = {
       prefix: "[Code Climate]",
-      prefix_with_repo: true
+      prefix_with_repo: true,
     }.merge(options)
   end
 
@@ -25,7 +25,7 @@ class CC::Service::Formatter < SimpleDelegator
       prefix << "[#{repo_name}]"
     end
 
-    if !prefix.empty?
+    unless prefix.empty?
       prefix << " "
     end
 

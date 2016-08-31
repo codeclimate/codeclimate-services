@@ -1,7 +1,6 @@
 module CC
   module Formatters
     class TicketFormatter < CC::Service::Formatter
-
       def format_vulnerability_title
         if multiple?
           "#{vulnerabilities.size} new #{warning_type} issues found"
@@ -21,7 +20,6 @@ module CC
         message << ".\n\n"
         message << details_url
       end
-
     end
   end
 end

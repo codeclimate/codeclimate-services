@@ -32,10 +32,10 @@ module CC::Service::QualityHelper
   end
 
   def with_article(letter, bold = false)
-    letter ||= '?'
+    letter ||= "?"
 
     text = bold ? "*#{letter}*" : letter
-    if %w( A F ).include?(letter.to_s)
+    if %w[A F].include?(letter.to_s)
       "an #{text}"
     else
       "a #{text}"

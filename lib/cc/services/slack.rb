@@ -1,4 +1,4 @@
- # encoding: UTF-8
+# encoding: UTF-8
 
 class CC::Service::Slack < CC::Service
   include CC::Service::QualityHelper
@@ -18,7 +18,7 @@ class CC::Service::Slack < CC::Service
     # payloads for test receivers include the weekly quality report.
     send_snapshot_to_slack(CC::Formatters::SnapshotFormatter::Sample.new(payload))
     speak(formatter.format_test).merge(
-      message: "Test message sent"
+      message: "Test message sent",
     )
   end
 
@@ -45,20 +45,20 @@ class CC::Service::Slack < CC::Service
       color: color,
       fallback: message,
       fields: [{ value: message }],
-      mrkdwn_in: ["fields", "fallback"]
-    }]}
+      mrkdwn_in: %w[fields fallback],
+    }] }
 
     if config.channel
       params[:channel] = config.channel
     end
 
-    http.headers['Content-Type']  = 'application/json'
+    http.headers["Content-Type"] = "application/json"
     url = config.webhook_url
 
     service_post(url, params.to_json) do |response|
       {
         ok: response.body == "ok",
-        message: response.body
+        message: response.body,
       }
     end
   end
@@ -88,7 +88,7 @@ class CC::Service::Slack < CC::Service
 
       if constant["from"]
         from_rating = constant["from"]["rating"]
-        to_rating   = constant["to"]["rating"]
+        to_rating = constant["to"]["rating"]
 
         message << "• _#{object_identifier}_ just declined from #{with_article(from_rating, :bold)} to #{with_article(to_rating, :bold)}"
       else
@@ -113,7 +113,7 @@ class CC::Service::Slack < CC::Service
     constants[0..2].each do |constant|
       object_identifier = constant_basename(constant["name"])
       from_rating = constant["from"]["rating"]
-      to_rating   = constant["to"]["rating"]
+      to_rating = constant["to"]["rating"]
 
       message << "• _#{object_identifier}_ just improved from #{with_article(from_rating, :bold)} to #{with_article(to_rating, :bold)}"
     end

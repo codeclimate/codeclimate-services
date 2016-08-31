@@ -1,9 +1,8 @@
 # encoding: UTF-8
 
-require File.expand_path('../helper', __FILE__)
+require File.expand_path("../helper", __FILE__)
 
 class WithMetrics < CC::Service::TestCase
-
   class FakeInvocation
     def call
       raise CC::Service::HTTPError.new("Whoa", {})
@@ -14,6 +13,10 @@ class WithMetrics < CC::Service::TestCase
     statsd = Object.new
     statsd.stubs(:timing)
     statsd.expects("increment").with("services.errors.githubpullrequests.cc-service-http_error")
-    CC::Service::Invocation::WithMetrics.new(FakeInvocation.new, statsd, "githubpullrequests").call rescue CC::Service::HTTPError
+    begin
+      CC::Service::Invocation::WithMetrics.new(FakeInvocation.new, statsd, "githubpullrequests").call
+    rescue
+      CC::Service::HTTPError
+    end
   end
 end

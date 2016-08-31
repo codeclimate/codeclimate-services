@@ -1,4 +1,4 @@
-require File.expand_path('../helper', __FILE__)
+require File.expand_path("../helper", __FILE__)
 
 class TestStashPullRequests < CC::Service::TestCase
   def test_receive_test
@@ -22,10 +22,8 @@ class TestStashPullRequests < CC::Service::TestCase
   end
 
   def test_pull_request_status_pending
-    expect_status_update("abc123", {
-      "state" => "INPROGRESS",
-      "description" => /is analyzing/,
-    })
+    expect_status_update("abc123", "state" => "INPROGRESS",
+                                   "description" => /is analyzing/)
 
     receive_pull_request(
       commit_sha: "abc123",
@@ -34,10 +32,8 @@ class TestStashPullRequests < CC::Service::TestCase
   end
 
   def test_pull_request_status_success_detailed
-    expect_status_update("abc123", {
-      "state"       => "SUCCESSFUL",
-      "description" => "Code Climate found 2 new issues and 1 fixed issue.",
-    })
+    expect_status_update("abc123", "state" => "SUCCESSFUL",
+      "description" => "Code Climate found 2 new issues and 1 fixed issue.")
 
     receive_pull_request(
       commit_sha: "abc123",
@@ -46,49 +42,41 @@ class TestStashPullRequests < CC::Service::TestCase
   end
 
   def test_pull_request_status_failure
-    expect_status_update("abc123", {
-      "state"       => "FAILED",
-      "description" => "Code Climate found 2 new issues and 1 fixed issue.",
-    })
+    expect_status_update("abc123", "state" => "FAILED",
+      "description" => "Code Climate found 2 new issues and 1 fixed issue.")
 
     receive_pull_request(
       commit_sha: "abc123",
-      state: "failure"
+      state: "failure",
     )
   end
 
   def test_pull_request_status_error
-    expect_status_update("abc123", {
-      "state" => "FAILED",
-      "description" => "Code Climate encountered an error attempting to analyze this pull request."
-    })
+    expect_status_update("abc123", "state" => "FAILED",
+      "description" => "Code Climate encountered an error attempting to analyze this pull request.")
 
     receive_pull_request(
       commit_sha: "abc123",
-      state: "error"
+      state: "error",
     )
   end
 
   def test_pull_request_status_error_message_provided
     message = "Everything broke."
 
-    expect_status_update("abc123", {
-      "state" => "FAILED",
-      "description" => message
-    })
+    expect_status_update("abc123", "state" => "FAILED",
+      "description" => message)
 
     receive_pull_request(
       commit_sha: "abc123",
       message: message,
-      state: "error"
+      state: "error",
     )
   end
 
   def test_pull_request_status_skipped
-    expect_status_update("abc123", {
-      "state" => "SUCCESSFUL",
-      "description" => "Code Climate has skipped analysis of this commit."
-    })
+    expect_status_update("abc123", "state" => "SUCCESSFUL",
+      "description" => "Code Climate has skipped analysis of this commit.")
 
     receive_pull_request(
       commit_sha: "abc123",
@@ -132,7 +120,7 @@ class TestStashPullRequests < CC::Service::TestCase
     receive(
       CC::Service::StashPullRequests,
       default_config.merge(config),
-      { name: "pull_request", issue_comparison_counts: {'fixed' => 1, 'new' => 2} }.merge(event_data)
+      { name: "pull_request", issue_comparison_counts: { "fixed" => 1, "new" => 2 } }.merge(event_data),
     )
   end
 
@@ -140,7 +128,7 @@ class TestStashPullRequests < CC::Service::TestCase
     receive(
       CC::Service::StashPullRequests,
       default_config.merge(config),
-      { name: "test" }.merge(event_data)
+      { name: "test" }.merge(event_data),
     )
   end
 end

@@ -1,4 +1,4 @@
-require File.expand_path('../helper', __FILE__)
+require File.expand_path("../helper", __FILE__)
 
 class TestGitlabMergeRequests < CC::Service::TestCase
   def test_merge_request_status_pending
@@ -118,21 +118,21 @@ class TestGitlabMergeRequests < CC::Service::TestCase
   end
 
   def test_merge_request_status_test_success
-    @stubs.post("api/v3/projects/hal%2Fhal9000/statuses/#{"0" * 40}") { |env| [404, {}, ""] }
+    @stubs.post("api/v3/projects/hal%2Fhal9000/statuses/#{"0" * 40}") { |_env| [404, {}, ""] }
 
-    assert receive_test({}, { git_url: "ssh://git@gitlab.com/hal/hal9000.git" })[:ok], "Expected test of pull request to be true"
+    assert receive_test({}, git_url: "ssh://git@gitlab.com/hal/hal9000.git")[:ok], "Expected test of pull request to be true"
   end
 
   def test_merge_request_status_test_failure
-    @stubs.post("api/v3/projects/hal%2Fhal9000/statuses/#{"0" * 40}") { |env| [401, {}, ""] }
+    @stubs.post("api/v3/projects/hal%2Fhal9000/statuses/#{"0" * 40}") { |_env| [401, {}, ""] }
 
     assert_raises(CC::Service::HTTPError) do
-      receive_test({}, { git_url: "ssh://git@gitlab.com/hal/hal9000.git" })
+      receive_test({}, git_url: "ssh://git@gitlab.com/hal/hal9000.git")
     end
   end
 
   def test_merge_request_unknown_state
-    response = receive_merge_request({}, { state: "unknown" })
+    response = receive_merge_request({}, state: "unknown")
 
     assert_equal({ ok: false, message: "Unknown state" }, response)
   end
@@ -143,7 +143,7 @@ class TestGitlabMergeRequests < CC::Service::TestCase
       [404, {}, ""]
     end
 
-    assert receive_test({ base_url: "https://gitlab.hal.org" }, { git_url: "ssh://git@gitlab.com/hal/hal9000.git" })[:ok], "Expected test of pull request to be true"
+    assert receive_test({ base_url: "https://gitlab.hal.org" }, git_url: "ssh://git@gitlab.com/hal/hal9000.git")[:ok], "Expected test of pull request to be true"
   end
 
   private
@@ -165,7 +165,7 @@ class TestGitlabMergeRequests < CC::Service::TestCase
     receive(
       CC::Service::GitlabMergeRequests,
       { access_token: "123" }.merge(config),
-      { name: "pull_request", issue_comparison_counts: {'fixed' => 1, 'new' => 2} }.merge(event_data)
+      { name: "pull_request", issue_comparison_counts: { "fixed" => 1, "new" => 2 } }.merge(event_data),
     )
   end
 
@@ -173,7 +173,7 @@ class TestGitlabMergeRequests < CC::Service::TestCase
     receive(
       CC::Service::GitlabMergeRequests,
       { access_token: "123" }.merge(config),
-      { name: "pull_request_coverage", issue_comparison_counts: {'fixed' => 1, 'new' => 2} }.merge(event_data)
+      { name: "pull_request_coverage", issue_comparison_counts: { "fixed" => 1, "new" => 2 } }.merge(event_data),
     )
   end
 
@@ -181,7 +181,7 @@ class TestGitlabMergeRequests < CC::Service::TestCase
     receive(
       CC::Service::GitlabMergeRequests,
       { oauth_token: "123" }.merge(config),
-      { name: "test", issue_comparison_counts: {'fixed' => 1, 'new' => 2} }.merge(event_data)
+      { name: "test", issue_comparison_counts: { "fixed" => 1, "new" => 2 } }.merge(event_data),
     )
   end
 end

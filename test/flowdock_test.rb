@@ -1,17 +1,17 @@
-require File.expand_path('../helper', __FILE__)
+require File.expand_path("../helper", __FILE__)
 
 class TestFlowdock < CC::Service::TestCase
   def test_valid_project_parameter
-    @stubs.post '/v1/messages/team_inbox/token' do |env|
+    @stubs.post "/v1/messages/team_inbox/token" do |env|
       body = Hash[URI.decode_www_form(env[:body])]
       assert_equal "Exampleorg", body["project"]
-      [200, {}, '']
+      [200, {}, ""]
     end
 
     receive(
       CC::Service::Flowdock,
       { api_token: "token" },
-      { name: "test", repo_name: "Example.org" }
+      name: "test", repo_name: "Example.org",
     )
   end
 
@@ -19,7 +19,7 @@ class TestFlowdock < CC::Service::TestCase
     assert_flowdock_receives(
       "Test",
       { name: "test", repo_name: "Example" },
-      "This is a test of the Flowdock service hook"
+      "This is a test of the Flowdock service hook",
     )
   end
 
@@ -29,7 +29,7 @@ class TestFlowdock < CC::Service::TestCase
     assert_flowdock_receives("Coverage", e, [
       "<a href=\"https://codeclimate.com/repos/1/feed\">Test coverage</a>",
       "has improved to 90.2% (+10.2%)",
-      "(<a href=\"https://codeclimate.com/repos/1/compare\">Compare</a>)"
+      "(<a href=\"https://codeclimate.com/repos/1/compare\">Compare</a>)",
     ].join(" "))
   end
 
@@ -39,7 +39,7 @@ class TestFlowdock < CC::Service::TestCase
     assert_flowdock_receives("Coverage", e, [
       "<a href=\"https://codeclimate.com/repos/1/feed\">Test coverage</a>",
       "has declined to 88.6% (-6.0%)",
-      "(<a href=\"https://codeclimate.com/repos/1/compare\">Compare</a>)"
+      "(<a href=\"https://codeclimate.com/repos/1/compare\">Compare</a>)",
     ].join(" "))
   end
 
@@ -49,7 +49,7 @@ class TestFlowdock < CC::Service::TestCase
     assert_flowdock_receives("Quality", e, [
       "<a href=\"https://codeclimate.com/repos/1/feed\">User</a>",
       "has improved from a B to an A",
-      "(<a href=\"https://codeclimate.com/repos/1/compare\">Compare</a>)"
+      "(<a href=\"https://codeclimate.com/repos/1/compare\">Compare</a>)",
     ].join(" "))
   end
 
@@ -59,14 +59,14 @@ class TestFlowdock < CC::Service::TestCase
     assert_flowdock_receives("Quality", e, [
       "<a href=\"https://codeclimate.com/repos/1/feed\">User</a>",
       "has declined from a C to a D",
-      "(<a href=\"https://codeclimate.com/repos/1/compare\">Compare</a>)"
+      "(<a href=\"https://codeclimate.com/repos/1/compare\">Compare</a>)",
     ].join(" "))
   end
 
   def test_single_vulnerability
     e = event(:vulnerability, vulnerabilities: [
-      { "warning_type" => "critical" }
-    ])
+                { "warning_type" => "critical" },
+              ])
 
     assert_flowdock_receives("Vulnerability", e, [
       "New <a href=\"https://codeclimate.com/repos/1/feed\">critical</a>",
@@ -76,9 +76,9 @@ class TestFlowdock < CC::Service::TestCase
 
   def test_single_vulnerability_with_location
     e = event(:vulnerability, vulnerabilities: [{
-      "warning_type" => "critical",
-      "location" => "app/user.rb line 120"
-    }])
+                "warning_type" => "critical",
+                "location" => "app/user.rb line 120",
+              }])
 
     assert_flowdock_receives("Vulnerability", e, [
       "New <a href=\"https://codeclimate.com/repos/1/feed\">critical</a>",
@@ -88,12 +88,12 @@ class TestFlowdock < CC::Service::TestCase
 
   def test_multiple_vulnerabilities
     e = event(:vulnerability, warning_type: "critical", vulnerabilities: [{
-      "warning_type" => "unused",
-      "location" => "unused"
-    }, {
-      "warning_type" => "unused",
-      "location" => "unused"
-    }])
+                "warning_type" => "unused",
+                "location" => "unused",
+              }, {
+                "warning_type" => "unused",
+                "location" => "unused",
+              }])
 
     assert_flowdock_receives("Vulnerability", e, [
       "2 new <a href=\"https://codeclimate.com/repos/1/feed\">critical</a>",
@@ -102,8 +102,8 @@ class TestFlowdock < CC::Service::TestCase
   end
 
   def test_receive_test
-    @stubs.post request_url do |env|
-      [200, {}, '']
+    @stubs.post request_url do |_env|
+      [200, {}, ""]
     end
 
     response = receive_event(name: "test", repo_name: "foo")
@@ -136,7 +136,7 @@ class TestFlowdock < CC::Service::TestCase
       assert_equal "Example", body["project"]
       assert_equal expected_body, body["content"]
       assert_equal "https://codeclimate.com", body["link"]
-      [200, {}, '']
+      [200, {}, ""]
     end
 
     receive_event(event_data)

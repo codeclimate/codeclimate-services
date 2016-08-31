@@ -18,7 +18,7 @@
 #   REPO_NAME  Defaults to "App"
 #
 ###
-require 'cc/services'
+require "cc/services"
 CC::Service.load_services
 
 class WithResponseLogging
@@ -40,7 +40,7 @@ class ServiceTest
   def test(payload = {})
     config = {}
 
-    puts "-"*80
+    puts "-" * 80
     puts @klass
 
     @params.each do |param|
@@ -59,7 +59,7 @@ class ServiceTest
     test_service(@klass, config, payload)
   end
 
-private
+  private
 
   def to_env_var(param)
     "#{@klass.to_s.split("::").last}_#{param}".upcase
@@ -70,7 +70,7 @@ private
 
     service = klass.new(
       config,
-      { name: :test, repo_name: repo_name }.merge(payload)
+      { name: :test, repo_name: repo_name }.merge(payload),
     )
 
     CC::Service::Invocation.new(service) do |i|
@@ -83,4 +83,4 @@ ServiceTest.new(CC::Service::Slack, :webhook_url).test
 ServiceTest.new(CC::Service::Flowdock, :api_token).test
 ServiceTest.new(CC::Service::Jira, :username, :password, :domain, :project_id).test
 ServiceTest.new(CC::Service::Asana, :api_key, :workspace_id, :project_id).test
-ServiceTest.new(CC::Service::GitHubPullRequests, :oauth_token).test({ github_slug: "codeclimate/codeclimate" })
+ServiceTest.new(CC::Service::GitHubPullRequests, :oauth_token).test(github_slug: "codeclimate/codeclimate")

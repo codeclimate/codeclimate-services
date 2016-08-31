@@ -1,11 +1,11 @@
-require File.expand_path('../helper', __FILE__)
+require File.expand_path("../helper", __FILE__)
 
 class TestGitHubIssues < CC::Service::TestCase
   def test_creation_success
     id = 1234
     number = 123
     url = "https://github.com/#{project}/pulls/#{number}"
-    stub_http(request_url, [201, {}, %<{"id": #{id}, "number": #{number}, "html_url":"#{url}"}>])
+    stub_http(request_url, [201, {}, %({"id": #{id}, "number": #{number}, "html_url":"#{url}"})])
 
     response = receive_event
 
@@ -18,7 +18,7 @@ class TestGitHubIssues < CC::Service::TestCase
     assert_github_receives(
       event(:quality, to: "D", from: "C"),
       "Refactor User from a D on Code Climate",
-      "https://codeclimate.com/repos/1/feed"
+      "https://codeclimate.com/repos/1/feed",
     )
   end
 
@@ -26,7 +26,7 @@ class TestGitHubIssues < CC::Service::TestCase
     assert_github_receives(
       event(:quality, to: nil),
       "Refactor User on Code Climate",
-      "https://codeclimate.com/repos/1/feed"
+      "https://codeclimate.com/repos/1/feed",
     )
   end
 
@@ -34,32 +34,32 @@ class TestGitHubIssues < CC::Service::TestCase
     payload = {
       issue: {
         "check_name" => "Style/LongLine",
-        "description" => "Line is too long [1000/80]"
+        "description" => "Line is too long [1000/80]",
       },
       constant_name: "foo.rb",
-      details_url: "http://example.com/repos/id/foo.rb#issue_123"
+      details_url: "http://example.com/repos/id/foo.rb#issue_123",
     }
 
     assert_github_receives(
       event(:issue, payload),
       "Fix \"Style/LongLine\" issue in foo.rb",
-      "Line is too long [1000/80]\n\nhttp://example.com/repos/id/foo.rb#issue_123"
+      "Line is too long [1000/80]\n\nhttp://example.com/repos/id/foo.rb#issue_123",
     )
   end
 
   def test_vulnerability
     assert_github_receives(
       event(:vulnerability, vulnerabilities: [{
-        "warning_type" => "critical",
-        "location" => "app/user.rb line 120"
-      }]),
+              "warning_type" => "critical",
+              "location" => "app/user.rb line 120",
+            }]),
       "New critical issue found in app/user.rb line 120",
-      "A critical vulnerability was found by Code Climate in app/user.rb line 120.\n\nhttps://codeclimate.com/repos/1/feed"
+      "A critical vulnerability was found by Code Climate in app/user.rb line 120.\n\nhttps://codeclimate.com/repos/1/feed",
     )
   end
 
   def test_receive_test
-    @stubs.post request_url do |env|
+    @stubs.post request_url do |_env|
       [200, {}, '{"number": 2, "html_url": "http://foo.bar"}']
     end
 
@@ -99,7 +99,7 @@ class TestGitHubIssues < CC::Service::TestCase
       assert_equal "token #{oauth_token}", env[:request_headers]["Authorization"]
       assert_equal title, body["title"]
       assert_equal ticket_body, body["body"]
-      [200, {}, '{}']
+      [200, {}, "{}"]
     end
 
     receive_event(event_data)
@@ -109,7 +109,7 @@ class TestGitHubIssues < CC::Service::TestCase
     receive(
       CC::Service::GitHubIssues,
       { oauth_token: "123", project: project }.merge(config),
-      event_data || event(:quality, from: "D", to: "C")
+      event_data || event(:quality, from: "D", to: "C"),
     )
   end
 end

@@ -1,11 +1,11 @@
-require File.expand_path('../helper', __FILE__)
+require File.expand_path("../helper", __FILE__)
 
 class InvocationErrorHandling < CC::Service::TestCase
   def test_success_returns_upstream_result
     handler = CC::Service::Invocation::WithErrorHandling.new(
-      lambda { :success },
+      -> { :success },
       FakeLogger.new,
-      "not important"
+      "not important",
     )
 
     assert_equal :success, handler.call
@@ -16,13 +16,13 @@ class InvocationErrorHandling < CC::Service::TestCase
     env = {
       status: 401,
       params: "params",
-      url: "url"
+      url: "url",
     }
 
     handler = CC::Service::Invocation::WithErrorHandling.new(
-      lambda { raise CC::Service::HTTPError.new("foo", env) },
+      -> { raise CC::Service::HTTPError.new("foo", env) },
       logger,
-      "prefix"
+      "prefix",
     )
 
     result = handler.call
@@ -38,9 +38,9 @@ class InvocationErrorHandling < CC::Service::TestCase
     logger = FakeLogger.new
 
     handler = CC::Service::Invocation::WithErrorHandling.new(
-      lambda { raise ArgumentError.new("lol") },
+      -> { raise ArgumentError, "lol" },
       logger,
-      "prefix"
+      "prefix",
     )
 
     result = handler.call

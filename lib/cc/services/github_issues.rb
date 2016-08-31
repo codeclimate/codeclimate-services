@@ -24,7 +24,7 @@ class CC::Service::GitHubIssues < CC::Service
   def receive_test
     result = create_issue("Test ticket from Code Climate", "")
     result.merge(
-      message: "Issue <a href='#{result[:url]}'>##{result[:number]}</a> created."
+      message: "Issue <a href='#{result[:url]}'>##{result[:number]}</a> created.",
     )
   rescue CC::Service::HTTPError => e
     body = JSON.parse(e.response_body)
@@ -41,19 +41,19 @@ class CC::Service::GitHubIssues < CC::Service
 
     create_issue(
       formatter.format_vulnerability_title,
-      formatter.format_vulnerability_body
+      formatter.format_vulnerability_body,
     )
   end
 
   def receive_issue
-    title = %{Fix "#{issue["check_name"]}" issue in #{constant_name}}
+    title = %(Fix "#{issue["check_name"]}" issue in #{constant_name})
 
     body = [issue["description"], details_url].join("\n\n")
 
     create_issue(title, body)
   end
 
-private
+  private
 
   def create_issue(title, issue_body)
     params = { title: title, body: issue_body }
@@ -72,9 +72,8 @@ private
       {
         id: body["id"],
         number: body["number"],
-        url: body["html_url"]
+        url: body["html_url"],
       }
     end
   end
-
 end

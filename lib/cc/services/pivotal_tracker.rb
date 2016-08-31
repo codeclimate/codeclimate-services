@@ -18,12 +18,12 @@ class CC::Service::PivotalTracker < CC::Service
   self.description = "Create stories on Pivotal Tracker"
   self.issue_tracker = true
 
-  BASE_URL = "https://www.pivotaltracker.com/services/v3"
+  BASE_URL = "https://www.pivotaltracker.com/services/v3".freeze
 
   def receive_test
     result = create_story("Test ticket from Code Climate", "")
     result.merge(
-      message: "Ticket <a href='#{result[:url]}'>#{result[:id]}</a> created."
+      message: "Ticket <a href='#{result[:url]}'>#{result[:id]}</a> created.",
     )
   end
 
@@ -32,7 +32,7 @@ class CC::Service::PivotalTracker < CC::Service
   end
 
   def receive_issue
-    title = %{Fix "#{issue["check_name"]}" issue in #{constant_name}}
+    title = %(Fix "#{issue["check_name"]}" issue in #{constant_name})
 
     body = [issue["description"], details_url].join("\n\n")
 
@@ -44,11 +44,11 @@ class CC::Service::PivotalTracker < CC::Service
 
     create_story(
       formatter.format_vulnerability_title,
-      formatter.format_vulnerability_body
+      formatter.format_vulnerability_body,
     )
   end
 
-private
+  private
 
   def create_story(name, description)
     params = {
@@ -68,9 +68,8 @@ private
       body = Nokogiri::XML(response.body)
       {
         id: (body / "story/id").text,
-        url: (body / "story/url").text
+        url: (body / "story/url").text,
       }
     end
   end
-
 end

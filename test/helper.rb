@@ -1,6 +1,6 @@
-require 'test/unit'
-require 'mocha/test_unit'
-require 'pp'
+require "test/unit"
+require "mocha/test_unit"
+require "pp"
 
 require "codeclimate-test-reporter"
 CodeClimate::TestReporter.start
@@ -12,7 +12,6 @@ Dir["#{cwd}/support/*.rb"].sort.each do |helper|
   require helper
 end
 CC::Service.load_services
-
 
 class CC::Service::TestCase < Test::Unit::TestCase
   def setup
@@ -27,7 +26,7 @@ class CC::Service::TestCase < Test::Unit::TestCase
 
   def service(klass, data, payload)
     service = klass.new(data, payload)
-    service.http :adapter => [:test, @stubs]
+    service.http adapter: [:test, @stubs]
     service
   end
 
@@ -39,7 +38,7 @@ class CC::Service::TestCase < Test::Unit::TestCase
     service(
       CC::Service,
       { data: "my data" },
-      event(:quality, to: "D", from: "C")
+      event(:quality, to: "D", from: "C"),
     ).service_post(*args)
   end
 
@@ -47,12 +46,12 @@ class CC::Service::TestCase < Test::Unit::TestCase
     service(
       CC::Service,
       { data: "my data" },
-      event(:quality, to: "D", from: "C")
+      event(:quality, to: "D", from: "C"),
     ).service_post_with_redirects(*args)
   end
 
   def stub_http(url, response = nil, &block)
-    block ||= lambda{|*args| response }
+    block ||= ->(*_args) { response }
     @stubs.post(url, &block)
   end
 end

@@ -1,4 +1,4 @@
-require 'base64'
+require "base64"
 
 class CC::Service::Jira < CC::Service
   class Config < CC::Service::Config
@@ -35,7 +35,7 @@ class CC::Service::Jira < CC::Service
   def receive_test
     result = create_ticket("Test ticket from Code Climate", "Test ticket from Code Climate")
     result.merge(
-      message: "Ticket <a href='#{result[:url]}'>#{result[:id]}</a> created."
+      message: "Ticket <a href='#{result[:url]}'>#{result[:id]}</a> created.",
     )
   end
 
@@ -44,7 +44,7 @@ class CC::Service::Jira < CC::Service
   end
 
   def receive_issue
-    title = %{Fix "#{issue["check_name"]}" issue in #{constant_name}}
+    title = %(Fix "#{issue["check_name"]}" issue in #{constant_name})
 
     body = [issue["description"], details_url].join("\n\n")
 
@@ -56,11 +56,11 @@ class CC::Service::Jira < CC::Service
 
     create_ticket(
       formatter.format_vulnerability_title,
-      formatter.format_vulnerability_body
+      formatter.format_vulnerability_body,
     )
   end
 
-private
+  private
 
   def create_ticket(title, ticket_body)
     params = {
@@ -69,8 +69,8 @@ private
           project: { id: config.project_id },
           summary: title,
           description: ticket_body,
-          issuetype: { name: config.issue_type }
-        }
+          issuetype: { name: config.issue_type },
+        },
     }
 
     if config.labels.present?
@@ -87,9 +87,8 @@ private
       {
         id: body["id"],
         key: body["key"],
-        url: "https://#{config.domain}/browse/#{body["key"]}"
+        url: "https://#{config.domain}/browse/#{body["key"]}",
       }
     end
   end
-
 end

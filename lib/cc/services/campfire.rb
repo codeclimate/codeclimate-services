@@ -16,7 +16,7 @@ class CC::Service::Campfire < CC::Service
 
   def receive_test
     speak(formatter.format_test).merge(
-      message: "Test message sent"
+      message: "Test message sent",
     )
   end
 
@@ -39,7 +39,7 @@ class CC::Service::Campfire < CC::Service
   end
 
   def speak(line)
-    http.headers['Content-Type']  = 'application/json'
+    http.headers["Content-Type"] = "application/json"
     params = { message: { body: line } }
 
     http.basic_auth(config.token, "X")
@@ -51,5 +51,4 @@ class CC::Service::Campfire < CC::Service
     room_id = config.room_id
     "https://#{subdomain}.campfirenow.com/room/#{room_id}/speak.json"
   end
-
 end
