@@ -1,6 +1,6 @@
 module CC::Service::Helper
-  GREEN_HEX = "#38ae6f"
-  RED_HEX   = "#ed2f00"
+  GREEN_HEX = "#38ae6f".freeze
+  RED_HEX = "#ed2f00".freeze
 
   def repo_name
     payload["repo_name"]
@@ -50,5 +50,4 @@ module CC::Service::Helper
     raise NotImplementedError,
       "Event-specific helpers must define #{__method__}"
   end
-
 end

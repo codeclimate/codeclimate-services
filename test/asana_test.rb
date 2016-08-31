@@ -1,20 +1,20 @@
-require File.expand_path('../helper', __FILE__)
+require File.expand_path("../helper", __FILE__)
 
 class TestAsana < CC::Service::TestCase
   def test_quality
     assert_asana_receives(
       event(:quality, to: "D", from: "C"),
-      "Refactor User from a D on Code Climate - https://codeclimate.com/repos/1/feed"
+      "Refactor User from a D on Code Climate - https://codeclimate.com/repos/1/feed",
     )
   end
 
   def test_vulnerability
     assert_asana_receives(
       event(:vulnerability, vulnerabilities: [{
-        "warning_type" => "critical",
-        "location" => "app/user.rb line 120"
-      }]),
-      "New critical issue found in app/user.rb line 120 - https://codeclimate.com/repos/1/feed"
+              "warning_type" => "critical",
+              "location" => "app/user.rb line 120",
+            }]),
+      "New critical issue found in app/user.rb line 120 - https://codeclimate.com/repos/1/feed",
     )
   end
 
@@ -22,21 +22,21 @@ class TestAsana < CC::Service::TestCase
     payload = {
       issue: {
         "check_name" => "Style/LongLine",
-        "description" => "Line is too long [1000/80]"
+        "description" => "Line is too long [1000/80]",
       },
       constant_name: "foo.rb",
-      details_url: "http://example.com/repos/id/foo.rb#issue_123"
+      details_url: "http://example.com/repos/id/foo.rb#issue_123",
     }
 
     assert_asana_receives(
       event(:issue, payload),
       "Fix \"Style/LongLine\" issue in foo.rb",
-      "Line is too long [1000/80]\n\nhttp://example.com/repos/id/foo.rb#issue_123"
+      "Line is too long [1000/80]\n\nhttp://example.com/repos/id/foo.rb#issue_123",
     )
   end
 
   def test_successful_post
-    @stubs.post '/api/1.0/tasks' do |env|
+    @stubs.post "/api/1.0/tasks" do |_env|
       [200, {}, '{"data":{"id":"2"}}']
     end
 
@@ -47,7 +47,7 @@ class TestAsana < CC::Service::TestCase
   end
 
   def test_receive_test
-    @stubs.post '/api/1.0/tasks' do |env|
+    @stubs.post "/api/1.0/tasks" do |_env|
       [200, {}, '{"data":{"id":"4"}}']
     end
 
@@ -59,15 +59,15 @@ class TestAsana < CC::Service::TestCase
   private
 
   def assert_asana_receives(event_data, name, notes = "")
-    @stubs.post '/api/1.0/tasks' do |env|
+    @stubs.post "/api/1.0/tasks" do |env|
       body = JSON.parse(env[:body])
       data = body["data"]
 
-      assert_equal "1",             data["workspace"]
-      assert_equal "2",             data["projects"].first
+      assert_equal "1", data["workspace"]
+      assert_equal "2", data["projects"].first
       assert_equal "jim@asana.com", data["assignee"]
-      assert_equal name,            data["name"]
-      assert_equal notes,           data["notes"]
+      assert_equal name, data["name"]
+      assert_equal notes, data["notes"]
 
       [200, {}, '{"data":{"id":4}}']
     end
@@ -79,7 +79,7 @@ class TestAsana < CC::Service::TestCase
     receive(
       CC::Service::Asana,
       { api_key: "abc123", workspace_id: "1", project_id: "2", assignee: "jim@asana.com" },
-      event_data || event(:quality, to: "D", from: "C")
+      event_data || event(:quality, to: "D", from: "C"),
     )
   end
 end

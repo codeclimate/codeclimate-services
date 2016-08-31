@@ -1,16 +1,16 @@
-require File.expand_path('../helper', __FILE__)
+require File.expand_path("../helper", __FILE__)
 
 class TestCampfire < CC::Service::TestCase
   def test_config
     assert_raises CC::Service::ConfigurationError do
-      service(CC::Service::Campfire, {}, {name: "test"})
+      service(CC::Service::Campfire, {}, name: "test")
     end
   end
 
   def test_test_hook
     assert_campfire_receives(
       { name: "test", repo_name: "Rails" },
-      "[Code Climate][Rails] This is a test of the Campfire service hook"
+      "[Code Climate][Rails] This is a test of the Campfire service hook",
     )
   end
 
@@ -20,7 +20,7 @@ class TestCampfire < CC::Service::TestCase
     assert_campfire_receives(e, [
       "[Code Climate][Example] :sunny:",
       "Test coverage has improved to 90.2% (+10.2%).",
-      "(https://codeclimate.com/repos/1/feed)"
+      "(https://codeclimate.com/repos/1/feed)",
     ].join(" "))
   end
 
@@ -30,7 +30,7 @@ class TestCampfire < CC::Service::TestCase
     assert_campfire_receives(e, [
       "[Code Climate][Example] :umbrella:",
       "Test coverage has declined to 88.6% (-6.0%).",
-      "(https://codeclimate.com/repos/1/feed)"
+      "(https://codeclimate.com/repos/1/feed)",
     ].join(" "))
   end
 
@@ -40,7 +40,7 @@ class TestCampfire < CC::Service::TestCase
     assert_campfire_receives(e, [
       "[Code Climate][Example] :sunny:",
       "User has improved from a B to an A.",
-      "(https://codeclimate.com/repos/1/feed)"
+      "(https://codeclimate.com/repos/1/feed)",
     ].join(" "))
   end
 
@@ -50,55 +50,55 @@ class TestCampfire < CC::Service::TestCase
     assert_campfire_receives(e, [
       "[Code Climate][Example] :umbrella:",
       "User has declined from a C to a D.",
-      "(https://codeclimate.com/repos/1/feed)"
+      "(https://codeclimate.com/repos/1/feed)",
     ].join(" "))
   end
 
   def test_single_vulnerability
     e = event(:vulnerability, vulnerabilities: [
-      { "warning_type" => "critical" }
-    ])
+                { "warning_type" => "critical" },
+              ])
 
     assert_campfire_receives(e, [
       "[Code Climate][Example]",
       "New critical issue found.",
-      "Details: https://codeclimate.com/repos/1/feed"
+      "Details: https://codeclimate.com/repos/1/feed",
     ].join(" "))
   end
 
   def test_single_vulnerability_with_location
     e = event(:vulnerability, vulnerabilities: [{
-      "warning_type" => "critical",
-      "location" => "app/user.rb line 120"
-    }])
+                "warning_type" => "critical",
+                "location" => "app/user.rb line 120",
+              }])
 
     assert_campfire_receives(e, [
       "[Code Climate][Example]",
       "New critical issue found",
       "in app/user.rb line 120.",
-      "Details: https://codeclimate.com/repos/1/feed"
+      "Details: https://codeclimate.com/repos/1/feed",
     ].join(" "))
   end
 
   def test_multiple_vulnerabilities
     e = event(:vulnerability, warning_type: "critical", vulnerabilities: [{
-      "warning_type" => "unused",
-      "location" => "unused"
-    }, {
-      "warning_type" => "unused",
-      "location" => "unused"
-    }])
+                "warning_type" => "unused",
+                "location" => "unused",
+              }, {
+                "warning_type" => "unused",
+                "location" => "unused",
+              }])
 
     assert_campfire_receives(e, [
       "[Code Climate][Example]",
       "2 new critical issues found.",
-      "Details: https://codeclimate.com/repos/1/feed"
+      "Details: https://codeclimate.com/repos/1/feed",
     ].join(" "))
   end
 
   def test_receive_test
-    @stubs.post request_url do |env|
-      [200, {}, '']
+    @stubs.post request_url do |_env|
+      [200, {}, ""]
     end
 
     response = receive_event(name: "test")
@@ -128,7 +128,7 @@ class TestCampfire < CC::Service::TestCase
     @stubs.post request_url do |env|
       body = JSON.parse(env[:body])
       assert_equal expected_body, body["message"]["body"]
-      [200, {}, '']
+      [200, {}, ""]
     end
 
     receive_event(event_data)
@@ -137,8 +137,8 @@ class TestCampfire < CC::Service::TestCase
   def receive_event(event_data = nil)
     receive(
       CC::Service::Campfire,
-      { token: "token", subdomain: subdomain, room_id: room},
-      event_data || event(:quality, to: "D", from: "C")
+      { token: "token", subdomain: subdomain, room_id: room },
+      event_data || event(:quality, to: "D", from: "C"),
     )
   end
 end

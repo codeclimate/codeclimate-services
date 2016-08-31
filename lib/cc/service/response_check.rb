@@ -5,9 +5,9 @@ class CC::Service
 
     def initialize(message, env)
       @response_body = env[:body]
-      @status        = env[:status]
-      @params        = env[:params]
-      @endpoint_url  = env[:url].to_s
+      @status = env[:status]
+      @params = env[:params]
+      @endpoint_url = env[:url].to_s
 
       super(message)
     end
@@ -25,7 +25,7 @@ class CC::Service
       end
     end
 
-  private
+    private
 
     def error_message(env)
       # We only handle Jira (or responses which look like Jira's). We will add
@@ -37,6 +37,5 @@ class CC::Service
       end
     rescue JSON::ParserError
     end
-
   end
 end

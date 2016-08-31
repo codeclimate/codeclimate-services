@@ -1,11 +1,11 @@
-require File.expand_path('../helper', __FILE__)
+require File.expand_path("../helper", __FILE__)
 
 class TestHipChat < CC::Service::TestCase
   def test_test_hook
     assert_hipchat_receives(
       "green",
       { name: "test", repo_name: "Rails" },
-      "[Rails] This is a test of the HipChat service hook"
+      "[Rails] This is a test of the HipChat service hook",
     )
   end
 
@@ -16,7 +16,7 @@ class TestHipChat < CC::Service::TestCase
       "[Example]",
       "<a href=\"https://codeclimate.com/repos/1/feed\">Test coverage</a>",
       "has improved to 90.2% (+10.2%)",
-      "(<a href=\"https://codeclimate.com/repos/1/compare\">Compare</a>)"
+      "(<a href=\"https://codeclimate.com/repos/1/compare\">Compare</a>)",
     ].join(" "))
   end
 
@@ -27,7 +27,7 @@ class TestHipChat < CC::Service::TestCase
       "[Example]",
       "<a href=\"https://codeclimate.com/repos/1/feed\">Test coverage</a>",
       "has declined to 88.6% (-6.0%)",
-      "(<a href=\"https://codeclimate.com/repos/1/compare\">Compare</a>)"
+      "(<a href=\"https://codeclimate.com/repos/1/compare\">Compare</a>)",
     ].join(" "))
   end
 
@@ -38,7 +38,7 @@ class TestHipChat < CC::Service::TestCase
       "[Example]",
       "<a href=\"https://codeclimate.com/repos/1/feed\">User</a>",
       "has improved from a B to an A",
-      "(<a href=\"https://codeclimate.com/repos/1/compare\">Compare</a>)"
+      "(<a href=\"https://codeclimate.com/repos/1/compare\">Compare</a>)",
     ].join(" "))
   end
 
@@ -49,14 +49,14 @@ class TestHipChat < CC::Service::TestCase
       "[Example]",
       "<a href=\"https://codeclimate.com/repos/1/feed\">User</a>",
       "has declined from a C to a D",
-      "(<a href=\"https://codeclimate.com/repos/1/compare\">Compare</a>)"
+      "(<a href=\"https://codeclimate.com/repos/1/compare\">Compare</a>)",
     ].join(" "))
   end
 
   def test_single_vulnerability
     e = event(:vulnerability, vulnerabilities: [
-      { "warning_type" => "critical" }
-    ])
+                { "warning_type" => "critical" },
+              ])
 
     assert_hipchat_receives("red", e, [
       "[Example]",
@@ -67,9 +67,9 @@ class TestHipChat < CC::Service::TestCase
 
   def test_single_vulnerability_with_location
     e = event(:vulnerability, vulnerabilities: [{
-      "warning_type" => "critical",
-      "location" => "app/user.rb line 120"
-    }])
+                "warning_type" => "critical",
+                "location" => "app/user.rb line 120",
+              }])
 
     assert_hipchat_receives("red", e, [
       "[Example]",
@@ -80,12 +80,12 @@ class TestHipChat < CC::Service::TestCase
 
   def test_multiple_vulnerabilities
     e = event(:vulnerability, warning_type: "critical", vulnerabilities: [{
-      "warning_type" => "unused",
-      "location" => "unused"
-    }, {
-      "warning_type" => "unused",
-      "location" => "unused"
-    }])
+                "warning_type" => "unused",
+                "location" => "unused",
+              }, {
+                "warning_type" => "unused",
+                "location" => "unused",
+              }])
 
     assert_hipchat_receives("red", e, [
       "[Example]",
@@ -95,8 +95,8 @@ class TestHipChat < CC::Service::TestCase
   end
 
   def test_receive_test
-    @stubs.post '/v1/rooms/message' do |env|
-      [200, {}, '']
+    @stubs.post "/v1/rooms/message" do |_env|
+      [200, {}, ""]
     end
 
     response = receive_event(name: "test")
@@ -107,14 +107,14 @@ class TestHipChat < CC::Service::TestCase
   private
 
   def assert_hipchat_receives(color, event_data, expected_body)
-    @stubs.post '/v1/rooms/message' do |env|
+    @stubs.post "/v1/rooms/message" do |env|
       body = Hash[URI.decode_www_form(env[:body])]
       assert_equal "token", body["auth_token"]
       assert_equal "123", body["room_id"]
       assert_equal "true", body["notify"]
       assert_equal color, body["color"]
       assert_equal expected_body, body["message"]
-      [200, {}, '']
+      [200, {}, ""]
     end
 
     receive_event(event_data)
@@ -124,7 +124,7 @@ class TestHipChat < CC::Service::TestCase
     receive(
       CC::Service::HipChat,
       { auth_token: "token", room_id: "123", notify: true },
-      event_data || event(:quality, from: "C", to: "D")
+      event_data || event(:quality, from: "C", to: "D"),
     )
   end
 end

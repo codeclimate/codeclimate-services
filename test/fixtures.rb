@@ -7,7 +7,7 @@ class EventFixtures
     "C" => 15,
     "D" => 20,
     "F" => 25,
-  }
+  }.freeze
 
   def initialize(options)
     @options = {
@@ -27,7 +27,7 @@ class EventFixtures
       name: "coverage",
       covered_percent: to,
       previous_covered_percent: from,
-      covered_percent_delta: delta
+      covered_percent_delta: delta,
     )
   end
 
@@ -42,7 +42,7 @@ class EventFixtures
       rating: to,
       previous_rating: from,
       remediation_cost: REMEDIATIONS[to],
-      previous_remediation_cost: REMEDIATIONS[from]
+      previous_remediation_cost: REMEDIATIONS[from],
     )
   end
 
@@ -54,7 +54,6 @@ class EventFixtures
   def issue
     options.merge(name: "issue")
   end
-
 end
 
 def event(name, options = {})

@@ -13,13 +13,13 @@ class CC::Service::HipChat < CC::Service
     validates :room_id, presence: true
   end
 
-  BASE_URL = "https://api.hipchat.com/v1"
+  BASE_URL = "https://api.hipchat.com/v1".freeze
 
   self.description = "Send messages to a HipChat chat room"
 
   def receive_test
     speak(formatter.format_test, "green").merge(
-      message: "Test message sent"
+      message: "Test message sent",
     )
   end
 
@@ -49,9 +49,8 @@ class CC::Service::HipChat < CC::Service
       auth_token: config.auth_token,
       room_id:    config.room_id,
       notify:     !!config.notify,
-      color:      color
+      color:      color,
     }
     service_post(url, params)
   end
-
 end

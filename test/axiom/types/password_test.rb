@@ -1,4 +1,4 @@
-require File.expand_path('../../../helper', __FILE__)
+require File.expand_path("../../../helper", __FILE__)
 
 class Axiom::Types::PasswordTest < CC::Service::TestCase
   class TestConfiguration < CC::Service::Config
@@ -9,14 +9,14 @@ class Axiom::Types::PasswordTest < CC::Service::TestCase
   def test_password_type_inference
     assert_equal(
       Axiom::Types::Password,
-      TestConfiguration.attribute_set[:password_attribute].type
+      TestConfiguration.attribute_set[:password_attribute].type,
     )
   end
 
   def test_string_type_inference
     assert_equal(
       Axiom::Types::String,
-      TestConfiguration.attribute_set[:string_attribute].type
+      TestConfiguration.attribute_set[:string_attribute].type,
     )
   end
 end

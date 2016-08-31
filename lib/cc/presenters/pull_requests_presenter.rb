@@ -47,7 +47,7 @@ module CC
         end
       end
 
-    private
+      private
 
       def both_issue_counts_zero?
         issue_counts.all?(&:zero?)
@@ -56,16 +56,12 @@ module CC
       def formatted_fixed_issues
         if @fixed_count > 0
           "#{number_to_delimited(@fixed_count)} fixed #{"issue".pluralize(@fixed_count)}"
-        else
-          nil
         end
       end
 
       def formatted_new_issues
         if @new_count > 0
           "#{number_to_delimited(@new_count)} new #{"issue".pluralize(@new_count)}"
-        else
-          nil
         end
       end
 

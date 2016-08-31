@@ -81,9 +81,9 @@ class CC::Service::StashPullRequests < CC::Service
   end
 
   def setup_http
-    http.headers["Content-Type"]  = "application/json"
+    http.headers["Content-Type"] = "application/json"
     http.headers["Authorization"] = "Basic #{auth_token}"
-    http.headers["User-Agent"]    = "Code Climate"
+    http.headers["User-Agent"] = "Code Climate"
   end
 
   # Following Basic Auth headers here:

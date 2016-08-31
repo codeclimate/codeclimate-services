@@ -41,14 +41,14 @@ class CC::Service::GitlabMergeRequests < CC::PullRequests
   def update_status_error
     update_status(
       "failed",
-      @payload["message"] || presenter.error_message
+      @payload["message"] || presenter.error_message,
     )
   end
 
   def update_status_pending
     update_status(
       "running",
-      @payload["message"] || presenter.pending_message
+      @payload["message"] || presenter.pending_message,
     )
   end
 

@@ -1,4 +1,4 @@
-require File.expand_path('../helper', __FILE__)
+require File.expand_path("../helper", __FILE__)
 
 class TestInvocation < Test::Unit::TestCase
   def test_success
@@ -29,7 +29,7 @@ class TestInvocation < Test::Unit::TestCase
     end
 
     assert_equal 1, service.receive_count
-    assert_equal( {ok: false, message: "error"}, result )
+    assert_equal({ ok: false, message: "error" }, result)
   end
 
   def test_retries
@@ -102,7 +102,7 @@ class TestInvocation < Test::Unit::TestCase
       i.with :error_handling, logger, "a_prefix"
     end
 
-    assert_equal({ok: false, message: "Boom", log_message: "Exception invoking service: [a_prefix] (RuntimeError) Boom"}, result)
+    assert_equal({ ok: false, message: "Boom", log_message: "Exception invoking service: [a_prefix] (RuntimeError) Boom" }, result)
     assert_equal 1, logger.logged_errors.length
     assert_match(/^Exception invoking service: \[a_prefix\]/, logger.logged_errors.first)
   end
@@ -117,7 +117,7 @@ class TestInvocation < Test::Unit::TestCase
       i.with :error_handling, logger
     end
 
-    assert_equal({ok: false, message: "Boom", log_message: "Exception invoking service: (RuntimeError) Boom"}, result)
+    assert_equal({ ok: false, message: "Boom", log_message: "Exception invoking service: (RuntimeError) Boom" }, result)
     assert_equal 1 + 3, service.receive_count
     assert_equal 1, logger.logged_errors.length
   end
@@ -163,5 +163,4 @@ class TestInvocation < Test::Unit::TestCase
     def timing(key, value)
     end
   end
-
 end

@@ -22,16 +22,16 @@ class CC::Service::Invocation
     end
 
     def success_key
-      ["services.invocations", @prefix].compact.join('.')
+      ["services.invocations", @prefix].compact.join(".")
     end
 
     def timing_key
-      ["services.timing", @prefix].compact.join('.')
+      ["services.timing", @prefix].compact.join(".")
     end
 
     def error_key(ex)
-      error_string = ex.class.name.underscore.gsub("/", "-")
-      ["services.errors", @prefix, error_string].compact.join('.')
+      error_string = ex.class.name.underscore.tr("/", "-")
+      ["services.errors", @prefix, error_string].compact.join(".")
     end
   end
 end

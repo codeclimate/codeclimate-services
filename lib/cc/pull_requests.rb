@@ -80,7 +80,7 @@ class CC::PullRequests < CC::Service
         params: params.as_json,
         status: e.status,
         endpoint_url: url,
-        message: "Access token is valid"
+        message: "Access token is valid",
       }
     else
       raise

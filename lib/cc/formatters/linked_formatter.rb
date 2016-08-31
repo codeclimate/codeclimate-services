@@ -8,7 +8,7 @@ module CC
 
       def format_coverage
         message = message_prefix
-        message << "#{format_link(details_url, "Test coverage")}"
+        message << format_link(details_url, "Test coverage").to_s
         message << " has #{changed} to #{covered_percent}% (#{delta})"
 
         if compare_url
@@ -20,7 +20,7 @@ module CC
 
       def format_quality
         message = message_prefix
-        message << "#{format_link(details_url, constant_name)}"
+        message << format_link(details_url, constant_name).to_s
         message << " has #{changed} from #{previous_rating} to #{rating}"
 
         if compare_url

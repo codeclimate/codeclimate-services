@@ -15,4 +15,3 @@ class CC::Service::Invocation
     end
   end
 end
-

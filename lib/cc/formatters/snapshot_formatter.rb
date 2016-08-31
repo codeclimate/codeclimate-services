@@ -21,7 +21,7 @@ module CC::Formatters
       end
 
       def inspect
-        "<Rating:#{to_s}>"
+        "<Rating:#{self}>"
       end
 
       def to_s
@@ -52,25 +52,25 @@ module CC::Formatters
 
         data = {
           "from" => { "commit_sha" => payload["previous_commit_sha"] },
-          "to"   => { "commit_sha" => payload["commit_sha"] }
+          "to"   => { "commit_sha" => payload["commit_sha"] },
         }
 
-        @alert_constants_payload    = data.merge("constants" => alert_constants) if alert_constants.any?
+        @alert_constants_payload = data.merge("constants" => alert_constants) if alert_constants.any?
         @improved_constants_payload = data.merge("constants" => improved_constants) if improved_constants.any?
       end
 
-    private
+      private
 
       def new_constants_selector
-        Proc.new { |constant| to_rating(constant) < C }
+        proc { |constant| to_rating(constant) < C }
       end
 
       def decreased_constants_selector
-        Proc.new { |constant| from_rating(constant) > D && to_rating(constant) < C }
+        proc { |constant| from_rating(constant) > D && to_rating(constant) < C }
       end
 
       def improved_constants_selector
-        Proc.new { |constant| from_rating(constant) < C && to_rating(constant) > from_rating(constant) }
+        proc { |constant| from_rating(constant) < C && to_rating(constant) > from_rating(constant) }
       end
 
       def to_rating(constant)
@@ -86,15 +86,15 @@ module CC::Formatters
     # This is useful to show more information for testing the service.
     class Sample < Base
       def new_constants_selector
-        Proc.new { |_| true }
+        proc { |_| true }
       end
 
       def decreased_constants_selector
-        Proc.new { |constant| to_rating(constant) < from_rating(constant) }
+        proc { |constant| to_rating(constant) < from_rating(constant) }
       end
 
       def improved_constants_selector
-        Proc.new { |constant| to_rating(constant) > from_rating(constant) }
+        proc { |constant| to_rating(constant) > from_rating(constant) }
       end
     end
   end

@@ -7,12 +7,12 @@ module CC
     require "cc/service/invocation"
     require "axiom/types/password"
 
-    dir = File.expand_path '../helpers', __FILE__
+    dir = File.expand_path "../helpers", __FILE__
     Dir["#{dir}/*_helper.rb"].sort.each do |helper|
       require helper
     end
 
-    dir = File.expand_path '../formatters', __FILE__
+    dir = File.expand_path "../formatters", __FILE__
     Dir["#{dir}/*_formatter.rb"].sort.each do |formatter|
       require formatter
     end
@@ -71,7 +71,7 @@ module CC
     def self.title
       @title ||= begin
         hook = name.dup
-        hook.sub!(/.*:/, '')
+        hook.sub!(/.*:/, "")
         hook
       end
     end
@@ -80,15 +80,15 @@ module CC
       @slug ||= begin
         hook = name.dup
         hook.downcase!
-        hook.sub!(/.*:/, '')
+        hook.sub!(/.*:/, "")
         hook
       end
     end
 
     def initialize(config, payload)
-      @payload     = payload.stringify_keys
-      @config      = create_config(config)
-      @event       = @payload["name"].to_s
+      @payload = payload.stringify_keys
+      @config = create_config(config)
+      @event = @payload["name"].to_s
 
       load_helper
       validate_event
@@ -103,7 +103,7 @@ module CC
         end
       end
 
-      { ok: false, ignored: true,  message: "No service handler found" }
+      { ok: false, ignored: true, message: "No service handler found" }
     end
 
     private
@@ -119,7 +119,7 @@ module CC
 
     def validate_event
       unless ALL_EVENTS.include?(event)
-        raise ArgumentError.new("Invalid event: #{event}")
+        raise ArgumentError, "Invalid event: #{event}"
       end
     end
 
@@ -138,6 +138,5 @@ module CC
         Config
       end
     end
-
   end
 end
