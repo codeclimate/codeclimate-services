@@ -1,9 +1,6 @@
-
-describe Campfire, type: :service do
+describe CC::Service::Campfire, type: :service do
   it "config" do
-    assert_raises CC::Service::ConfigurationError do
-      service(CC::Service::Campfire, {}, name: "test")
-    end
+    expect { service(CC::Service::Campfire, {}, name: "test") }.to raise_error(CC::Service::ConfigurationError)
   end
 
   it "test hook" do
@@ -96,13 +93,13 @@ describe Campfire, type: :service do
   end
 
   it "receive test" do
-    @stubs.post request_url do |_env|
+    http_stubs.post request_url do |_env|
       [200, {}, ""]
     end
 
     response = receive_event(name: "test")
 
-    response[:message].should == "Test message sent"
+    expect(response[:message]).to eq("Test message sent")
   end
 
   private
@@ -124,9 +121,9 @@ describe Campfire, type: :service do
   end
 
   def assert_campfire_receives(event_data, expected_body)
-    @stubs.post request_url do |env|
+    http_stubs.post request_url do |env|
       body = JSON.parse(env[:body])
-      body["message"]["body"].should == expected_body
+      expect(body["message"]["body"]).to eq(expected_body)
       [200, {}, ""]
     end
 

@@ -1,5 +1,4 @@
-
-describe Asana, type: :service do
+describe CC::Service::Asana, type: :service do
   it "quality" do
     assert_asana_receives(
       event(:quality, to: "D", from: "C"),
@@ -35,38 +34,38 @@ describe Asana, type: :service do
   end
 
   it "successful post" do
-    @stubs.post "/api/1.0/tasks" do |_env|
+    http_stubs.post "/api/1.0/tasks" do |_env|
       [200, {}, '{"data":{"id":"2"}}']
     end
 
     response = receive_event
 
-    response[:id].should == "2"
-    response[:url].should == "https://app.asana.com/0/1/2"
+    expect(response[:id]).to eq("2")
+    expect(response[:url]).to eq("https://app.asana.com/0/1/2")
   end
 
   it "receive test" do
-    @stubs.post "/api/1.0/tasks" do |_env|
+    http_stubs.post "/api/1.0/tasks" do |_env|
       [200, {}, '{"data":{"id":"4"}}']
     end
 
     response = receive_event(name: "test")
 
-    response[:message].should == "Ticket <a href='https://app.asana.com/0/1/4'>4</a> created."
+    expect(response[:message]).to eq("Ticket <a href='https://app.asana.com/0/1/4'>4</a> created.")
   end
 
   private
 
   def assert_asana_receives(event_data, name, notes = "")
-    @stubs.post "/api/1.0/tasks" do |env|
+    http_stubs.post "/api/1.0/tasks" do |env|
       body = JSON.parse(env[:body])
       data = body["data"]
 
-      data["workspace"].should == "1"
-      data["projects"].first.should == "2"
-      data["assignee"].should == "jim@asana.com"
-      data["name"].should == name
-      data["notes"].should == notes
+      expect(data["workspace"]).to eq("1")
+      expect(data["projects"].first).to eq("2")
+      expect(data["assignee"]).to eq("jim@asana.com")
+      expect(data["name"]).to eq(name)
+      expect(data["notes"]).to eq(notes)
 
       [200, {}, '{"data":{"id":4}}']
     end

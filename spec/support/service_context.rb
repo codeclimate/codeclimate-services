@@ -1,17 +1,17 @@
-module RSpec::ServiceContext
-  before do
-    @stubs = Faraday::Adapter::Test::Stubs.new
+RSpec.shared_examples "Service Context", type: :service do
+  let!(:http_stubs) { Faraday::Adapter::Test::Stubs.new }
 
+  before do
     I18n.enforce_available_locales = true
   end
 
   after do
-    @stubs.verify_stubbed_calls
+    http_stubs.verify_stubbed_calls
   end
 
   def service(klass, data, payload)
     service = klass.new(data, payload)
-    service.http adapter: [:test, @stubs]
+    service.http adapter: [:test, http_stubs]
     service
   end
 
@@ -37,6 +37,6 @@ module RSpec::ServiceContext
 
   def stub_http(url, response = nil, &block)
     block ||= ->(*_args) { response }
-    @stubs.post(url, &block)
+    http_stubs.post(url, &block)
   end
 end
