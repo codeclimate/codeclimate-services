@@ -1,5 +1,5 @@
 
-class TestGitHubPullRequests < CC::Service::TestCase
+describe GitHubPullRequests, type: :service do
   it "pull request status pending" do
     expect_status_update("pbrisbin/foo", "abc123", "state" => "pending",
       "description" => /is analyzing/)

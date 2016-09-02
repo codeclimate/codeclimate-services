@@ -1,5 +1,5 @@
 
-class TestFlowdock < CC::Service::TestCase
+describe Flowdock, type: :service do
   it "valid project parameter" do
     @stubs.post "/v1/messages/team_inbox/token" do |env|
       body = Hash[URI.decode_www_form(env[:body])]

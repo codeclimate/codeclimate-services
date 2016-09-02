@@ -1,5 +1,5 @@
 
-class TestLighthouse < CC::Service::TestCase
+describe Lighthouse, type: :service do
   it "quality" do
     response = assert_lighthouse_receives(
       event(:quality, to: "D", from: "C"),

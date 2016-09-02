@@ -1,5 +1,5 @@
 
-class TestJira < CC::Service::TestCase
+describe Jira, type: :service do
   it "successful receive" do
     response = assert_jira_receives(
       event(:quality, to: "D", from: "C"),

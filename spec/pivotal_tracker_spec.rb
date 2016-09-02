@@ -1,5 +1,5 @@
 
-class TestPivotalTracker < CC::Service::TestCase
+describe PivotalTracker, type: :service do
   it "quality" do
     response = assert_pivotal_receives(
       event(:quality, to: "D", from: "C"),

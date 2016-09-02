@@ -1,7 +1,7 @@
 require "helper"
 require "cc/presenters/pull_requests_presenter"
 
-class TestPullRequestsPresenter < CC::Service::TestCase
+describe PullRequestsPresenter, type: :service do
   it "message singular" do
     assert_equal(
       "Code Climate found 1 new issue and 1 fixed issue.",

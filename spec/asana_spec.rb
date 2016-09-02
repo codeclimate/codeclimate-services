@@ -1,5 +1,5 @@
 
-class TestAsana < CC::Service::TestCase
+describe Asana, type: :service do
   it "quality" do
     assert_asana_receives(
       event(:quality, to: "D", from: "C"),

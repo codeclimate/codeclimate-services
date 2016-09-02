@@ -1,5 +1,5 @@
 
-class TestStashPullRequests < CC::Service::TestCase
+describe StashPullRequests, type: :service do
   it "receive test" do
     @stubs.get "/rest/api/1.0/users" do
       [200, {}, "{ 'values': [] }"]

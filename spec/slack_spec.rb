@@ -1,7 +1,7 @@
 # encoding: UTF-8
 
 
-class TestSlack < CC::Service::TestCase
+describe Slack, type: :service do
   it "test hook" do
     assert_slack_receives(
       nil,

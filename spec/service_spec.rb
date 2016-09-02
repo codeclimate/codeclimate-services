@@ -1,5 +1,5 @@
 
-class TestService < CC::Service::TestCase
+describe Service, type: :service do
   it "validates events" do
     assert_raises(ArgumentError) do
       CC::Service.new(:foo, {}, {}, {})

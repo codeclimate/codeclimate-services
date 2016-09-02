@@ -1,5 +1,5 @@
 
-class TestHipChat < CC::Service::TestCase
+describe HipChat, type: :service do
   it "test hook" do
     assert_hipchat_receives(
       "green",

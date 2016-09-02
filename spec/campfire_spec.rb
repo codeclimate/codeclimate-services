@@ -1,5 +1,5 @@
 
-class TestCampfire < CC::Service::TestCase
+describe Campfire, type: :service do
   it "config" do
     assert_raises CC::Service::ConfigurationError do
       service(CC::Service::Campfire, {}, name: "test")

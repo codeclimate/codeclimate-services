@@ -1,5 +1,5 @@
 
-class TestGitlabMergeRequests < CC::Service::TestCase
+describe GitlabMergeRequests, type: :service do
   it "merge request status pending" do
     expect_status_update(
       "hal/hal9000",

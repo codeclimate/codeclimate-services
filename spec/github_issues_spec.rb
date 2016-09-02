@@ -1,5 +1,5 @@
 
-class TestGitHubIssues < CC::Service::TestCase
+describe GitHubIssues, type: :service do
   it "creation success" do
     id = 1234
     number = 123
