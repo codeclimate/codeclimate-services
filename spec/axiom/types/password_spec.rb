@@ -5,16 +5,10 @@ describe Axiom::Types::Password do
   end
 
   it "password type inference" do
-    assert_equal(
-      Axiom::Types::Password,
-      TestConfiguration.attribute_set[:password_attribute].type,
-    )
+    expect(Axiom::Types::Password).to eq(TestConfiguration.attribute_set[:password_attribute].type)
   end
 
   it "string type inference" do
-    assert_equal(
-      Axiom::Types::String,
-      TestConfiguration.attribute_set[:string_attribute].type,
-    )
+    expect(Axiom::Types::String).to eq(TestConfiguration.attribute_set[:string_attribute].type)
   end
 end
