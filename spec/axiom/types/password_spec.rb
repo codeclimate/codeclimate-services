@@ -6,14 +6,14 @@ class Axiom::Types::PasswordTest < CC::Service::TestCase
     attribute :string_attribute, String
   end
 
-  def test_password_type_inference
+  it "password type inference" do
     assert_equal(
       Axiom::Types::Password,
       TestConfiguration.attribute_set[:password_attribute].type,
     )
   end
 
-  def test_string_type_inference
+  it "string type inference" do
     assert_equal(
       Axiom::Types::String,
       TestConfiguration.attribute_set[:string_attribute].type,

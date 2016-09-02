@@ -1,26 +1,11 @@
-require "test/unit"
-require "mocha/test_unit"
-require "pp"
-
-require "codeclimate-test-reporter"
-CodeClimate::TestReporter.start
-
-cwd = File.expand_path(File.dirname(__FILE__))
-require "#{cwd}/../config/load"
-require "#{cwd}/fixtures"
-Dir["#{cwd}/support/*.rb"].sort.each do |helper|
-  require helper
-end
-CC::Service.load_services
-
-class CC::Service::TestCase < Test::Unit::TestCase
-  def setup
+module Rspec::ServiceContext
+  before do
     @stubs = Faraday::Adapter::Test::Stubs.new
 
     I18n.enforce_available_locales = true
   end
 
-  def teardown
+  after do
     @stubs.verify_stubbed_calls
   end
 

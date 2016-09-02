@@ -1,7 +1,7 @@
 require File.expand_path("../helper", __FILE__)
 
 class TestGitHubIssues < CC::Service::TestCase
-  def test_creation_success
+  it "creation success" do
     id = 1234
     number = 123
     url = "https://github.com/#{project}/pulls/#{number}"
@@ -9,12 +9,12 @@ class TestGitHubIssues < CC::Service::TestCase
 
     response = receive_event
 
-    assert_equal id, response[:id]
-    assert_equal number, response[:number]
-    assert_equal url, response[:url]
+    response[:id].should == id
+    response[:number].should == number
+    response[:url].should == url
   end
 
-  def test_quality
+  it "quality" do
     assert_github_receives(
       event(:quality, to: "D", from: "C"),
       "Refactor User from a D on Code Climate",
@@ -22,7 +22,7 @@ class TestGitHubIssues < CC::Service::TestCase
     )
   end
 
-  def test_quality_without_rating
+  it "quality without rating" do
     assert_github_receives(
       event(:quality, to: nil),
       "Refactor User on Code Climate",
@@ -30,7 +30,7 @@ class TestGitHubIssues < CC::Service::TestCase
     )
   end
 
-  def test_issue
+  it "issue" do
     payload = {
       issue: {
         "check_name" => "Style/LongLine",
@@ -47,7 +47,7 @@ class TestGitHubIssues < CC::Service::TestCase
     )
   end
 
-  def test_vulnerability
+  it "vulnerability" do
     assert_github_receives(
       event(:vulnerability, vulnerabilities: [{
               "warning_type" => "critical",
@@ -58,25 +58,25 @@ class TestGitHubIssues < CC::Service::TestCase
     )
   end
 
-  def test_receive_test
+  it "receive test" do
     @stubs.post request_url do |_env|
       [200, {}, '{"number": 2, "html_url": "http://foo.bar"}']
     end
 
     response = receive_event(name: "test")
 
-    assert_equal "Issue <a href='http://foo.bar'>#2</a> created.", response[:message]
+    response[:message].should == "Issue <a href='http://foo.bar'>#2</a> created."
   end
 
-  def test_different_base_url
+  it "different base url" do
     @stubs.post request_url do |env|
-      assert env[:url].to_s == "http://example.com/#{request_url}"
+      env[:url].to_s.should == "http://example.com/#{request_url}"
       [200, {}, '{"number": 2, "html_url": "http://foo.bar"}']
     end
 
     response = receive_event({ name: "test" }, base_url: "http://example.com")
 
-    assert_equal "Issue <a href='http://foo.bar'>#2</a> created.", response[:message]
+    response[:message].should == "Issue <a href='http://foo.bar'>#2</a> created."
   end
 
   private
@@ -96,9 +96,9 @@ class TestGitHubIssues < CC::Service::TestCase
   def assert_github_receives(event_data, title, ticket_body)
     @stubs.post request_url do |env|
       body = JSON.parse(env[:body])
-      assert_equal "token #{oauth_token}", env[:request_headers]["Authorization"]
-      assert_equal title, body["title"]
-      assert_equal ticket_body, body["body"]
+      env[:request_headers]["Authorization"].should == "token #{oauth_token}"
+      body["title"].should == title
+      body["body"].should == ticket_body
       [200, {}, "{}"]
     end
 

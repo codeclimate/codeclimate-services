@@ -5,3 +5,6 @@ gemspec
 
 gem "pry"
 gem "codeclimate-test-reporter"
+
+gem "rspec"
+gem "spec_converter"

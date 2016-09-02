@@ -1,16 +1,16 @@
 require File.expand_path("../helper", __FILE__)
 
 class TestJira < CC::Service::TestCase
-  def test_successful_receive
+  it "successful receive" do
     response = assert_jira_receives(
       event(:quality, to: "D", from: "C"),
       "Refactor User from a D on Code Climate",
       "https://codeclimate.com/repos/1/feed",
     )
-    assert_equal "10000", response[:id]
+    response[:id].should == "10000"
   end
 
-  def test_quality
+  it "quality" do
     assert_jira_receives(
       event(:quality, to: "D", from: "C"),
       "Refactor User from a D on Code Climate",
@@ -18,7 +18,7 @@ class TestJira < CC::Service::TestCase
     )
   end
 
-  def test_vulnerability
+  it "vulnerability" do
     assert_jira_receives(
       event(:vulnerability, vulnerabilities: [{
               "warning_type" => "critical",
@@ -29,7 +29,7 @@ class TestJira < CC::Service::TestCase
     )
   end
 
-  def test_issue
+  it "issue" do
     payload = {
       issue: {
         "check_name" => "Style/LongLine",
@@ -46,14 +46,14 @@ class TestJira < CC::Service::TestCase
     )
   end
 
-  def test_receive_test
+  it "receive test" do
     @stubs.post "/rest/api/2/issue" do |_env|
       [200, {}, '{"id": 12345, "key": "CC-123", "self": "http://foo.bar"}']
     end
 
     response = receive_event(name: "test")
 
-    assert_equal "Ticket <a href='https://foo.com/browse/CC-123'>12345</a> created.", response[:message]
+    response[:message].should == "Ticket <a href='https://foo.com/browse/CC-123'>12345</a> created."
   end
 
   private
@@ -61,10 +61,10 @@ class TestJira < CC::Service::TestCase
   def assert_jira_receives(event_data, title, ticket_body)
     @stubs.post "/rest/api/2/issue" do |env|
       body = JSON.parse(env[:body])
-      assert_equal "Basic Zm9vOmJhcg==", env[:request_headers]["Authorization"]
-      assert_equal title, body["fields"]["summary"]
-      assert_equal ticket_body, body["fields"]["description"]
-      assert_equal "Task", body["fields"]["issuetype"]["name"]
+      env[:request_headers]["Authorization"].should == "Basic Zm9vOmJhcg=="
+      body["fields"]["summary"].should == title
+      body["fields"]["description"].should == ticket_body
+      body["fields"]["issuetype"]["name"].should == "Task"
       [200, {}, '{"id":"10000"}']
     end
 

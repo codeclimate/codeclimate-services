@@ -1,14 +1,14 @@
 require File.expand_path("../helper", __FILE__)
 
 class TestAsana < CC::Service::TestCase
-  def test_quality
+  it "quality" do
     assert_asana_receives(
       event(:quality, to: "D", from: "C"),
       "Refactor User from a D on Code Climate - https://codeclimate.com/repos/1/feed",
     )
   end
 
-  def test_vulnerability
+  it "vulnerability" do
     assert_asana_receives(
       event(:vulnerability, vulnerabilities: [{
               "warning_type" => "critical",
@@ -18,7 +18,7 @@ class TestAsana < CC::Service::TestCase
     )
   end
 
-  def test_issue
+  it "issue" do
     payload = {
       issue: {
         "check_name" => "Style/LongLine",
@@ -35,25 +35,25 @@ class TestAsana < CC::Service::TestCase
     )
   end
 
-  def test_successful_post
+  it "successful post" do
     @stubs.post "/api/1.0/tasks" do |_env|
       [200, {}, '{"data":{"id":"2"}}']
     end
 
     response = receive_event
 
-    assert_equal "2", response[:id]
-    assert_equal "https://app.asana.com/0/1/2", response[:url]
+    response[:id].should == "2"
+    response[:url].should == "https://app.asana.com/0/1/2"
   end
 
-  def test_receive_test
+  it "receive test" do
     @stubs.post "/api/1.0/tasks" do |_env|
       [200, {}, '{"data":{"id":"4"}}']
     end
 
     response = receive_event(name: "test")
 
-    assert_equal "Ticket <a href='https://app.asana.com/0/1/4'>4</a> created.", response[:message]
+    response[:message].should == "Ticket <a href='https://app.asana.com/0/1/4'>4</a> created."
   end
 
   private
@@ -63,11 +63,11 @@ class TestAsana < CC::Service::TestCase
       body = JSON.parse(env[:body])
       data = body["data"]
 
-      assert_equal "1", data["workspace"]
-      assert_equal "2", data["projects"].first
-      assert_equal "jim@asana.com", data["assignee"]
-      assert_equal name, data["name"]
-      assert_equal notes, data["notes"]
+      data["workspace"].should == "1"
+      data["projects"].first.should == "2"
+      data["assignee"].should == "jim@asana.com"
+      data["name"].should == name
+      data["notes"].should == notes
 
       [200, {}, '{"data":{"id":4}}']
     end

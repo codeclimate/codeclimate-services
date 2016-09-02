@@ -1,7 +1,7 @@
 require File.expand_path("../helper", __FILE__)
 
 class TestGitlabMergeRequests < CC::Service::TestCase
-  def test_merge_request_status_pending
+  it "merge request status pending" do
     expect_status_update(
       "hal/hal9000",
       "abc123",
@@ -17,7 +17,7 @@ class TestGitlabMergeRequests < CC::Service::TestCase
     )
   end
 
-  def test_merge_request_status_success_detailed
+  it "merge request status success detailed" do
     expect_status_update(
       "hal/hal9000",
       "abc123",
@@ -33,7 +33,7 @@ class TestGitlabMergeRequests < CC::Service::TestCase
     )
   end
 
-  def test_merge_request_status_failure
+  it "merge request status failure" do
     expect_status_update(
       "hal/hal9000",
       "abc123",
@@ -49,7 +49,7 @@ class TestGitlabMergeRequests < CC::Service::TestCase
     )
   end
 
-  def test_merge_request_status_error
+  it "merge request status error" do
     expect_status_update(
       "hal/hal9000",
       "abc123",
@@ -66,7 +66,7 @@ class TestGitlabMergeRequests < CC::Service::TestCase
     )
   end
 
-  def test_merge_request_status_error_message_provided
+  it "merge request status error message provided" do
     expect_status_update(
       "hal/hal9000",
       "abc123",
@@ -83,7 +83,7 @@ class TestGitlabMergeRequests < CC::Service::TestCase
     )
   end
 
-  def test_merge_request_status_skipped
+  it "merge request status skipped" do
     expect_status_update(
       "hal/hal9000",
       "abc123",
@@ -99,7 +99,7 @@ class TestGitlabMergeRequests < CC::Service::TestCase
     )
   end
 
-  def test_merge_request_coverage_status_success
+  it "merge request coverage status success" do
     expect_status_update(
       "hal/hal9000",
       "abc123",
@@ -117,13 +117,13 @@ class TestGitlabMergeRequests < CC::Service::TestCase
     )
   end
 
-  def test_merge_request_status_test_success
+  it "merge request status test success" do
     @stubs.post("api/v3/projects/hal%2Fhal9000/statuses/#{"0" * 40}") { |_env| [404, {}, ""] }
 
-    assert receive_test({}, git_url: "ssh://git@gitlab.com/hal/hal9000.git")[:ok], "Expected test of pull request to be true"
+    receive_test({}, git_url: "ssh://git@gitlab.com/hal/hal9000.git")[:ok], "Expected test of pull request to be true".should.not == nil
   end
 
-  def test_merge_request_status_test_failure
+  it "merge request status test failure" do
     @stubs.post("api/v3/projects/hal%2Fhal9000/statuses/#{"0" * 40}") { |_env| [401, {}, ""] }
 
     assert_raises(CC::Service::HTTPError) do
@@ -131,31 +131,31 @@ class TestGitlabMergeRequests < CC::Service::TestCase
     end
   end
 
-  def test_merge_request_unknown_state
+  it "merge request unknown state" do
     response = receive_merge_request({}, state: "unknown")
 
     assert_equal({ ok: false, message: "Unknown state" }, response)
   end
 
-  def test_different_base_url
+  it "different base url" do
     @stubs.post("api/v3/projects/hal%2Fhal9000/statuses/#{"0" * 40}") do |env|
-      assert env[:url].to_s == "https://gitlab.hal.org/api/v3/projects/hal%2Fhal9000/statuses/#{"0" * 40}"
+      env[:url].to_s.should == "https://gitlab.hal.org/api/v3/projects/hal%2Fhal9000/statuses/#{"0" * 40}"
       [404, {}, ""]
     end
 
-    assert receive_test({ base_url: "https://gitlab.hal.org" }, git_url: "ssh://git@gitlab.com/hal/hal9000.git")[:ok], "Expected test of pull request to be true"
+    receive_test({ base_url: "https://gitlab.hal.org" }, git_url: "ssh://git@gitlab.com/hal/hal9000.git")[:ok], "Expected test of pull request to be true".should.not == nil
   end
 
   private
 
   def expect_status_update(repo, commit_sha, params)
     @stubs.post "api/v3/projects/#{CGI.escape(repo)}/statuses/#{commit_sha}" do |env|
-      assert_equal "123", env[:request_headers]["PRIVATE-TOKEN"]
+      env[:request_headers]["PRIVATE-TOKEN"].should == "123"
 
       body = JSON.parse(env[:body])
 
       params.each do |k, v|
-        assert v === body[k],
+        v.should === body[k],
           "Unexpected value for #{k}. #{v.inspect} !== #{body[k].inspect}"
       end
     end

@@ -1,17 +1,17 @@
 require File.expand_path("../helper", __FILE__)
 
 class InvocationErrorHandling < CC::Service::TestCase
-  def test_success_returns_upstream_result
+  it "success returns upstream result" do
     handler = CC::Service::Invocation::WithErrorHandling.new(
       -> { :success },
       FakeLogger.new,
       "not important",
     )
 
-    assert_equal :success, handler.call
+    handler.call.should == :success
   end
 
-  def test_http_errors_return_relevant_data
+  it "http errors return relevant data" do
     logger = FakeLogger.new
     env = {
       status: 401,
@@ -26,15 +26,15 @@ class InvocationErrorHandling < CC::Service::TestCase
     )
 
     result = handler.call
-    assert_equal false, result[:ok]
-    assert_equal 401, result[:status]
-    assert_equal "params", result[:params]
-    assert_equal "url", result[:endpoint_url]
-    assert_equal "foo", result[:message]
-    assert_equal "Exception invoking service: [prefix] (CC::Service::HTTPError) foo. Response: <nil>", result[:log_message]
+    result[:ok].should == false
+    result[:status].should == 401
+    result[:params].should == "params"
+    result[:endpoint_url].should == "url"
+    result[:message].should == "foo"
+    result[:log_message].should == "Exception invoking service: [prefix] (CC::Service::HTTPError) foo. Response: <nil>"
   end
 
-  def test_error_returns_a_hash_with_explanations
+  it "error returns a hash with explanations" do
     logger = FakeLogger.new
 
     handler = CC::Service::Invocation::WithErrorHandling.new(
@@ -44,8 +44,8 @@ class InvocationErrorHandling < CC::Service::TestCase
     )
 
     result = handler.call
-    assert_equal false, result[:ok]
-    assert_equal "lol", result[:message]
-    assert_equal "Exception invoking service: [prefix] (ArgumentError) lol", result[:log_message]
+    result[:ok].should == false
+    result[:message].should == "lol"
+    result[:log_message].should == "Exception invoking service: [prefix] (ArgumentError) lol"
   end
 end

@@ -1,7 +1,7 @@
 require File.expand_path("../helper", __FILE__)
 
 class TestGitHubPullRequests < CC::Service::TestCase
-  def test_pull_request_status_pending
+  it "pull request status pending" do
     expect_status_update("pbrisbin/foo", "abc123", "state" => "pending",
       "description" => /is analyzing/)
 
@@ -10,7 +10,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
       state:       "pending")
   end
 
-  def test_pull_request_status_success_detailed
+  it "pull request status success detailed" do
     expect_status_update("pbrisbin/foo", "abc123", "state" => "success",
       "description" => "Code Climate found 2 new issues and 1 fixed issue.")
 
@@ -22,7 +22,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
     )
   end
 
-  def test_pull_request_status_failure
+  it "pull request status failure" do
     expect_status_update("pbrisbin/foo", "abc123", "state" => "failure",
       "description" => "Code Climate found 2 new issues and 1 fixed issue.")
 
@@ -34,7 +34,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
     )
   end
 
-  def test_pull_request_status_success_generic
+  it "pull request status success generic" do
     expect_status_update("pbrisbin/foo", "abc123", "state" => "success",
       "description" => /found 2 new issues and 1 fixed issue/)
 
@@ -43,7 +43,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
                              state:       "success")
   end
 
-  def test_pull_request_status_error
+  it "pull request status error" do
     expect_status_update("pbrisbin/foo", "abc123", "state" => "error",
       "description" => "Code Climate encountered an error attempting to analyze this pull request.")
 
@@ -53,7 +53,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
                              message:     nil)
   end
 
-  def test_pull_request_status_error_message_provided
+  it "pull request status error message provided" do
     expect_status_update("pbrisbin/foo", "abc123", "state" => "error",
       "description" => "descriptive message")
 
@@ -63,7 +63,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
       message:     "descriptive message")
   end
 
-  def test_pull_request_status_skipped
+  it "pull request status skipped" do
     expect_status_update("pbrisbin/foo", "abc123", "state" => "success",
       "description" => /skipped analysis/)
 
@@ -72,7 +72,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
       state:       "skipped")
   end
 
-  def test_pull_request_coverage_status
+  it "pull request coverage status" do
     expect_status_update("pbrisbin/foo", "abc123", "state" => "success",
       "description" => "87% test coverage (+2%)")
 
@@ -84,19 +84,19 @@ class TestGitHubPullRequests < CC::Service::TestCase
       covered_percent_delta: 2.0)
   end
 
-  def test_pull_request_status_test_success
+  it "pull request status test success" do
     @stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") { |_env| [422, {}, ""] }
 
-    assert receive_test({}, github_slug: "pbrisbin/foo")[:ok], "Expected test of pull request to be true"
+    receive_test({}, github_slug: "pbrisbin/foo")[:ok], "Expected test of pull request to be true".should.not == nil
   end
 
-  def test_pull_request_status_test_doesnt_blow_up_when_unused_keys_present_in_config
+  it "pull request status test doesnt blow up when unused keys present in config" do
     @stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") { |_env| [422, {}, ""] }
 
-    assert receive_test({ wild_flamingo: true }, github_slug: "pbrisbin/foo")[:ok], "Expected test of pull request to be true"
+    receive_test({ wild_flamingo: true }, github_slug: "pbrisbin/foo")[:ok], "Expected test of pull request to be true".should.not == nil
   end
 
-  def test_pull_request_status_test_failure
+  it "pull request status test failure" do
     @stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") { |_env| [401, {}, ""] }
 
     assert_raises(CC::Service::HTTPError) do
@@ -104,22 +104,22 @@ class TestGitHubPullRequests < CC::Service::TestCase
     end
   end
 
-  def test_pull_request_unknown_state
+  it "pull request unknown state" do
     response = receive_pull_request({}, state: "unknown")
 
     assert_equal({ ok: false, message: "Unknown state" }, response)
   end
 
-  def test_different_base_url
+  it "different base url" do
     @stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") do |env|
-      assert env[:url].to_s == "http://example.com/repos/pbrisbin/foo/statuses/#{"0" * 40}"
+      env[:url].to_s.should == "http://example.com/repos/pbrisbin/foo/statuses/#{"0" * 40}"
       [422, { "x-oauth-scopes" => "gist, user, repo" }, ""]
     end
 
-    assert receive_test({ base_url: "http://example.com" }, github_slug: "pbrisbin/foo")[:ok], "Expected test of pull request to be true"
+    receive_test({ base_url: "http://example.com" }, github_slug: "pbrisbin/foo")[:ok], "Expected test of pull request to be true".should.not == nil
   end
 
-  def test_default_context
+  it "default context" do
     expect_status_update("gordondiggs/ellis", "abc123", "context" => "codeclimate",
                                                         "state" => "pending")
 
@@ -128,7 +128,7 @@ class TestGitHubPullRequests < CC::Service::TestCase
       state:       "pending")
   end
 
-  def test_different_context
+  it "different context" do
     expect_status_update("gordondiggs/ellis", "abc123", "context" => "sup",
       "state" => "pending")
 
@@ -141,12 +141,12 @@ class TestGitHubPullRequests < CC::Service::TestCase
 
   def expect_status_update(repo, commit_sha, params)
     @stubs.post "repos/#{repo}/statuses/#{commit_sha}" do |env|
-      assert_equal "token 123", env[:request_headers]["Authorization"]
+      env[:request_headers]["Authorization"].should == "token 123"
 
       body = JSON.parse(env[:body])
 
       params.each do |k, v|
-        assert v === body[k],
+        v.should === body[k],
           "Unexpected value for #{k}. #{v.inspect} !== #{body[k].inspect}"
       end
     end

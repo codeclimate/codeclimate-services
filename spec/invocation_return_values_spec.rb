@@ -1,16 +1,16 @@
 require File.expand_path("../helper", __FILE__)
 
 class InvocationReturnValuesTest < CC::Service::TestCase
-  def test_success_returns_upstream_result
+  it "success returns upstream result" do
     handler = CC::Service::Invocation::WithReturnValues.new(
       -> { :return_value },
       "error message",
     )
 
-    assert_equal :return_value, handler.call
+    handler.call.should == :return_value
   end
 
-  def test_empty_results_returns_hash
+  it "empty results returns hash" do
     handler = CC::Service::Invocation::WithReturnValues.new(
       -> { nil },
       "error message",

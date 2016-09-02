@@ -9,7 +9,7 @@ class WithMetrics < CC::Service::TestCase
     end
   end
 
-  def test_statsd_error_key
+  it "statsd error key" do
     statsd = Object.new
     statsd.stubs(:timing)
     statsd.expects("increment").with("services.errors.githubpullrequests.cc-service-http_error")

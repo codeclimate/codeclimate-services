@@ -1,7 +1,7 @@
 require File.expand_path("../helper", __FILE__)
 
 class TestHipChat < CC::Service::TestCase
-  def test_test_hook
+  it "test hook" do
     assert_hipchat_receives(
       "green",
       { name: "test", repo_name: "Rails" },
@@ -9,7 +9,7 @@ class TestHipChat < CC::Service::TestCase
     )
   end
 
-  def test_coverage_improved
+  it "coverage improved" do
     e = event(:coverage, to: 90.2, from: 80)
 
     assert_hipchat_receives("green", e, [
@@ -20,7 +20,7 @@ class TestHipChat < CC::Service::TestCase
     ].join(" "))
   end
 
-  def test_coverage_declined
+  it "coverage declined" do
     e = event(:coverage, to: 88.6, from: 94.6)
 
     assert_hipchat_receives("red", e, [
@@ -31,7 +31,7 @@ class TestHipChat < CC::Service::TestCase
     ].join(" "))
   end
 
-  def test_quality_improved
+  it "quality improved" do
     e = event(:quality, to: "A", from: "B")
 
     assert_hipchat_receives("green", e, [
@@ -42,7 +42,7 @@ class TestHipChat < CC::Service::TestCase
     ].join(" "))
   end
 
-  def test_quality_declined_without_compare_url
+  it "quality declined without compare url" do
     e = event(:quality, to: "D", from: "C")
 
     assert_hipchat_receives("red", e, [
@@ -53,7 +53,7 @@ class TestHipChat < CC::Service::TestCase
     ].join(" "))
   end
 
-  def test_single_vulnerability
+  it "single vulnerability" do
     e = event(:vulnerability, vulnerabilities: [
                 { "warning_type" => "critical" },
               ])
@@ -65,7 +65,7 @@ class TestHipChat < CC::Service::TestCase
     ].join(" "))
   end
 
-  def test_single_vulnerability_with_location
+  it "single vulnerability with location" do
     e = event(:vulnerability, vulnerabilities: [{
                 "warning_type" => "critical",
                 "location" => "app/user.rb line 120",
@@ -78,7 +78,7 @@ class TestHipChat < CC::Service::TestCase
     ].join(" "))
   end
 
-  def test_multiple_vulnerabilities
+  it "multiple vulnerabilities" do
     e = event(:vulnerability, warning_type: "critical", vulnerabilities: [{
                 "warning_type" => "unused",
                 "location" => "unused",
@@ -94,14 +94,14 @@ class TestHipChat < CC::Service::TestCase
     ].join(" "))
   end
 
-  def test_receive_test
+  it "receive test" do
     @stubs.post "/v1/rooms/message" do |_env|
       [200, {}, ""]
     end
 
     response = receive_event(name: "test")
 
-    assert_equal "Test message sent", response[:message]
+    response[:message].should == "Test message sent"
   end
 
   private
@@ -109,11 +109,11 @@ class TestHipChat < CC::Service::TestCase
   def assert_hipchat_receives(color, event_data, expected_body)
     @stubs.post "/v1/rooms/message" do |env|
       body = Hash[URI.decode_www_form(env[:body])]
-      assert_equal "token", body["auth_token"]
-      assert_equal "123", body["room_id"]
-      assert_equal "true", body["notify"]
-      assert_equal color, body["color"]
-      assert_equal expected_body, body["message"]
+      body["auth_token"].should == "token"
+      body["room_id"].should == "123"
+      body["notify"].should == "true"
+      body["color"].should == color
+      body["message"].should == expected_body
       [200, {}, ""]
     end
 

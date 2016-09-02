@@ -1,38 +1,38 @@
 require File.expand_path("../helper", __FILE__)
 
 class TestInvocation < Test::Unit::TestCase
-  def test_success
+  it "success" do
     service = FakeService.new(:some_result)
 
     result = CC::Service::Invocation.invoke(service)
 
-    assert_equal 1, service.receive_count
-    assert_equal :some_result, result
+    service.receive_count.should == 1
+    result.should == :some_result
   end
 
-  def test_success_with_return_values
+  it "success with return values" do
     service = FakeService.new(:some_result)
 
     result = CC::Service::Invocation.invoke(service) do |i|
       i.with :return_values, "error"
     end
 
-    assert_equal 1, service.receive_count
-    assert_equal :some_result, result
+    service.receive_count.should == 1
+    result.should == :some_result
   end
 
-  def test_failure_with_return_values
+  it "failure with return values" do
     service = FakeService.new(nil)
 
     result = CC::Service::Invocation.invoke(service) do |i|
       i.with :return_values, "error"
     end
 
-    assert_equal 1, service.receive_count
+    service.receive_count.should == 1
     assert_equal({ ok: false, message: "error" }, result)
   end
 
-  def test_retries
+  it "retries" do
     service = FakeService.new
     service.fake_error = RuntimeError.new
     error_occurred = false
@@ -45,22 +45,22 @@ class TestInvocation < Test::Unit::TestCase
       error_occurred = true
     end
 
-    assert error_occurred
-    assert_equal 1 + 3, service.receive_count
+    error_occurred.should.not == nil
+    service.receive_count.should == 1 + 3
   end
 
-  def test_metrics
+  it "metrics" do
     statsd = FakeStatsd.new
 
     CC::Service::Invocation.invoke(FakeService.new) do |i|
       i.with :metrics, statsd, "a_prefix"
     end
 
-    assert_equal 1, statsd.incremented_keys.length
-    assert_equal "services.invocations.a_prefix", statsd.incremented_keys.first
+    statsd.incremented_keys.length.should == 1
+    statsd.incremented_keys.first.should == "services.invocations.a_prefix"
   end
 
-  def test_metrics_on_errors
+  it "metrics on errors" do
     statsd = FakeStatsd.new
     service = FakeService.new
     service.fake_error = RuntimeError.new
@@ -74,12 +74,12 @@ class TestInvocation < Test::Unit::TestCase
       error_occurred = true
     end
 
-    assert error_occurred
-    assert_equal 1, statsd.incremented_keys.length
+    error_occurred.should.not == nil
+    statsd.incremented_keys.length.should == 1
     assert_match(/^services\.errors\.a_prefix/, statsd.incremented_keys.first)
   end
 
-  def test_user_message
+  it "user message" do
     service = FakeService.new
     service.fake_error = CC::Service::HTTPError.new("Boom", {})
     service.override_user_message = "Hey do this"
@@ -89,11 +89,11 @@ class TestInvocation < Test::Unit::TestCase
       i.with :error_handling, logger, "a_prefix"
     end
 
-    assert_equal "Hey do this", result[:message]
+    result[:message].should == "Hey do this"
     assert_match(/Boom/, result[:log_message])
   end
 
-  def test_error_handling
+  it "error handling" do
     service = FakeService.new
     service.fake_error = RuntimeError.new("Boom")
     logger = FakeLogger.new
@@ -103,11 +103,11 @@ class TestInvocation < Test::Unit::TestCase
     end
 
     assert_equal({ ok: false, message: "Boom", log_message: "Exception invoking service: [a_prefix] (RuntimeError) Boom" }, result)
-    assert_equal 1, logger.logged_errors.length
+    logger.logged_errors.length.should == 1
     assert_match(/^Exception invoking service: \[a_prefix\]/, logger.logged_errors.first)
   end
 
-  def test_multiple_middleware
+  it "multiple middleware" do
     service = FakeService.new
     service.fake_error = RuntimeError.new("Boom")
     logger = FakeLogger.new
@@ -118,8 +118,8 @@ class TestInvocation < Test::Unit::TestCase
     end
 
     assert_equal({ ok: false, message: "Boom", log_message: "Exception invoking service: (RuntimeError) Boom" }, result)
-    assert_equal 1 + 3, service.receive_count
-    assert_equal 1, logger.logged_errors.length
+    service.receive_count.should == 1 + 3
+    logger.logged_errors.length.should == 1
   end
 
   private

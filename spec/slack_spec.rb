@@ -3,7 +3,7 @@
 require File.expand_path("../helper", __FILE__)
 
 class TestSlack < CC::Service::TestCase
-  def test_test_hook
+  it "test hook" do
     assert_slack_receives(
       nil,
       { name: "test", repo_name: "rails" },
@@ -11,7 +11,7 @@ class TestSlack < CC::Service::TestCase
     )
   end
 
-  def test_coverage_improved
+  it "coverage improved" do
     e = event(:coverage, to: 90.2, from: 80)
 
     assert_slack_receives("#38ae6f", e, [
@@ -22,7 +22,7 @@ class TestSlack < CC::Service::TestCase
     ].join(" "))
   end
 
-  def test_coverage_declined
+  it "coverage declined" do
     e = event(:coverage, to: 88.6, from: 94.6)
 
     assert_slack_receives("#ed2f00", e, [
@@ -33,7 +33,7 @@ class TestSlack < CC::Service::TestCase
     ].join(" "))
   end
 
-  def test_single_vulnerability
+  it "single vulnerability" do
     e = event(:vulnerability, vulnerabilities: [
                 { "warning_type" => "critical" },
               ])
@@ -45,7 +45,7 @@ class TestSlack < CC::Service::TestCase
     ].join(" "))
   end
 
-  def test_single_vulnerability_with_location
+  it "single vulnerability with location" do
     e = event(:vulnerability, vulnerabilities: [{
                 "warning_type" => "critical",
                 "location" => "app/user.rb line 120",
@@ -58,7 +58,7 @@ class TestSlack < CC::Service::TestCase
     ].join(" "))
   end
 
-  def test_multiple_vulnerabilities
+  it "multiple vulnerabilities" do
     e = event(:vulnerability, warning_type: "critical", vulnerabilities: [{
                 "warning_type" => "unused",
                 "location" => "unused",
@@ -74,7 +74,7 @@ class TestSlack < CC::Service::TestCase
     ].join(" "))
   end
 
-  def test_quality_alert_with_new_constants
+  it "quality alert with new constants" do
     data = { "name" => "snapshot", "repo_name" => "Rails",
              "new_constants" => [{ "name" => "Foo", "to" => { "rating" => "D" } }, { "name" => "bar.js", "to" => { "rating" => "F" } }],
              "changed_constants" => [],
@@ -86,10 +86,10 @@ class TestSlack < CC::Service::TestCase
 • _Foo_ was just created and is a *D*
 • _bar.js_ was just created and is an *F*""")
 
-    assert response[:ok]
+    response[:ok].should.not == nil
   end
 
-  def test_quality_alert_with_new_constants_and_declined_constants
+  it "quality alert with new constants and declined constants" do
     data = { "name" => "snapshot", "repo_name" => "Rails",
              "new_constants" => [{ "name" => "Foo", "to" => { "rating" => "D" } }],
              "changed_constants" => [{ "name" => "bar.js", "from" => { "rating" => "A" }, "to" => { "rating" => "F" } }],
@@ -102,7 +102,7 @@ class TestSlack < CC::Service::TestCase
 • _bar.js_ just declined from an *A* to an *F*""")
   end
 
-  def test_quality_alert_with_new_constants_and_declined_constants_overflown
+  it "quality alert with new constants and declined constants overflown" do
     data = { "name" => "snapshot", "repo_name" => "Rails",
              "new_constants" => [{ "name" => "Foo", "to" => { "rating" => "D" } }],
              "changed_constants" => [
@@ -123,7 +123,7 @@ class TestSlack < CC::Service::TestCase
 And <https://codeclimate.com/repos/1/feed|1 other change>""")
   end
 
-  def test_quality_improvements
+  it "quality improvements" do
     data = { "name" => "snapshot", "repo_name" => "Rails",
              "new_constants" => [],
              "changed_constants" => [
@@ -138,7 +138,7 @@ And <https://codeclimate.com/repos/1/feed|1 other change>""")
 • _bar.js_ just improved from an *F* to an *A*""")
   end
 
-  def test_quality_improvements_overflown
+  it "quality improvements overflown" do
     data = { "name" => "snapshot", "repo_name" => "Rails",
              "new_constants" => [],
              "changed_constants" => [
@@ -160,34 +160,34 @@ And <https://codeclimate.com/repos/1/feed|1 other change>""")
 And <https://codeclimate.com/repos/1/feed|1 other improvement>""")
   end
 
-  def test_received_success
+  it "received success" do
     response = assert_slack_receives(
       nil,
       { name: "test", repo_name: "rails" },
       "[rails] This is a test of the Slack service hook",
     )
-    assert_true response[:ok]
-    assert_equal "Test message sent", response[:message]
+    response[:ok].should == true
+    response[:message].should == "Test message sent"
   end
 
-  def test_receive_test
+  it "receive test" do
     @stubs.post "/token" do |_env|
       [200, {}, "ok"]
     end
 
     response = receive_event(name: "test")
 
-    assert_equal "Test message sent", response[:message]
+    response[:message].should == "Test message sent"
   end
 
-  def test_no_changes_in_snapshot
+  it "no changes in snapshot" do
     data = { "name" => "snapshot", "repo_name" => "Rails",
              "new_constants" => [],
              "changed_constants" => [] }
     response = receive_event(data)
 
-    assert_equal false, response[:ok]
-    assert response[:ignored]
+    response[:ok].should == false
+    response[:ignored].should.not == nil
   end
 
   private
@@ -197,9 +197,9 @@ And <https://codeclimate.com/repos/1/feed|1 other improvement>""")
       body = JSON.parse(env[:body])
       attachment = body["attachments"].first
       field = attachment["fields"].first
-      assert_equal color, attachment["color"] # may be nil
-      assert_equal expected_body, attachment["fallback"]
-      assert_equal expected_body, field["value"]
+      attachment["color"] # may be nil.should == color
+      attachment["fallback"].should == expected_body
+      field["value"].should == expected_body
       [200, {}, "ok"]
     end
     receive_event(event_data)

@@ -1,10 +1,10 @@
 require File.expand_path("../helper", __FILE__)
 
 class TestFlowdock < CC::Service::TestCase
-  def test_valid_project_parameter
+  it "valid project parameter" do
     @stubs.post "/v1/messages/team_inbox/token" do |env|
       body = Hash[URI.decode_www_form(env[:body])]
-      assert_equal "Exampleorg", body["project"]
+      body["project"].should == "Exampleorg"
       [200, {}, ""]
     end
 
@@ -15,7 +15,7 @@ class TestFlowdock < CC::Service::TestCase
     )
   end
 
-  def test_test_hook
+  it "test hook" do
     assert_flowdock_receives(
       "Test",
       { name: "test", repo_name: "Example" },
@@ -23,7 +23,7 @@ class TestFlowdock < CC::Service::TestCase
     )
   end
 
-  def test_coverage_improved
+  it "coverage improved" do
     e = event(:coverage, to: 90.2, from: 80)
 
     assert_flowdock_receives("Coverage", e, [
@@ -33,7 +33,7 @@ class TestFlowdock < CC::Service::TestCase
     ].join(" "))
   end
 
-  def test_coverage_declined
+  it "coverage declined" do
     e = event(:coverage, to: 88.6, from: 94.6)
 
     assert_flowdock_receives("Coverage", e, [
@@ -43,7 +43,7 @@ class TestFlowdock < CC::Service::TestCase
     ].join(" "))
   end
 
-  def test_quality_improved
+  it "quality improved" do
     e = event(:quality, to: "A", from: "B")
 
     assert_flowdock_receives("Quality", e, [
@@ -53,7 +53,7 @@ class TestFlowdock < CC::Service::TestCase
     ].join(" "))
   end
 
-  def test_quality_declined
+  it "quality declined" do
     e = event(:quality, to: "D", from: "C")
 
     assert_flowdock_receives("Quality", e, [
@@ -63,7 +63,7 @@ class TestFlowdock < CC::Service::TestCase
     ].join(" "))
   end
 
-  def test_single_vulnerability
+  it "single vulnerability" do
     e = event(:vulnerability, vulnerabilities: [
                 { "warning_type" => "critical" },
               ])
@@ -74,7 +74,7 @@ class TestFlowdock < CC::Service::TestCase
     ].join(" "))
   end
 
-  def test_single_vulnerability_with_location
+  it "single vulnerability with location" do
     e = event(:vulnerability, vulnerabilities: [{
                 "warning_type" => "critical",
                 "location" => "app/user.rb line 120",
@@ -86,7 +86,7 @@ class TestFlowdock < CC::Service::TestCase
     ].join(" "))
   end
 
-  def test_multiple_vulnerabilities
+  it "multiple vulnerabilities" do
     e = event(:vulnerability, warning_type: "critical", vulnerabilities: [{
                 "warning_type" => "unused",
                 "location" => "unused",
@@ -101,14 +101,14 @@ class TestFlowdock < CC::Service::TestCase
     ].join(" "))
   end
 
-  def test_receive_test
+  it "receive test" do
     @stubs.post request_url do |_env|
       [200, {}, ""]
     end
 
     response = receive_event(name: "test", repo_name: "foo")
 
-    assert_equal "Test message sent", response[:message]
+    response[:message].should == "Test message sent"
   end
 
   private
@@ -128,14 +128,14 @@ class TestFlowdock < CC::Service::TestCase
   def assert_flowdock_receives(subject, event_data, expected_body)
     @stubs.post request_url do |env|
       body = Hash[URI.decode_www_form(env[:body])]
-      assert_equal "Code Climate", body["source"]
-      assert_equal "hello@codeclimate.com", body["from_address"]
-      assert_equal "Code Climate", body["from_name"]
-      assert_equal "html", body["format"]
-      assert_equal subject, body["subject"]
-      assert_equal "Example", body["project"]
-      assert_equal expected_body, body["content"]
-      assert_equal "https://codeclimate.com", body["link"]
+      body["source"].should == "Code Climate"
+      body["from_address"].should == "hello@codeclimate.com"
+      body["from_name"].should == "Code Climate"
+      body["format"].should == "html"
+      body["subject"].should == subject
+      body["project"].should == "Example"
+      body["content"].should == expected_body
+      body["link"].should == "https://codeclimate.com"
       [200, {}, ""]
     end
 

@@ -1,7 +1,7 @@
 require File.expand_path("../helper", __FILE__)
 
 class TestStashPullRequests < CC::Service::TestCase
-  def test_receive_test
+  it "receive test" do
     @stubs.get "/rest/api/1.0/users" do
       [200, {}, "{ 'values': [] }"]
     end
@@ -11,7 +11,7 @@ class TestStashPullRequests < CC::Service::TestCase
     assert_equal({ ok: true, message: "Test succeeded" }, response)
   end
 
-  def test_failed_receive_test
+  it "failed receive test" do
     @stubs.get "/rest/api/1.0/users" do
       [401, {}, ""]
     end
@@ -21,7 +21,7 @@ class TestStashPullRequests < CC::Service::TestCase
     assert_equal({ ok: false, message: "API request unsuccessful (401)" }, response)
   end
 
-  def test_pull_request_status_pending
+  it "pull request status pending" do
     expect_status_update("abc123", "state" => "INPROGRESS",
                                    "description" => /is analyzing/)
 
@@ -31,7 +31,7 @@ class TestStashPullRequests < CC::Service::TestCase
     )
   end
 
-  def test_pull_request_status_success_detailed
+  it "pull request status success detailed" do
     expect_status_update("abc123", "state" => "SUCCESSFUL",
       "description" => "Code Climate found 2 new issues and 1 fixed issue.")
 
@@ -41,7 +41,7 @@ class TestStashPullRequests < CC::Service::TestCase
     )
   end
 
-  def test_pull_request_status_failure
+  it "pull request status failure" do
     expect_status_update("abc123", "state" => "FAILED",
       "description" => "Code Climate found 2 new issues and 1 fixed issue.")
 
@@ -51,7 +51,7 @@ class TestStashPullRequests < CC::Service::TestCase
     )
   end
 
-  def test_pull_request_status_error
+  it "pull request status error" do
     expect_status_update("abc123", "state" => "FAILED",
       "description" => "Code Climate encountered an error attempting to analyze this pull request.")
 
@@ -61,7 +61,7 @@ class TestStashPullRequests < CC::Service::TestCase
     )
   end
 
-  def test_pull_request_status_error_message_provided
+  it "pull request status error message provided" do
     message = "Everything broke."
 
     expect_status_update("abc123", "state" => "FAILED",
@@ -74,7 +74,7 @@ class TestStashPullRequests < CC::Service::TestCase
     )
   end
 
-  def test_pull_request_status_skipped
+  it "pull request status skipped" do
     expect_status_update("abc123", "state" => "SUCCESSFUL",
       "description" => "Code Climate has skipped analysis of this commit.")
 
@@ -84,7 +84,7 @@ class TestStashPullRequests < CC::Service::TestCase
     )
   end
 
-  def test_failed_receive_pull_request
+  it "failed receive pull request" do
     commit_sha = "abc123"
 
     @stubs.post("/rest/build-status/1.0/commits/#{commit_sha}") do
@@ -106,7 +106,7 @@ class TestStashPullRequests < CC::Service::TestCase
       body = JSON.parse(env[:body])
 
       params.each do |k, v|
-        assert v === body[k],
+        v.should === body[k],
           "Unexpected value for #{k}. #{v.inspect} !== #{body[k].inspect}"
       end
     end

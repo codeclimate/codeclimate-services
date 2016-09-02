@@ -1,19 +1,19 @@
 require File.expand_path("../helper", __FILE__)
 
 class TestService < CC::Service::TestCase
-  def test_validates_events
+  it "validates events" do
     assert_raises(ArgumentError) do
       CC::Service.new(:foo, {}, {}, {})
     end
   end
 
-  def test_default_path_to_ca_file
+  it "default path to ca file" do
     s = CC::Service.new({}, name: "test")
     assert_equal(File.expand_path("../../config/cacert.pem", __FILE__), s.ca_file)
-    assert File.exist?(s.ca_file)
+    File.exist?(s.ca_file).should.not == nil
   end
 
-  def test_custom_path_to_ca_file
+  it "custom path to ca file" do
     ENV["CODECLIMATE_CA_FILE"] = "/tmp/cacert.pem"
     s = CC::Service.new({}, name: "test")
     assert_equal("/tmp/cacert.pem", s.ca_file)
@@ -21,17 +21,17 @@ class TestService < CC::Service::TestCase
     ENV.delete("CODECLIMATE_CA_FILE")
   end
 
-  def test_nothing_has_a_handler
+  it "nothing has a handler" do
     service = CC::Service.new({}, name: "test")
 
     result = service.receive
 
-    assert_equal false, result[:ok]
-    assert_true true, result[:ignored]
-    assert_equal "No service handler found", result[:message]
+    result[:ok].should == false
+    true, result[:ignored].should == true
+    result[:message].should == "No service handler found"
   end
 
-  def test_post_success
+  it "post success" do
     stub_http("/my/test/url", [200, {}, '{"ok": true, "thing": "123"}'])
 
     response = service_post("/my/test/url", { token: "1234" }.to_json, {}) do |inner_response|
@@ -39,13 +39,13 @@ class TestService < CC::Service::TestCase
       { thing: body["thing"] }
     end
 
-    assert_true response[:ok]
-    assert_equal '{"token":"1234"}', response[:params]
-    assert_equal "/my/test/url", response[:endpoint_url]
-    assert_equal 200, response[:status]
+    response[:ok].should == true
+    response[:params].should == '{"token":"1234"}'
+    response[:endpoint_url].should == "/my/test/url"
+    response[:status].should == 200
   end
 
-  def test_post_redirect_success
+  it "post redirect success" do
     stub_http("/my/test/url", [307, { "Location" => "/my/redirect/url" }, '{"ok": false, "redirect": true}'])
     stub_http("/my/redirect/url", [200, {}, '{"ok": true, "thing": "123"}'])
 
@@ -54,13 +54,13 @@ class TestService < CC::Service::TestCase
       { thing: body["thing"] }
     end
 
-    assert_true response[:ok]
-    assert_equal '{"token":"1234"}', response[:params]
-    assert_equal "/my/test/url", response[:endpoint_url]
-    assert_equal 200, response[:status]
+    response[:ok].should == true
+    response[:params].should == '{"token":"1234"}'
+    response[:endpoint_url].should == "/my/test/url"
+    response[:status].should == 200
   end
 
-  def test_post_http_failure
+  it "post http failure" do
     stub_http("/my/wrong/url", [404, {}, ""])
 
     assert_raises(CC::Service::HTTPError) do
@@ -68,7 +68,7 @@ class TestService < CC::Service::TestCase
     end
   end
 
-  def test_post_some_other_failure
+  it "post some other failure" do
     stub_http("/my/wrong/url") { raise ArgumentError, "lol" }
 
     assert_raises(ArgumentError) do
@@ -76,9 +76,9 @@ class TestService < CC::Service::TestCase
     end
   end
 
-  def test_services
+  it "services" do
     services = CC::Service.services
 
-    assert !services.include?(CC::PullRequests)
+    services.include?(CC::PullRequests).should.not == true
   end
 end
