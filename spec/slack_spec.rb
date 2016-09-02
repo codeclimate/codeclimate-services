@@ -1,6 +1,5 @@
 # encoding: UTF-8
 
-require File.expand_path("../helper", __FILE__)
 
 class TestSlack < CC::Service::TestCase
   it "test hook" do

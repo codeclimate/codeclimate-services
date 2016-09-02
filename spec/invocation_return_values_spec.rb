@@ -1,4 +1,3 @@
-require File.expand_path("../helper", __FILE__)
 
 class InvocationReturnValuesTest < CC::Service::TestCase
   it "success returns upstream result" do

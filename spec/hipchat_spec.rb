@@ -1,4 +1,3 @@
-require File.expand_path("../helper", __FILE__)
 
 class TestHipChat < CC::Service::TestCase
   it "test hook" do

@@ -1,4 +1,3 @@
-require File.expand_path("../helper", __FILE__)
 
 class TestStashPullRequests < CC::Service::TestCase
   it "receive test" do

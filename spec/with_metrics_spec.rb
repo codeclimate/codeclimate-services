@@ -1,6 +1,5 @@
 # encoding: UTF-8
 
-require File.expand_path("../helper", __FILE__)
 
 class WithMetrics < CC::Service::TestCase
   class FakeInvocation

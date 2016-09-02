@@ -1,4 +1,3 @@
-require File.expand_path("../helper", __FILE__)
 
 class TestGitHubIssues < CC::Service::TestCase
   it "creation success" do

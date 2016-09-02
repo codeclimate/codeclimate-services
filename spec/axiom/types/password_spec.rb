@@ -1,4 +1,3 @@
-require File.expand_path("../../../helper", __FILE__)
 
 class Axiom::Types::PasswordTest < CC::Service::TestCase
   class TestConfiguration < CC::Service::Config

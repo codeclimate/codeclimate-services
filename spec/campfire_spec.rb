@@ -1,4 +1,3 @@
-require File.expand_path("../helper", __FILE__)
 
 class TestCampfire < CC::Service::TestCase
   it "config" do

@@ -1,4 +1,3 @@
-require File.expand_path("../helper", __FILE__)
 
 class TestLighthouse < CC::Service::TestCase
   it "quality" do

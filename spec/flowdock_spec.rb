@@ -1,4 +1,3 @@
-require File.expand_path("../helper", __FILE__)
 
 class TestFlowdock < CC::Service::TestCase
   it "valid project parameter" do

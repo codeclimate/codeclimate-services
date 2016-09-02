@@ -1,4 +1,3 @@
-require File.expand_path("../helper", __FILE__)
 
 class TestGitlabMergeRequests < CC::Service::TestCase
   it "merge request status pending" do
