@@ -1,4 +1,4 @@
-describe "Invocation error handling" do
+describe CC::Service::Invocation::WithErrorHandling do
   it "success returns upstream result" do
     handler = CC::Service::Invocation::WithErrorHandling.new(
       -> { :success },
