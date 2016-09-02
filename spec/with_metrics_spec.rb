@@ -1,7 +1,4 @@
-# encoding: UTF-8
-
-
-class WithMetrics < CC::Service::TestCase
+describe WithMetrics, type: :service do
   class FakeInvocation
     def call
       raise CC::Service::HTTPError.new("Whoa", {})

@@ -1,6 +1,6 @@
 require "helper"
 
-class TestSnapshotFormatter < Test::Unit::TestCase
+describe SnapshotFormatter do
   def described_class
     CC::Formatters::SnapshotFormatter::Base
   end

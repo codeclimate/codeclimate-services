@@ -1,5 +1,4 @@
-
-class TestInvocation < Test::Unit::TestCase
+describe Invocation do
   it "success" do
     service = FakeService.new(:some_result)
 

@@ -42,5 +42,5 @@ RSpec.configure do |config|
   # be too noisy due to issues in dependencies.
   config.warnings = true
 
-  config.include Rspec::ServiceContext, type: :service
+  config.include RSpec::ServiceContext, type: :service
 end

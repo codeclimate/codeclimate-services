@@ -1,5 +1,4 @@
-
-class InvocationErrorHandling < CC::Service::TestCase
+describe "Invocation error handling" do
   it "success returns upstream result" do
     handler = CC::Service::Invocation::WithErrorHandling.new(
       -> { :success },

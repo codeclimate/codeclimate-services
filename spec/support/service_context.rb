@@ -1,4 +1,4 @@
-module Rspec::ServiceContext
+module RSpec::ServiceContext
   before do
     @stubs = Faraday::Adapter::Test::Stubs.new
 

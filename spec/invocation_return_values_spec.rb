@@ -1,5 +1,4 @@
-
-class InvocationReturnValuesTest < CC::Service::TestCase
+describe "Invocation return values" do
   it "success returns upstream result" do
     handler = CC::Service::Invocation::WithReturnValues.new(
       -> { :return_value },

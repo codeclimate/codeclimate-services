@@ -1,5 +1,4 @@
-
-class Axiom::Types::PasswordTest < CC::Service::TestCase
+describe Axiom::Types::Password do
   class TestConfiguration < CC::Service::Config
     attribute :password_attribute, Password
     attribute :string_attribute, String
