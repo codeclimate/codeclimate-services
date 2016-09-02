@@ -148,7 +148,7 @@ describe CC::Service::GitHubPullRequests, type: :service do
   end
 
   def receive_pull_request(config, event_data)
-    receive(
+    service_receive(
       CC::Service::GitHubPullRequests,
       { oauth_token: "123" }.merge(config),
       { name: "pull_request", issue_comparison_counts: { "fixed" => 1, "new" => 2 } }.merge(event_data),
@@ -156,7 +156,7 @@ describe CC::Service::GitHubPullRequests, type: :service do
   end
 
   def receive_pull_request_coverage(config, event_data)
-    receive(
+    service_receive(
       CC::Service::GitHubPullRequests,
       { oauth_token: "123" }.merge(config),
       { name: "pull_request_coverage", issue_comparison_counts: { "fixed" => 1, "new" => 2 } }.merge(event_data),
@@ -164,7 +164,7 @@ describe CC::Service::GitHubPullRequests, type: :service do
   end
 
   def receive_test(config, event_data = {})
-    receive(
+    service_receive(
       CC::Service::GitHubPullRequests,
       { oauth_token: "123" }.merge(config),
       { name: "test", issue_comparison_counts: { "fixed" => 1, "new" => 2 } }.merge(event_data),

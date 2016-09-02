@@ -61,7 +61,7 @@ describe CC::Service::PivotalTracker, type: :service do
   end
 
   def receive_event(event_data = nil)
-    receive(
+    service_receive(
       CC::Service::PivotalTracker,
       { api_token: "token", project_id: "123" },
       event_data || event(:quality, from: "C", to: "D"),

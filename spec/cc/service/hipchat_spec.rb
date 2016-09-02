@@ -119,7 +119,7 @@ describe CC::Service::HipChat, type: :service do
   end
 
   def receive_event(event_data = nil)
-    receive(
+    service_receive(
       CC::Service::HipChat,
       { auth_token: "token", room_id: "123", notify: true },
       event_data || event(:quality, from: "C", to: "D"),

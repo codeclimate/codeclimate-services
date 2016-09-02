@@ -70,7 +70,7 @@ describe CC::Service::Jira, type: :service do
   end
 
   def receive_event(event_data = nil)
-    receive(
+    service_receive(
       CC::Service::Jira,
       { domain: "foo.com", username: "foo", password: "bar", project_id: "100" },
       event_data || event(:quality, from: "C", to: "D"),

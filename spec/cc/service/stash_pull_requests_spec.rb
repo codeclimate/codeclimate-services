@@ -115,7 +115,7 @@ describe CC::Service::StashPullRequests, type: :service do
   end
 
   def receive_pull_request(event_data, config = {})
-    receive(
+    service_receive(
       CC::Service::StashPullRequests,
       default_config.merge(config),
       { name: "pull_request", issue_comparison_counts: { "fixed" => 1, "new" => 2 } }.merge(event_data),
@@ -123,7 +123,7 @@ describe CC::Service::StashPullRequests, type: :service do
   end
 
   def receive_test(config = {}, event_data = {})
-    receive(
+    service_receive(
       CC::Service::StashPullRequests,
       default_config.merge(config),
       { name: "test" }.merge(event_data),

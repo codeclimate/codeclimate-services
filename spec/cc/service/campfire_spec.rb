@@ -131,7 +131,7 @@ describe CC::Service::Campfire, type: :service do
   end
 
   def receive_event(event_data = nil)
-    receive(
+    service_receive(
       CC::Service::Campfire,
       { token: "token", subdomain: subdomain, room_id: room },
       event_data || event(:quality, to: "D", from: "C"),

@@ -202,7 +202,7 @@ And <https://codeclimate.com/repos/1/feed|1 other improvement>""")
   end
 
   def receive_event(event_data = nil)
-    receive(
+    service_receive(
       CC::Service::Slack,
       { webhook_url: "http://api.slack.com/token", channel: "#general" },
       event_data || event(:quality, from: "C", to: "D"),

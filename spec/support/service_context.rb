@@ -15,7 +15,7 @@ RSpec.shared_examples "Service Context", type: :service do
     service
   end
 
-  def receive(*args)
+  def service_receive(*args)
     service(*args).receive
   end
 

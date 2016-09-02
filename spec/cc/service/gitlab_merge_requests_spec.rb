@@ -157,7 +157,7 @@ describe CC::Service::GitlabMergeRequests, type: :service do
   end
 
   def receive_merge_request(config, event_data)
-    receive(
+    service_receive(
       CC::Service::GitlabMergeRequests,
       { access_token: "123" }.merge(config),
       { name: "pull_request", issue_comparison_counts: { "fixed" => 1, "new" => 2 } }.merge(event_data),
@@ -165,7 +165,7 @@ describe CC::Service::GitlabMergeRequests, type: :service do
   end
 
   def receive_merge_request_coverage(config, event_data)
-    receive(
+    service_receive(
       CC::Service::GitlabMergeRequests,
       { access_token: "123" }.merge(config),
       { name: "pull_request_coverage", issue_comparison_counts: { "fixed" => 1, "new" => 2 } }.merge(event_data),
@@ -173,7 +173,7 @@ describe CC::Service::GitlabMergeRequests, type: :service do
   end
 
   def receive_test(config, event_data = {})
-    receive(
+    service_receive(
       CC::Service::GitlabMergeRequests,
       { oauth_token: "123" }.merge(config),
       { name: "test", issue_comparison_counts: { "fixed" => 1, "new" => 2 } }.merge(event_data),

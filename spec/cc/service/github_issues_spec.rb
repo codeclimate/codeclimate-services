@@ -104,7 +104,7 @@ describe CC::Service::GitHubIssues, type: :service do
   end
 
   def receive_event(event_data = nil, config = {})
-    receive(
+    service_receive(
       CC::Service::GitHubIssues,
       { oauth_token: "123", project: project }.merge(config),
       event_data || event(:quality, from: "D", to: "C"),

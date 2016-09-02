@@ -6,7 +6,7 @@ describe CC::Service::Flowdock, type: :service do
       [200, {}, ""]
     end
 
-    receive(
+    service_receive(
       CC::Service::Flowdock,
       { api_token: "token" },
       name: "test", repo_name: "Example.org",
@@ -141,6 +141,6 @@ describe CC::Service::Flowdock, type: :service do
   end
 
   def receive_event(event_data = nil)
-    receive(CC::Service::Flowdock, { api_token: "token" }, event_data || event(:quality, from: "D", to: "C"))
+    service_receive(CC::Service::Flowdock, { api_token: "token" }, event_data || event(:quality, from: "D", to: "C"))
   end
 end
