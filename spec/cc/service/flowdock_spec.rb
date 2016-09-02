@@ -1,9 +1,8 @@
-
-describe Flowdock, type: :service do
+describe CC::Service::Flowdock, type: :service do
   it "valid project parameter" do
-    @stubs.post "/v1/messages/team_inbox/token" do |env|
+    http_stubs.post "/v1/messages/team_inbox/token" do |env|
       body = Hash[URI.decode_www_form(env[:body])]
-      body["project"].should == "Exampleorg"
+      expect(body["project"]).to eq("Exampleorg")
       [200, {}, ""]
     end
 
@@ -101,13 +100,13 @@ describe Flowdock, type: :service do
   end
 
   it "receive test" do
-    @stubs.post request_url do |_env|
+    http_stubs.post request_url do |_env|
       [200, {}, ""]
     end
 
     response = receive_event(name: "test", repo_name: "foo")
 
-    response[:message].should == "Test message sent"
+    expect(response[:message]).to eq("Test message sent")
   end
 
   private
@@ -125,16 +124,16 @@ describe Flowdock, type: :service do
   end
 
   def assert_flowdock_receives(subject, event_data, expected_body)
-    @stubs.post request_url do |env|
+    http_stubs.post request_url do |env|
       body = Hash[URI.decode_www_form(env[:body])]
-      body["source"].should == "Code Climate"
-      body["from_address"].should == "hello@codeclimate.com"
-      body["from_name"].should == "Code Climate"
-      body["format"].should == "html"
-      body["subject"].should == subject
-      body["project"].should == "Example"
-      body["content"].should == expected_body
-      body["link"].should == "https://codeclimate.com"
+      expect(body["source"]).to eq("Code Climate")
+      expect(body["from_address"]).to eq("hello@codeclimate.com")
+      expect(body["from_name"]).to eq("Code Climate")
+      expect(body["format"]).to eq("html")
+      expect(body["subject"]).to eq(subject)
+      expect(body["project"]).to eq("Example")
+      expect(body["content"]).to eq(expected_body)
+      expect(body["link"]).to eq("https://codeclimate.com")
       [200, {}, ""]
     end
 

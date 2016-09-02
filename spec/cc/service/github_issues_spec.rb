@@ -1,5 +1,4 @@
-
-describe GitHubIssues, type: :service do
+describe CC::Service::GitHubIssues, type: :service do
   it "creation success" do
     id = 1234
     number = 123
@@ -8,9 +7,9 @@ describe GitHubIssues, type: :service do
 
     response = receive_event
 
-    response[:id].should == id
-    response[:number].should == number
-    response[:url].should == url
+    expect(response[:id]).to eq(id)
+    expect(response[:number]).to eq(number)
+    expect(response[:url]).to eq(url)
   end
 
   it "quality" do
@@ -58,24 +57,24 @@ describe GitHubIssues, type: :service do
   end
 
   it "receive test" do
-    @stubs.post request_url do |_env|
+    http_stubs.post request_url do |_env|
       [200, {}, '{"number": 2, "html_url": "http://foo.bar"}']
     end
 
     response = receive_event(name: "test")
 
-    response[:message].should == "Issue <a href='http://foo.bar'>#2</a> created."
+    expect(response[:message]).to eq("Issue <a href='http://foo.bar'>#2</a> created.")
   end
 
   it "different base url" do
-    @stubs.post request_url do |env|
-      env[:url].to_s.should == "http://example.com/#{request_url}"
+    http_stubs.post request_url do |env|
+      expect(env[:url].to_s).to eq("http://example.com/#{request_url}")
       [200, {}, '{"number": 2, "html_url": "http://foo.bar"}']
     end
 
     response = receive_event({ name: "test" }, base_url: "http://example.com")
 
-    response[:message].should == "Issue <a href='http://foo.bar'>#2</a> created."
+    expect(response[:message]).to eq("Issue <a href='http://foo.bar'>#2</a> created.")
   end
 
   private
@@ -93,11 +92,11 @@ describe GitHubIssues, type: :service do
   end
 
   def assert_github_receives(event_data, title, ticket_body)
-    @stubs.post request_url do |env|
+    http_stubs.post request_url do |env|
       body = JSON.parse(env[:body])
-      env[:request_headers]["Authorization"].should == "token #{oauth_token}"
-      body["title"].should == title
-      body["body"].should == ticket_body
+      expect(env[:request_headers]["Authorization"]).to eq("token #{oauth_token}")
+      expect(body["title"]).to eq(title)
+      expect(body["body"]).to eq(ticket_body)
       [200, {}, "{}"]
     end
 

@@ -1,5 +1,4 @@
-
-describe GitHubPullRequests, type: :service do
+describe CC::Service::GitHubPullRequests, type: :service do
   it "pull request status pending" do
     expect_status_update("pbrisbin/foo", "abc123", "state" => "pending",
       "description" => /is analyzing/)
@@ -84,38 +83,36 @@ describe GitHubPullRequests, type: :service do
   end
 
   it "pull request status test success" do
-    @stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") { |_env| [422, {}, ""] }
+    http_stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") { |_env| [422, {}, ""] }
 
-    receive_test({}, github_slug: "pbrisbin/foo")[:ok], "Expected test of pull request to be true".should.not == nil
+    expect(receive_test({}, github_slug: "pbrisbin/foo")[:ok]).to eq(true)
   end
 
   it "pull request status test doesnt blow up when unused keys present in config" do
-    @stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") { |_env| [422, {}, ""] }
+    http_stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") { |_env| [422, {}, ""] }
 
-    receive_test({ wild_flamingo: true }, github_slug: "pbrisbin/foo")[:ok], "Expected test of pull request to be true".should.not == nil
+    expect(receive_test({ wild_flamingo: true }, github_slug: "pbrisbin/foo")[:ok]).to eq(true)
   end
 
   it "pull request status test failure" do
-    @stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") { |_env| [401, {}, ""] }
+    http_stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") { |_env| [401, {}, ""] }
 
-    assert_raises(CC::Service::HTTPError) do
-      receive_test({}, github_slug: "pbrisbin/foo")
-    end
+    expect { receive_test({}, github_slug: "pbrisbin/foo") }.to raise_error(CC::Service::HTTPError)
   end
 
   it "pull request unknown state" do
     response = receive_pull_request({}, state: "unknown")
 
-    assert_equal({ ok: false, message: "Unknown state" }, response)
+    expect({ ok: false, message: "Unknown state" }).to eq(response)
   end
 
   it "different base url" do
-    @stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") do |env|
-      env[:url].to_s.should == "http://example.com/repos/pbrisbin/foo/statuses/#{"0" * 40}"
+    http_stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") do |env|
+      expect(env[:url].to_s).to eq("http://example.com/repos/pbrisbin/foo/statuses/#{"0" * 40}")
       [422, { "x-oauth-scopes" => "gist, user, repo" }, ""]
     end
 
-    receive_test({ base_url: "http://example.com" }, github_slug: "pbrisbin/foo")[:ok], "Expected test of pull request to be true".should.not == nil
+    expect(receive_test({ base_url: "http://example.com" }, github_slug: "pbrisbin/foo")[:ok]).to eq(true)
   end
 
   it "default context" do
@@ -139,14 +136,13 @@ describe GitHubPullRequests, type: :service do
   private
 
   def expect_status_update(repo, commit_sha, params)
-    @stubs.post "repos/#{repo}/statuses/#{commit_sha}" do |env|
-      env[:request_headers]["Authorization"].should == "token 123"
+    http_stubs.post "repos/#{repo}/statuses/#{commit_sha}" do |env|
+      expect(env[:request_headers]["Authorization"]).to eq("token 123")
 
       body = JSON.parse(env[:body])
 
       params.each do |k, v|
-        v.should === body[k],
-          "Unexpected value for #{k}. #{v.inspect} !== #{body[k].inspect}"
+        expect(v).to match(body[k])
       end
     end
   end
