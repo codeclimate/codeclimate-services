@@ -1,34 +1,32 @@
-require "helper"
-
-class TestSnapshotFormatter < Test::Unit::TestCase
+describe CC::Formatters::SnapshotFormatter do
   def described_class
     CC::Formatters::SnapshotFormatter::Base
   end
 
-  def test_quality_alert_with_new_constants
+  it "quality alert with new constants" do
     f = described_class.new("new_constants" => [{ "to" => { "rating" => "D" } }], "changed_constants" => [])
-    refute_nil f.alert_constants_payload
+    expect(f.alert_constants_payload).not_to be_nil
   end
 
-  def test_quality_alert_with_decreased_constants
+  it "quality alert with decreased constants" do
     f = described_class.new("new_constants" => [],
                             "changed_constants" => [{ "to" => { "rating" => "D" }, "from" => { "rating" => "A" } }])
-    refute_nil f.alert_constants_payload
+    expect(f.alert_constants_payload).not_to be_nil
   end
 
-  def test_quality_improvements_with_better_ratings
+  it "quality improvements with better ratings" do
     f = described_class.new("new_constants" => [],
                             "changed_constants" => [{ "to" => { "rating" => "A" }, "from" => { "rating" => "D" } }])
-    refute_nil f.improved_constants_payload
+    expect(f.improved_constants_payload).not_to be_nil
   end
 
-  def test_nothing_set_without_changes
+  it "nothing set without changes" do
     f = described_class.new("new_constants" => [], "changed_constants" => [])
-    assert_nil f.alert_constants_payload
-    assert_nil f.improved_constants_payload
+    expect(f.alert_constants_payload).to be_nil
+    expect(f.improved_constants_payload).to be_nil
   end
 
-  def test_snapshot_formatter_test_with_relaxed_constraints
+  it "snapshot formatter test with relaxed constraints" do
     f = CC::Formatters::SnapshotFormatter::Sample.new(
       "new_constants" => [{ "name" => "foo", "to" => { "rating" => "A" } }, { "name" => "bar", "to" => { "rating" => "A" } }],
       "changed_constants" => [
@@ -40,7 +38,7 @@ class TestSnapshotFormatter < Test::Unit::TestCase
       ],
     )
 
-    refute_nil f.alert_constants_payload
-    refute_nil f.improved_constants_payload
+    expect(f.alert_constants_payload).not_to be_nil
+    expect(f.improved_constants_payload).not_to be_nil
   end
 end

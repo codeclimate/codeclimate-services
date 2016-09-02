@@ -1,18 +1,15 @@
-require File.expand_path("../helper", __FILE__)
-
-class TestLighthouse < CC::Service::TestCase
-  def test_quality
+describe CC::Service::Lighthouse, type: :service do
+  it "quality" do
     response = assert_lighthouse_receives(
       event(:quality, to: "D", from: "C"),
       "Refactor User from a D on Code Climate",
       "https://codeclimate.com/repos/1/feed",
     )
-    assert_equal "123", response[:id]
-    assert_equal "http://lighthouse.com/projects/123/tickets/123.json",
-      response[:url]
+    expect(response[:id]).to eq("123")
+    expect("http://lighthouse.com/projects/123/tickets/123.json").to eq(response[:url])
   end
 
-  def test_vulnerability
+  it "vulnerability" do
     assert_lighthouse_receives(
       event(:vulnerability, vulnerabilities: [{
               "warning_type" => "critical",
@@ -23,7 +20,7 @@ class TestLighthouse < CC::Service::TestCase
     )
   end
 
-  def test_issue
+  it "issue" do
     payload = {
       issue: {
         "check_name" => "Style/LongLine",
@@ -40,24 +37,24 @@ class TestLighthouse < CC::Service::TestCase
     )
   end
 
-  def test_receive_test
-    @stubs.post "projects/123/tickets.json" do |_env|
+  it "receive test" do
+    http_stubs.post "projects/123/tickets.json" do |_env|
       [200, {}, '{"ticket":{"number": "123", "url":"http://foo.bar"}}']
     end
 
     response = receive_event(name: "test")
 
-    assert_equal "Ticket <a href='http://foo.bar'>123</a> created.", response[:message]
+    expect(response[:message]).to eq("Ticket <a href='http://foo.bar'>123</a> created.")
   end
 
   private
 
   def assert_lighthouse_receives(event_data, title, ticket_body)
-    @stubs.post "projects/123/tickets.json" do |env|
+    http_stubs.post "projects/123/tickets.json" do |env|
       body = JSON.parse(env[:body])
-      assert_equal "token", env[:request_headers]["X-LighthouseToken"]
-      assert_equal title, body["ticket"]["title"]
-      assert_equal ticket_body, body["ticket"]["body"]
+      expect(env[:request_headers]["X-LighthouseToken"]).to eq("token")
+      expect(body["ticket"]["title"]).to eq(title)
+      expect(body["ticket"]["body"]).to eq(ticket_body)
       [200, {}, '{"ticket":{"number": "123", "url":"http://lighthouse.com/projects/123/tickets/123.json"}}']
     end
 
@@ -65,7 +62,7 @@ class TestLighthouse < CC::Service::TestCase
   end
 
   def receive_event(event_data = nil)
-    receive(
+    service_receive(
       CC::Service::Lighthouse,
       { subdomain: "foo", api_token: "token", project_id: "123" },
       event_data || event(:quality, from: "C", to: "D"),

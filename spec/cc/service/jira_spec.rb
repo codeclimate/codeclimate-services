@@ -1,16 +1,14 @@
-require File.expand_path("../helper", __FILE__)
-
-class TestJira < CC::Service::TestCase
-  def test_successful_receive
+describe CC::Service::Jira, type: :service do
+  it "successful receive" do
     response = assert_jira_receives(
       event(:quality, to: "D", from: "C"),
       "Refactor User from a D on Code Climate",
       "https://codeclimate.com/repos/1/feed",
     )
-    assert_equal "10000", response[:id]
+    expect(response[:id]).to eq("10000")
   end
 
-  def test_quality
+  it "quality" do
     assert_jira_receives(
       event(:quality, to: "D", from: "C"),
       "Refactor User from a D on Code Climate",
@@ -18,7 +16,7 @@ class TestJira < CC::Service::TestCase
     )
   end
 
-  def test_vulnerability
+  it "vulnerability" do
     assert_jira_receives(
       event(:vulnerability, vulnerabilities: [{
               "warning_type" => "critical",
@@ -29,7 +27,7 @@ class TestJira < CC::Service::TestCase
     )
   end
 
-  def test_issue
+  it "issue" do
     payload = {
       issue: {
         "check_name" => "Style/LongLine",
@@ -46,25 +44,25 @@ class TestJira < CC::Service::TestCase
     )
   end
 
-  def test_receive_test
-    @stubs.post "/rest/api/2/issue" do |_env|
+  it "receive test" do
+    http_stubs.post "/rest/api/2/issue" do |_env|
       [200, {}, '{"id": 12345, "key": "CC-123", "self": "http://foo.bar"}']
     end
 
     response = receive_event(name: "test")
 
-    assert_equal "Ticket <a href='https://foo.com/browse/CC-123'>12345</a> created.", response[:message]
+    expect(response[:message]).to eq("Ticket <a href='https://foo.com/browse/CC-123'>12345</a> created.")
   end
 
   private
 
   def assert_jira_receives(event_data, title, ticket_body)
-    @stubs.post "/rest/api/2/issue" do |env|
+    http_stubs.post "/rest/api/2/issue" do |env|
       body = JSON.parse(env[:body])
-      assert_equal "Basic Zm9vOmJhcg==", env[:request_headers]["Authorization"]
-      assert_equal title, body["fields"]["summary"]
-      assert_equal ticket_body, body["fields"]["description"]
-      assert_equal "Task", body["fields"]["issuetype"]["name"]
+      expect(env[:request_headers]["Authorization"]).to eq("Basic Zm9vOmJhcg==")
+      expect(body["fields"]["summary"]).to eq(title)
+      expect(body["fields"]["description"]).to eq(ticket_body)
+      expect(body["fields"]["issuetype"]["name"]).to eq("Task")
       [200, {}, '{"id":"10000"}']
     end
 
@@ -72,7 +70,7 @@ class TestJira < CC::Service::TestCase
   end
 
   def receive_event(event_data = nil)
-    receive(
+    service_receive(
       CC::Service::Jira,
       { domain: "foo.com", username: "foo", password: "bar", project_id: "100" },
       event_data || event(:quality, from: "C", to: "D"),

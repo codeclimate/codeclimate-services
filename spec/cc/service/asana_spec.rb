@@ -1,14 +1,12 @@
-require File.expand_path("../helper", __FILE__)
-
-class TestAsana < CC::Service::TestCase
-  def test_quality
+describe CC::Service::Asana, type: :service do
+  it "quality" do
     assert_asana_receives(
       event(:quality, to: "D", from: "C"),
       "Refactor User from a D on Code Climate - https://codeclimate.com/repos/1/feed",
     )
   end
 
-  def test_vulnerability
+  it "vulnerability" do
     assert_asana_receives(
       event(:vulnerability, vulnerabilities: [{
               "warning_type" => "critical",
@@ -18,7 +16,7 @@ class TestAsana < CC::Service::TestCase
     )
   end
 
-  def test_issue
+  it "issue" do
     payload = {
       issue: {
         "check_name" => "Style/LongLine",
@@ -35,39 +33,39 @@ class TestAsana < CC::Service::TestCase
     )
   end
 
-  def test_successful_post
-    @stubs.post "/api/1.0/tasks" do |_env|
+  it "successful post" do
+    http_stubs.post "/api/1.0/tasks" do |_env|
       [200, {}, '{"data":{"id":"2"}}']
     end
 
     response = receive_event
 
-    assert_equal "2", response[:id]
-    assert_equal "https://app.asana.com/0/1/2", response[:url]
+    expect(response[:id]).to eq("2")
+    expect(response[:url]).to eq("https://app.asana.com/0/1/2")
   end
 
-  def test_receive_test
-    @stubs.post "/api/1.0/tasks" do |_env|
+  it "receive test" do
+    http_stubs.post "/api/1.0/tasks" do |_env|
       [200, {}, '{"data":{"id":"4"}}']
     end
 
     response = receive_event(name: "test")
 
-    assert_equal "Ticket <a href='https://app.asana.com/0/1/4'>4</a> created.", response[:message]
+    expect(response[:message]).to eq("Ticket <a href='https://app.asana.com/0/1/4'>4</a> created.")
   end
 
   private
 
   def assert_asana_receives(event_data, name, notes = "")
-    @stubs.post "/api/1.0/tasks" do |env|
+    http_stubs.post "/api/1.0/tasks" do |env|
       body = JSON.parse(env[:body])
       data = body["data"]
 
-      assert_equal "1", data["workspace"]
-      assert_equal "2", data["projects"].first
-      assert_equal "jim@asana.com", data["assignee"]
-      assert_equal name, data["name"]
-      assert_equal notes, data["notes"]
+      expect(data["workspace"]).to eq("1")
+      expect(data["projects"].first).to eq("2")
+      expect(data["assignee"]).to eq("jim@asana.com")
+      expect(data["name"]).to eq(name)
+      expect(data["notes"]).to eq(notes)
 
       [200, {}, '{"data":{"id":4}}']
     end
@@ -76,7 +74,7 @@ class TestAsana < CC::Service::TestCase
   end
 
   def receive_event(event_data = nil)
-    receive(
+    service_receive(
       CC::Service::Asana,
       { api_key: "abc123", workspace_id: "1", project_id: "2", assignee: "jim@asana.com" },
       event_data || event(:quality, to: "D", from: "C"),

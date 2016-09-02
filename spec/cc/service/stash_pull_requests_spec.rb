@@ -1,27 +1,25 @@
-require File.expand_path("../helper", __FILE__)
-
-class TestStashPullRequests < CC::Service::TestCase
-  def test_receive_test
-    @stubs.get "/rest/api/1.0/users" do
+describe CC::Service::StashPullRequests, type: :service do
+  it "receive test" do
+    http_stubs.get "/rest/api/1.0/users" do
       [200, {}, "{ 'values': [] }"]
     end
 
     response = receive_test
 
-    assert_equal({ ok: true, message: "Test succeeded" }, response)
+    expect({ ok: true, message: "Test succeeded" }).to eq(response)
   end
 
-  def test_failed_receive_test
-    @stubs.get "/rest/api/1.0/users" do
+  it "failed receive test" do
+    http_stubs.get "/rest/api/1.0/users" do
       [401, {}, ""]
     end
 
     response = receive_test
 
-    assert_equal({ ok: false, message: "API request unsuccessful (401)" }, response)
+    expect({ ok: false, message: "API request unsuccessful (401)" }).to eq(response)
   end
 
-  def test_pull_request_status_pending
+  it "pull request status pending" do
     expect_status_update("abc123", "state" => "INPROGRESS",
                                    "description" => /is analyzing/)
 
@@ -31,7 +29,7 @@ class TestStashPullRequests < CC::Service::TestCase
     )
   end
 
-  def test_pull_request_status_success_detailed
+  it "pull request status success detailed" do
     expect_status_update("abc123", "state" => "SUCCESSFUL",
       "description" => "Code Climate found 2 new issues and 1 fixed issue.")
 
@@ -41,7 +39,7 @@ class TestStashPullRequests < CC::Service::TestCase
     )
   end
 
-  def test_pull_request_status_failure
+  it "pull request status failure" do
     expect_status_update("abc123", "state" => "FAILED",
       "description" => "Code Climate found 2 new issues and 1 fixed issue.")
 
@@ -51,7 +49,7 @@ class TestStashPullRequests < CC::Service::TestCase
     )
   end
 
-  def test_pull_request_status_error
+  it "pull request status error" do
     expect_status_update("abc123", "state" => "FAILED",
       "description" => "Code Climate encountered an error attempting to analyze this pull request.")
 
@@ -61,7 +59,7 @@ class TestStashPullRequests < CC::Service::TestCase
     )
   end
 
-  def test_pull_request_status_error_message_provided
+  it "pull request status error message provided" do
     message = "Everything broke."
 
     expect_status_update("abc123", "state" => "FAILED",
@@ -74,7 +72,7 @@ class TestStashPullRequests < CC::Service::TestCase
     )
   end
 
-  def test_pull_request_status_skipped
+  it "pull request status skipped" do
     expect_status_update("abc123", "state" => "SUCCESSFUL",
       "description" => "Code Climate has skipped analysis of this commit.")
 
@@ -84,30 +82,30 @@ class TestStashPullRequests < CC::Service::TestCase
     )
   end
 
-  def test_failed_receive_pull_request
+  it "failed receive pull request" do
     commit_sha = "abc123"
 
-    @stubs.post("/rest/build-status/1.0/commits/#{commit_sha}") do
+    http_stubs.post("/rest/build-status/1.0/commits/#{commit_sha}") do
       [401, {}, ""]
     end
 
-    assert_raises(CC::Service::HTTPError) do
+
+    expect do
       receive_pull_request(
         commit_sha: "abc123",
         state: "success",
       )
-    end
+    end.to raise_error(CC::Service::HTTPError)
   end
 
   private
 
   def expect_status_update(commit_sha, params)
-    @stubs.post("/rest/build-status/1.0/commits/#{commit_sha}") do |env|
+    http_stubs.post("/rest/build-status/1.0/commits/#{commit_sha}") do |env|
       body = JSON.parse(env[:body])
 
       params.each do |k, v|
-        assert v === body[k],
-          "Unexpected value for #{k}. #{v.inspect} !== #{body[k].inspect}"
+        expect(v).to match(body[k])
       end
     end
   end
@@ -117,7 +115,7 @@ class TestStashPullRequests < CC::Service::TestCase
   end
 
   def receive_pull_request(event_data, config = {})
-    receive(
+    service_receive(
       CC::Service::StashPullRequests,
       default_config.merge(config),
       { name: "pull_request", issue_comparison_counts: { "fixed" => 1, "new" => 2 } }.merge(event_data),
@@ -125,7 +123,7 @@ class TestStashPullRequests < CC::Service::TestCase
   end
 
   def receive_test(config = {}, event_data = {})
-    receive(
+    service_receive(
       CC::Service::StashPullRequests,
       default_config.merge(config),
       { name: "test" }.merge(event_data),

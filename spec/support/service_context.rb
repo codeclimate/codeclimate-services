@@ -1,36 +1,21 @@
-require "test/unit"
-require "mocha/test_unit"
-require "pp"
+RSpec.shared_examples "Service Context", type: :service do
+  let!(:http_stubs) { Faraday::Adapter::Test::Stubs.new }
 
-require "codeclimate-test-reporter"
-CodeClimate::TestReporter.start
-
-cwd = File.expand_path(File.dirname(__FILE__))
-require "#{cwd}/../config/load"
-require "#{cwd}/fixtures"
-Dir["#{cwd}/support/*.rb"].sort.each do |helper|
-  require helper
-end
-CC::Service.load_services
-
-class CC::Service::TestCase < Test::Unit::TestCase
-  def setup
-    @stubs = Faraday::Adapter::Test::Stubs.new
-
+  before do
     I18n.enforce_available_locales = true
   end
 
-  def teardown
-    @stubs.verify_stubbed_calls
+  after do
+    http_stubs.verify_stubbed_calls
   end
 
   def service(klass, data, payload)
     service = klass.new(data, payload)
-    service.http adapter: [:test, @stubs]
+    service.http adapter: [:test, http_stubs]
     service
   end
 
-  def receive(*args)
+  def service_receive(*args)
     service(*args).receive
   end
 
@@ -52,6 +37,6 @@ class CC::Service::TestCase < Test::Unit::TestCase
 
   def stub_http(url, response = nil, &block)
     block ||= ->(*_args) { response }
-    @stubs.post(url, &block)
+    http_stubs.post(url, &block)
   end
 end

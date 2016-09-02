@@ -1,18 +1,15 @@
-require File.expand_path("../helper", __FILE__)
-
-class TestPivotalTracker < CC::Service::TestCase
-  def test_quality
+describe CC::Service::PivotalTracker, type: :service do
+  it "quality" do
     response = assert_pivotal_receives(
       event(:quality, to: "D", from: "C"),
       "Refactor User from a D on Code Climate",
       "https://codeclimate.com/repos/1/feed",
     )
-    assert_equal "123", response[:id]
-    assert_equal "http://pivotaltracker.com/n/projects/123/stories/123",
-      response[:url]
+    expect(response[:id]).to eq("123")
+    expect("http://pivotaltracker.com/n/projects/123/stories/123").to eq(response[:url])
   end
 
-  def test_vulnerability
+  it "vulnerability" do
     assert_pivotal_receives(
       event(:vulnerability, vulnerabilities: [{
               "warning_type" => "critical",
@@ -23,7 +20,7 @@ class TestPivotalTracker < CC::Service::TestCase
     )
   end
 
-  def test_issue
+  it "issue" do
     payload = {
       issue: {
         "check_name" => "Style/LongLine",
@@ -40,31 +37,31 @@ class TestPivotalTracker < CC::Service::TestCase
     )
   end
 
-  def test_receive_test
-    @stubs.post "services/v3/projects/123/stories" do |_env|
+  it "receive test" do
+    http_stubs.post "services/v3/projects/123/stories" do |_env|
       [200, {}, "<story><id>123</id><url>http://foo.bar</url></story>"]
     end
 
     response = receive_event(name: "test")
 
-    assert_equal "Ticket <a href='http://foo.bar'>123</a> created.", response[:message]
+    expect(response[:message]).to eq("Ticket <a href='http://foo.bar'>123</a> created.")
   end
 
   private
 
   def assert_pivotal_receives(event_data, name, description)
-    @stubs.post "services/v3/projects/123/stories" do |env|
+    http_stubs.post "services/v3/projects/123/stories" do |env|
       body = Hash[URI.decode_www_form(env[:body])]
-      assert_equal "token", env[:request_headers]["X-TrackerToken"]
-      assert_equal name, body["story[name]"]
-      assert_equal description, body["story[description]"]
+      expect(env[:request_headers]["X-TrackerToken"]).to eq("token")
+      expect(body["story[name]"]).to eq(name)
+      expect(body["story[description]"]).to eq(description)
       [200, {}, "<doc><story><id>123</id><url>http://pivotaltracker.com/n/projects/123/stories/123</url></story></doc>"]
     end
     receive_event(event_data)
   end
 
   def receive_event(event_data = nil)
-    receive(
+    service_receive(
       CC::Service::PivotalTracker,
       { api_token: "token", project_id: "123" },
       event_data || event(:quality, from: "C", to: "D"),

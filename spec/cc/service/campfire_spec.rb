@@ -1,20 +1,16 @@
-require File.expand_path("../helper", __FILE__)
-
-class TestCampfire < CC::Service::TestCase
-  def test_config
-    assert_raises CC::Service::ConfigurationError do
-      service(CC::Service::Campfire, {}, name: "test")
-    end
+describe CC::Service::Campfire, type: :service do
+  it "config" do
+    expect { service(CC::Service::Campfire, {}, name: "test") }.to raise_error(CC::Service::ConfigurationError)
   end
 
-  def test_test_hook
+  it "test hook" do
     assert_campfire_receives(
       { name: "test", repo_name: "Rails" },
       "[Code Climate][Rails] This is a test of the Campfire service hook",
     )
   end
 
-  def test_coverage_improved
+  it "coverage improved" do
     e = event(:coverage, to: 90.2, from: 80)
 
     assert_campfire_receives(e, [
@@ -24,7 +20,7 @@ class TestCampfire < CC::Service::TestCase
     ].join(" "))
   end
 
-  def test_coverage_declined
+  it "coverage declined" do
     e = event(:coverage, to: 88.6, from: 94.6)
 
     assert_campfire_receives(e, [
@@ -34,7 +30,7 @@ class TestCampfire < CC::Service::TestCase
     ].join(" "))
   end
 
-  def test_quality_improved
+  it "quality improved" do
     e = event(:quality, to: "A", from: "B")
 
     assert_campfire_receives(e, [
@@ -44,7 +40,7 @@ class TestCampfire < CC::Service::TestCase
     ].join(" "))
   end
 
-  def test_quality_declined
+  it "quality declined" do
     e = event(:quality, to: "D", from: "C")
 
     assert_campfire_receives(e, [
@@ -54,7 +50,7 @@ class TestCampfire < CC::Service::TestCase
     ].join(" "))
   end
 
-  def test_single_vulnerability
+  it "single vulnerability" do
     e = event(:vulnerability, vulnerabilities: [
                 { "warning_type" => "critical" },
               ])
@@ -66,7 +62,7 @@ class TestCampfire < CC::Service::TestCase
     ].join(" "))
   end
 
-  def test_single_vulnerability_with_location
+  it "single vulnerability with location" do
     e = event(:vulnerability, vulnerabilities: [{
                 "warning_type" => "critical",
                 "location" => "app/user.rb line 120",
@@ -80,7 +76,7 @@ class TestCampfire < CC::Service::TestCase
     ].join(" "))
   end
 
-  def test_multiple_vulnerabilities
+  it "multiple vulnerabilities" do
     e = event(:vulnerability, warning_type: "critical", vulnerabilities: [{
                 "warning_type" => "unused",
                 "location" => "unused",
@@ -96,14 +92,14 @@ class TestCampfire < CC::Service::TestCase
     ].join(" "))
   end
 
-  def test_receive_test
-    @stubs.post request_url do |_env|
+  it "receive test" do
+    http_stubs.post request_url do |_env|
       [200, {}, ""]
     end
 
     response = receive_event(name: "test")
 
-    assert_equal "Test message sent", response[:message]
+    expect(response[:message]).to eq("Test message sent")
   end
 
   private
@@ -125,9 +121,9 @@ class TestCampfire < CC::Service::TestCase
   end
 
   def assert_campfire_receives(event_data, expected_body)
-    @stubs.post request_url do |env|
+    http_stubs.post request_url do |env|
       body = JSON.parse(env[:body])
-      assert_equal expected_body, body["message"]["body"]
+      expect(body["message"]["body"]).to eq(expected_body)
       [200, {}, ""]
     end
 
@@ -135,7 +131,7 @@ class TestCampfire < CC::Service::TestCase
   end
 
   def receive_event(event_data = nil)
-    receive(
+    service_receive(
       CC::Service::Campfire,
       { token: "token", subdomain: subdomain, room_id: room },
       event_data || event(:quality, to: "D", from: "C"),

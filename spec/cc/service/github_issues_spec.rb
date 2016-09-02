@@ -1,7 +1,5 @@
-require File.expand_path("../helper", __FILE__)
-
-class TestGitHubIssues < CC::Service::TestCase
-  def test_creation_success
+describe CC::Service::GitHubIssues, type: :service do
+  it "creation success" do
     id = 1234
     number = 123
     url = "https://github.com/#{project}/pulls/#{number}"
@@ -9,12 +7,12 @@ class TestGitHubIssues < CC::Service::TestCase
 
     response = receive_event
 
-    assert_equal id, response[:id]
-    assert_equal number, response[:number]
-    assert_equal url, response[:url]
+    expect(response[:id]).to eq(id)
+    expect(response[:number]).to eq(number)
+    expect(response[:url]).to eq(url)
   end
 
-  def test_quality
+  it "quality" do
     assert_github_receives(
       event(:quality, to: "D", from: "C"),
       "Refactor User from a D on Code Climate",
@@ -22,7 +20,7 @@ class TestGitHubIssues < CC::Service::TestCase
     )
   end
 
-  def test_quality_without_rating
+  it "quality without rating" do
     assert_github_receives(
       event(:quality, to: nil),
       "Refactor User on Code Climate",
@@ -30,7 +28,7 @@ class TestGitHubIssues < CC::Service::TestCase
     )
   end
 
-  def test_issue
+  it "issue" do
     payload = {
       issue: {
         "check_name" => "Style/LongLine",
@@ -47,7 +45,7 @@ class TestGitHubIssues < CC::Service::TestCase
     )
   end
 
-  def test_vulnerability
+  it "vulnerability" do
     assert_github_receives(
       event(:vulnerability, vulnerabilities: [{
               "warning_type" => "critical",
@@ -58,25 +56,25 @@ class TestGitHubIssues < CC::Service::TestCase
     )
   end
 
-  def test_receive_test
-    @stubs.post request_url do |_env|
+  it "receive test" do
+    http_stubs.post request_url do |_env|
       [200, {}, '{"number": 2, "html_url": "http://foo.bar"}']
     end
 
     response = receive_event(name: "test")
 
-    assert_equal "Issue <a href='http://foo.bar'>#2</a> created.", response[:message]
+    expect(response[:message]).to eq("Issue <a href='http://foo.bar'>#2</a> created.")
   end
 
-  def test_different_base_url
-    @stubs.post request_url do |env|
-      assert env[:url].to_s == "http://example.com/#{request_url}"
+  it "different base url" do
+    http_stubs.post request_url do |env|
+      expect(env[:url].to_s).to eq("http://example.com/#{request_url}")
       [200, {}, '{"number": 2, "html_url": "http://foo.bar"}']
     end
 
     response = receive_event({ name: "test" }, base_url: "http://example.com")
 
-    assert_equal "Issue <a href='http://foo.bar'>#2</a> created.", response[:message]
+    expect(response[:message]).to eq("Issue <a href='http://foo.bar'>#2</a> created.")
   end
 
   private
@@ -94,11 +92,11 @@ class TestGitHubIssues < CC::Service::TestCase
   end
 
   def assert_github_receives(event_data, title, ticket_body)
-    @stubs.post request_url do |env|
+    http_stubs.post request_url do |env|
       body = JSON.parse(env[:body])
-      assert_equal "token #{oauth_token}", env[:request_headers]["Authorization"]
-      assert_equal title, body["title"]
-      assert_equal ticket_body, body["body"]
+      expect(env[:request_headers]["Authorization"]).to eq("token #{oauth_token}")
+      expect(body["title"]).to eq(title)
+      expect(body["body"]).to eq(ticket_body)
       [200, {}, "{}"]
     end
 
@@ -106,7 +104,7 @@ class TestGitHubIssues < CC::Service::TestCase
   end
 
   def receive_event(event_data = nil, config = {})
-    receive(
+    service_receive(
       CC::Service::GitHubIssues,
       { oauth_token: "123", project: project }.merge(config),
       event_data || event(:quality, from: "D", to: "C"),
