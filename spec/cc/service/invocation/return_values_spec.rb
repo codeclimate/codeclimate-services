@@ -5,7 +5,7 @@ describe CC::Service::Invocation::WithReturnValues do
       "error message",
     )
 
-    handler.call.should == :return_value
+    expect(handler.call).to eq(:return_value)
   end
 
   it "empty results returns hash" do

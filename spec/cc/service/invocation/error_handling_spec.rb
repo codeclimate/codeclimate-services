@@ -6,7 +6,7 @@ describe CC::Service::Invocation::WithErrorHandling do
       "not important",
     )
 
-    handler.call.should == :success
+    expect(handler.call).to eq(:success)
   end
 
   it "http errors return relevant data" do
@@ -24,12 +24,12 @@ describe CC::Service::Invocation::WithErrorHandling do
     )
 
     result = handler.call
-    result[:ok].should == false
-    result[:status].should == 401
-    result[:params].should == "params"
-    result[:endpoint_url].should == "url"
-    result[:message].should == "foo"
-    result[:log_message].should == "Exception invoking service: [prefix] (CC::Service::HTTPError) foo. Response: <nil>"
+    expect(result[:ok]).to eq(false)
+    expect(result[:status]).to eq(401)
+    expect(result[:params]).to eq("params")
+    expect(result[:endpoint_url]).to eq("url")
+    expect(result[:message]).to eq("foo")
+    expect(result[:log_message]).to eq("Exception invoking service: [prefix] (CC::Service::HTTPError) foo. Response: <nil>")
   end
 
   it "error returns a hash with explanations" do
@@ -42,8 +42,8 @@ describe CC::Service::Invocation::WithErrorHandling do
     )
 
     result = handler.call
-    result[:ok].should == false
-    result[:message].should == "lol"
-    result[:log_message].should == "Exception invoking service: [prefix] (ArgumentError) lol"
+    expect(result[:ok]).to eq(false)
+    expect(result[:message]).to eq("lol")
+    expect(result[:log_message]).to eq("Exception invoking service: [prefix] (ArgumentError) lol")
   end
 end
