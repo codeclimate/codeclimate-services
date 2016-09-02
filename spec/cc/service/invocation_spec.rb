@@ -1,11 +1,11 @@
-describe Invocation do
+describe CC::Service::Invocation do
   it "success" do
     service = FakeService.new(:some_result)
 
     result = CC::Service::Invocation.invoke(service)
 
-    service.receive_count.should == 1
-    result.should == :some_result
+    expect(service.receive_count).to eq(1)
+    expect(result).to eq(:some_result)
   end
 
   it "success with return values" do
@@ -15,8 +15,8 @@ describe Invocation do
       i.with :return_values, "error"
     end
 
-    service.receive_count.should == 1
-    result.should == :some_result
+    expect(service.receive_count).to eq(1)
+    expect(result).to eq(:some_result)
   end
 
   it "failure with return values" do
@@ -26,8 +26,8 @@ describe Invocation do
       i.with :return_values, "error"
     end
 
-    service.receive_count.should == 1
-    assert_equal({ ok: false, message: "error" }, result)
+    expect(service.receive_count).to eq(1)
+    expect({ ok: false, message: "error" }).to eq(result)
   end
 
   it "retries" do
@@ -43,8 +43,8 @@ describe Invocation do
       error_occurred = true
     end
 
-    error_occurred.should.not == nil
-    service.receive_count.should == 1 + 3
+    expect(error_occurred).not_to be_nil
+    expect(service.receive_count).to eq(1 + 3)
   end
 
   it "metrics" do
@@ -54,8 +54,8 @@ describe Invocation do
       i.with :metrics, statsd, "a_prefix"
     end
 
-    statsd.incremented_keys.length.should == 1
-    statsd.incremented_keys.first.should == "services.invocations.a_prefix"
+    expect(statsd.incremented_keys.length).to eq(1)
+    expect(statsd.incremented_keys.first).to eq("services.invocations.a_prefix")
   end
 
   it "metrics on errors" do
@@ -72,9 +72,9 @@ describe Invocation do
       error_occurred = true
     end
 
-    error_occurred.should.not == nil
-    statsd.incremented_keys.length.should == 1
-    assert_match(/^services\.errors\.a_prefix/, statsd.incremented_keys.first)
+    expect(error_occurred).not_to be_nil
+    expect(statsd.incremented_keys.length).to eq(1)
+    expect(statsd.incremented_keys.first).to match(/^services\.errors\.a_prefix/)
   end
 
   it "user message" do
@@ -87,8 +87,8 @@ describe Invocation do
       i.with :error_handling, logger, "a_prefix"
     end
 
-    result[:message].should == "Hey do this"
-    assert_match(/Boom/, result[:log_message])
+    expect(result[:message]).to eq("Hey do this")
+    expect(result[:log_message]).to match(/Boom/)
   end
 
   it "error handling" do
@@ -100,9 +100,9 @@ describe Invocation do
       i.with :error_handling, logger, "a_prefix"
     end
 
-    assert_equal({ ok: false, message: "Boom", log_message: "Exception invoking service: [a_prefix] (RuntimeError) Boom" }, result)
-    logger.logged_errors.length.should == 1
-    assert_match(/^Exception invoking service: \[a_prefix\]/, logger.logged_errors.first)
+    expect({ ok: false, message: "Boom", log_message: "Exception invoking service: [a_prefix] (RuntimeError) Boom" }).to eq(result)
+    expect(logger.logged_errors.length).to eq(1)
+    expect(logger.logged_errors.first).to match(/^Exception invoking service: \[a_prefix\]/)
   end
 
   it "multiple middleware" do
@@ -115,9 +115,9 @@ describe Invocation do
       i.with :error_handling, logger
     end
 
-    assert_equal({ ok: false, message: "Boom", log_message: "Exception invoking service: (RuntimeError) Boom" }, result)
-    service.receive_count.should == 1 + 3
-    logger.logged_errors.length.should == 1
+    expect({ ok: false, message: "Boom", log_message: "Exception invoking service: (RuntimeError) Boom" }).to eq(result)
+    expect(service.receive_count).to eq(1 + 3)
+    expect(logger.logged_errors.length).to eq(1)
   end
 
   private

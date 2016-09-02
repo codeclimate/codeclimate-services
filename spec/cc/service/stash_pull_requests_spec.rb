@@ -1,23 +1,22 @@
-
-describe StashPullRequests, type: :service do
+describe CC::Service::StashPullRequests, type: :service do
   it "receive test" do
-    @stubs.get "/rest/api/1.0/users" do
+    http_stubs.get "/rest/api/1.0/users" do
       [200, {}, "{ 'values': [] }"]
     end
 
     response = receive_test
 
-    assert_equal({ ok: true, message: "Test succeeded" }, response)
+    expect({ ok: true, message: "Test succeeded" }).to eq(response)
   end
 
   it "failed receive test" do
-    @stubs.get "/rest/api/1.0/users" do
+    http_stubs.get "/rest/api/1.0/users" do
       [401, {}, ""]
     end
 
     response = receive_test
 
-    assert_equal({ ok: false, message: "API request unsuccessful (401)" }, response)
+    expect({ ok: false, message: "API request unsuccessful (401)" }).to eq(response)
   end
 
   it "pull request status pending" do
@@ -86,27 +85,27 @@ describe StashPullRequests, type: :service do
   it "failed receive pull request" do
     commit_sha = "abc123"
 
-    @stubs.post("/rest/build-status/1.0/commits/#{commit_sha}") do
+    http_stubs.post("/rest/build-status/1.0/commits/#{commit_sha}") do
       [401, {}, ""]
     end
 
-    assert_raises(CC::Service::HTTPError) do
+
+    expect do
       receive_pull_request(
         commit_sha: "abc123",
         state: "success",
       )
-    end
+    end.to raise_error(CC::Service::HTTPError)
   end
 
   private
 
   def expect_status_update(commit_sha, params)
-    @stubs.post("/rest/build-status/1.0/commits/#{commit_sha}") do |env|
+    http_stubs.post("/rest/build-status/1.0/commits/#{commit_sha}") do |env|
       body = JSON.parse(env[:body])
 
       params.each do |k, v|
-        v.should === body[k],
-          "Unexpected value for #{k}. #{v.inspect} !== #{body[k].inspect}"
+        expect(v).to match(body[k])
       end
     end
   end

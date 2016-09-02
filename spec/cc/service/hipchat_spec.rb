@@ -1,5 +1,4 @@
-
-describe HipChat, type: :service do
+describe CC::Service::HipChat, type: :service do
   it "test hook" do
     assert_hipchat_receives(
       "green",
@@ -94,25 +93,25 @@ describe HipChat, type: :service do
   end
 
   it "receive test" do
-    @stubs.post "/v1/rooms/message" do |_env|
+    http_stubs.post "/v1/rooms/message" do |_env|
       [200, {}, ""]
     end
 
     response = receive_event(name: "test")
 
-    response[:message].should == "Test message sent"
+    expect(response[:message]).to eq("Test message sent")
   end
 
   private
 
   def assert_hipchat_receives(color, event_data, expected_body)
-    @stubs.post "/v1/rooms/message" do |env|
+    http_stubs.post "/v1/rooms/message" do |env|
       body = Hash[URI.decode_www_form(env[:body])]
-      body["auth_token"].should == "token"
-      body["room_id"].should == "123"
-      body["notify"].should == "true"
-      body["color"].should == color
-      body["message"].should == expected_body
+      expect(body["auth_token"]).to eq("token")
+      expect(body["room_id"]).to eq("123")
+      expect(body["notify"]).to eq("true")
+      expect(body["color"]).to eq(color)
+      expect(body["message"]).to eq(expected_body)
       [200, {}, ""]
     end
 

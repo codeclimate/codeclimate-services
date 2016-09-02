@@ -1,7 +1,4 @@
-# encoding: UTF-8
-
-
-describe Slack, type: :service do
+describe CC::Service::Slack, type: :service do
   it "test hook" do
     assert_slack_receives(
       nil,
@@ -85,7 +82,7 @@ describe Slack, type: :service do
 • _Foo_ was just created and is a *D*
 • _bar.js_ was just created and is an *F*""")
 
-    response[:ok].should.not == nil
+    expect(response[:ok]).to eq(true)
   end
 
   it "quality alert with new constants and declined constants" do
@@ -165,18 +162,18 @@ And <https://codeclimate.com/repos/1/feed|1 other improvement>""")
       { name: "test", repo_name: "rails" },
       "[rails] This is a test of the Slack service hook",
     )
-    response[:ok].should == true
-    response[:message].should == "Test message sent"
+    expect(response[:ok]).to eq(true)
+    expect(response[:message]).to eq("Test message sent")
   end
 
   it "receive test" do
-    @stubs.post "/token" do |_env|
+    http_stubs.post "/token" do |_env|
       [200, {}, "ok"]
     end
 
     response = receive_event(name: "test")
 
-    response[:message].should == "Test message sent"
+    expect(response[:message]).to eq("Test message sent")
   end
 
   it "no changes in snapshot" do
@@ -185,20 +182,20 @@ And <https://codeclimate.com/repos/1/feed|1 other improvement>""")
              "changed_constants" => [] }
     response = receive_event(data)
 
-    response[:ok].should == false
-    response[:ignored].should.not == nil
+    expect(response[:ok]).to eq(false)
+    expect(response[:ignored]).to eq(true)
   end
 
   private
 
   def assert_slack_receives(color, event_data, expected_body)
-    @stubs.post "/token" do |env|
+    http_stubs.post "/token" do |env|
       body = JSON.parse(env[:body])
       attachment = body["attachments"].first
       field = attachment["fields"].first
-      attachment["color"] # may be nil.should == color
-      attachment["fallback"].should == expected_body
-      field["value"].should == expected_body
+      attachment["color"] # may be expect(nil).to eq(color)
+      expect(attachment["fallback"]).to eq(expected_body)
+      expect(field["value"]).to eq(expected_body)
       [200, {}, "ok"]
     end
     receive_event(event_data)

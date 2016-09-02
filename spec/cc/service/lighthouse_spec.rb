@@ -1,14 +1,12 @@
-
-describe Lighthouse, type: :service do
+describe CC::Service::Lighthouse, type: :service do
   it "quality" do
     response = assert_lighthouse_receives(
       event(:quality, to: "D", from: "C"),
       "Refactor User from a D on Code Climate",
       "https://codeclimate.com/repos/1/feed",
     )
-    response[:id].should == "123"
-    assert_equal "http://lighthouse.com/projects/123/tickets/123.json",
-      response[:url]
+    expect(response[:id]).to eq("123")
+    expect("http://lighthouse.com/projects/123/tickets/123.json").to eq(response[:url])
   end
 
   it "vulnerability" do
@@ -40,23 +38,23 @@ describe Lighthouse, type: :service do
   end
 
   it "receive test" do
-    @stubs.post "projects/123/tickets.json" do |_env|
+    http_stubs.post "projects/123/tickets.json" do |_env|
       [200, {}, '{"ticket":{"number": "123", "url":"http://foo.bar"}}']
     end
 
     response = receive_event(name: "test")
 
-    response[:message].should == "Ticket <a href='http://foo.bar'>123</a> created."
+    expect(response[:message]).to eq("Ticket <a href='http://foo.bar'>123</a> created.")
   end
 
   private
 
   def assert_lighthouse_receives(event_data, title, ticket_body)
-    @stubs.post "projects/123/tickets.json" do |env|
+    http_stubs.post "projects/123/tickets.json" do |env|
       body = JSON.parse(env[:body])
-      env[:request_headers]["X-LighthouseToken"].should == "token"
-      body["ticket"]["title"].should == title
-      body["ticket"]["body"].should == ticket_body
+      expect(env[:request_headers]["X-LighthouseToken"]).to eq("token")
+      expect(body["ticket"]["title"]).to eq(title)
+      expect(body["ticket"]["body"]).to eq(ticket_body)
       [200, {}, '{"ticket":{"number": "123", "url":"http://lighthouse.com/projects/123/tickets/123.json"}}']
     end
 

@@ -1,18 +1,23 @@
-
-describe PivotalTracker, type: :service do
-  it "quality" do
-    response = assert_pivotal_receives(
+describe CC::Service::Jira, type: :service do
+  it "successful receive" do
+    response = assert_jira_receives(
       event(:quality, to: "D", from: "C"),
       "Refactor User from a D on Code Climate",
       "https://codeclimate.com/repos/1/feed",
     )
-    response[:id].should == "123"
-    assert_equal "http://pivotaltracker.com/n/projects/123/stories/123",
-      response[:url]
+    expect(response[:id]).to eq("10000")
+  end
+
+  it "quality" do
+    assert_jira_receives(
+      event(:quality, to: "D", from: "C"),
+      "Refactor User from a D on Code Climate",
+      "https://codeclimate.com/repos/1/feed",
+    )
   end
 
   it "vulnerability" do
-    assert_pivotal_receives(
+    assert_jira_receives(
       event(:vulnerability, vulnerabilities: [{
               "warning_type" => "critical",
               "location" => "app/user.rb line 120",
@@ -32,7 +37,7 @@ describe PivotalTracker, type: :service do
       details_url: "http://example.com/repos/id/foo.rb#issue_123",
     }
 
-    assert_pivotal_receives(
+    assert_jira_receives(
       event(:issue, payload),
       "Fix \"Style/LongLine\" issue in foo.rb",
       "Line is too long [1000/80]\n\nhttp://example.com/repos/id/foo.rb#issue_123",
@@ -40,32 +45,34 @@ describe PivotalTracker, type: :service do
   end
 
   it "receive test" do
-    @stubs.post "services/v3/projects/123/stories" do |_env|
-      [200, {}, "<story><id>123</id><url>http://foo.bar</url></story>"]
+    http_stubs.post "/rest/api/2/issue" do |_env|
+      [200, {}, '{"id": 12345, "key": "CC-123", "self": "http://foo.bar"}']
     end
 
     response = receive_event(name: "test")
 
-    response[:message].should == "Ticket <a href='http://foo.bar'>123</a> created."
+    expect(response[:message]).to eq("Ticket <a href='https://foo.com/browse/CC-123'>12345</a> created.")
   end
 
   private
 
-  def assert_pivotal_receives(event_data, name, description)
-    @stubs.post "services/v3/projects/123/stories" do |env|
-      body = Hash[URI.decode_www_form(env[:body])]
-      env[:request_headers]["X-TrackerToken"].should == "token"
-      body["story[name]"].should == name
-      body["story[description]"].should == description
-      [200, {}, "<doc><story><id>123</id><url>http://pivotaltracker.com/n/projects/123/stories/123</url></story></doc>"]
+  def assert_jira_receives(event_data, title, ticket_body)
+    http_stubs.post "/rest/api/2/issue" do |env|
+      body = JSON.parse(env[:body])
+      expect(env[:request_headers]["Authorization"]).to eq("Basic Zm9vOmJhcg==")
+      expect(body["fields"]["summary"]).to eq(title)
+      expect(body["fields"]["description"]).to eq(ticket_body)
+      expect(body["fields"]["issuetype"]["name"]).to eq("Task")
+      [200, {}, '{"id":"10000"}']
     end
+
     receive_event(event_data)
   end
 
   def receive_event(event_data = nil)
     receive(
-      CC::Service::PivotalTracker,
-      { api_token: "token", project_id: "123" },
+      CC::Service::Jira,
+      { domain: "foo.com", username: "foo", password: "bar", project_id: "100" },
       event_data || event(:quality, from: "C", to: "D"),
     )
   end

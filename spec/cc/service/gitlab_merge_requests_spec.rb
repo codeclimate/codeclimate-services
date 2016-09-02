@@ -1,5 +1,4 @@
-
-describe GitlabMergeRequests, type: :service do
+describe CC::Service::GitlabMergeRequests, type: :service do
   it "merge request status pending" do
     expect_status_update(
       "hal/hal9000",
@@ -117,45 +116,42 @@ describe GitlabMergeRequests, type: :service do
   end
 
   it "merge request status test success" do
-    @stubs.post("api/v3/projects/hal%2Fhal9000/statuses/#{"0" * 40}") { |_env| [404, {}, ""] }
+    http_stubs.post("api/v3/projects/hal%2Fhal9000/statuses/#{"0" * 40}") { |_env| [404, {}, ""] }
 
-    receive_test({}, git_url: "ssh://git@gitlab.com/hal/hal9000.git")[:ok], "Expected test of pull request to be true".should.not == nil
+    expect(receive_test({}, git_url: "ssh://git@gitlab.com/hal/hal9000.git")[:ok]).to eq(true)
   end
 
   it "merge request status test failure" do
-    @stubs.post("api/v3/projects/hal%2Fhal9000/statuses/#{"0" * 40}") { |_env| [401, {}, ""] }
+    http_stubs.post("api/v3/projects/hal%2Fhal9000/statuses/#{"0" * 40}") { |_env| [401, {}, ""] }
 
-    assert_raises(CC::Service::HTTPError) do
-      receive_test({}, git_url: "ssh://git@gitlab.com/hal/hal9000.git")
-    end
+    expect { receive_test({}, git_url: "ssh://git@gitlab.com/hal/hal9000.git") }.to raise_error(CC::Service::HTTPError)
   end
 
   it "merge request unknown state" do
     response = receive_merge_request({}, state: "unknown")
 
-    assert_equal({ ok: false, message: "Unknown state" }, response)
+    expect({ ok: false, message: "Unknown state" }).to eq(response)
   end
 
   it "different base url" do
-    @stubs.post("api/v3/projects/hal%2Fhal9000/statuses/#{"0" * 40}") do |env|
-      env[:url].to_s.should == "https://gitlab.hal.org/api/v3/projects/hal%2Fhal9000/statuses/#{"0" * 40}"
+    http_stubs.post("api/v3/projects/hal%2Fhal9000/statuses/#{"0" * 40}") do |env|
+      expect(env[:url].to_s).to eq("https://gitlab.hal.org/api/v3/projects/hal%2Fhal9000/statuses/#{"0" * 40}")
       [404, {}, ""]
     end
 
-    receive_test({ base_url: "https://gitlab.hal.org" }, git_url: "ssh://git@gitlab.com/hal/hal9000.git")[:ok], "Expected test of pull request to be true".should.not == nil
+    expect(receive_test({ base_url: "https://gitlab.hal.org" }, git_url: "ssh://git@gitlab.com/hal/hal9000.git")[:ok]).to eq(true)
   end
 
   private
 
   def expect_status_update(repo, commit_sha, params)
-    @stubs.post "api/v3/projects/#{CGI.escape(repo)}/statuses/#{commit_sha}" do |env|
-      env[:request_headers]["PRIVATE-TOKEN"].should == "123"
+    http_stubs.post "api/v3/projects/#{CGI.escape(repo)}/statuses/#{commit_sha}" do |env|
+      expect(env[:request_headers]["PRIVATE-TOKEN"]).to eq("123")
 
       body = JSON.parse(env[:body])
 
       params.each do |k, v|
-        v.should === body[k],
-          "Unexpected value for #{k}. #{v.inspect} !== #{body[k].inspect}"
+        expect(v).to match(body[k])
       end
     end
   end
