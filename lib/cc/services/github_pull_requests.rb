@@ -59,7 +59,7 @@ class CC::Service::GitHubPullRequests < CC::PullRequests
     }
   end
 
-  def receive_pull_request_welcome_comment
+  def receive_pull_request_opened
     return unless config.welcome_comment_enabled
 
     setup_http

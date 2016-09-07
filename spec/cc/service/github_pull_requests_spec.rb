@@ -226,7 +226,7 @@ describe CC::Service::GitHubPullRequests, type: :service do
       does_not_contain: [/customize this message or disable/],
     )
 
-    receive_welcome_comment(
+    receive_pull_request_opened(
       { welcome_comment_enabled: true },
       {
         author_can_administrate_repo: false,
@@ -241,7 +241,7 @@ describe CC::Service::GitHubPullRequests, type: :service do
       contains: [/is using Code Climate/, /customize this message or disable/, /example.com/]
     )
 
-    receive_welcome_comment(
+    receive_pull_request_opened(
       { welcome_comment_enabled: true },
       {
         author_can_administrate_repo: true,
@@ -257,7 +257,7 @@ describe CC::Service::GitHubPullRequests, type: :service do
       does_not_contain: [/is using Code Climate/],
     )
 
-    receive_welcome_comment(
+    receive_pull_request_opened(
       {
         welcome_comment_enabled: true,
         welcome_comment_markdown: "Can't wait to review this!",
@@ -269,7 +269,7 @@ describe CC::Service::GitHubPullRequests, type: :service do
   end
 
   it "test no comment when not opted in" do
-    receive_welcome_comment(
+    receive_pull_request_opened(
       { welcome_comment_enabled: false },
       {
         author_can_administrate_repo: true,
@@ -329,12 +329,12 @@ describe CC::Service::GitHubPullRequests, type: :service do
     )
   end
 
-  def receive_welcome_comment(config, event_data)
+  def receive_pull_request_opened(config, event_data)
     service_receive(
       CC::Service::GitHubPullRequests,
       { oauth_token: "123" }.merge(config),
       {
-        name: "pull_request_welcome_comment",
+        name: "pull_request_opened",
         github_slug: "gordondiggs/ellis",
         number: "45",
         author_username: "mrb",

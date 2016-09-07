@@ -35,7 +35,7 @@ module CC
       issue
       pull_request
       pull_request_coverage
-      pull_request_welcome_comment
+      pull_request_opened
       quality
       snapshot
       test
