@@ -61,6 +61,7 @@ class CC::Service::GitHubPullRequests < CC::PullRequests
 
   def receive_pull_request_opened
     return unless config.welcome_comment_enabled
+    return unless payload.fetch("authors_first_contribution")
 
     setup_http
 

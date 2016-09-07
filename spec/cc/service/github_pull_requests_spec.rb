@@ -249,6 +249,16 @@ describe CC::Service::GitHubPullRequests, type: :service do
     )
   end
 
+  it "does not post welcome comment when it is not the authors first contribution" do
+    receive_pull_request_opened(
+      { welcome_comment_enabled: true },
+      {
+        author_can_administrate_repo: false,
+        authors_first_contribution: false,
+      }
+    )
+  end
+
   it "test posting welcome comment with custom body" do
     expect_welcome_comment(
       "gordondiggs/ellis",
@@ -339,6 +349,7 @@ describe CC::Service::GitHubPullRequests, type: :service do
         number: "45",
         author_username: "mrb",
         pull_request_integration_edit_url: "http://example.com/edit",
+        authors_first_contribution: true,
       }.merge(event_data),
     )
   end
