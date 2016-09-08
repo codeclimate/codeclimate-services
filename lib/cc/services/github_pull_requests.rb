@@ -169,8 +169,12 @@ class CC::Service::GitHubPullRequests < CC::PullRequests
     GitHubPullRequestsWelcomeCommentPresenter.new(@payload, config).welcome_message
   end
 
+  def welcome_comment_enabled?
+    [true, "1"].include?(config.welcome_comment_enabled)
+  end
+
   def able_to_post_comments?
-    if config.welcome_comment_enabled
+    if welcome_comment_enabled?
       able_to_comment?
     end
   end
