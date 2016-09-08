@@ -2,7 +2,7 @@ module CC
   class Service
     class GitHubPullRequestsWelcomeCommentPresenter
       INTRODUCTION_TEMPLATE = <<-HEADER.freeze
-Hey, @%s-- Since this is the first PR we've seen from you, here's some things you should know about contributing to %s:
+Hey, @%s -- Since this is the first PR we've seen from you, here's some things you should know about contributing to **%s**:
       HEADER
 
       DEFAULT_BODY = <<-COMMENT.freeze
