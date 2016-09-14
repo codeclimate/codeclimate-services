@@ -197,12 +197,6 @@ describe CC::Service::GitHubPullRequests, type: :service do
     end
   end
 
-  def expect_no_status_update(repo, commit_sha)
-    http_stubs.post "repos/#{repo}/statuses/#{commit_sha}" do |env|
-      expect(false).to eq(true)
-    end
-  end
-
   def receive_pull_request(config, event_data)
     service_receive(
       CC::Service::GitHubPullRequests,
