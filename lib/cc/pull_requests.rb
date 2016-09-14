@@ -9,7 +9,7 @@ class CC::PullRequests < CC::Service
     setup_http
     state = @payload["state"]
 
-    if %w[pending success failure skipped error].include?(state)
+    if %w[pending success failure skipped error].include?(state) && report_status?
       send("update_status_#{state}")
     else
       @response = simple_failure("Unknown state")
@@ -22,7 +22,7 @@ class CC::PullRequests < CC::Service
     setup_http
     state = @payload["state"]
 
-    if state == "success"
+    if state == "success" && report_status?
       update_coverage_status_success
     else
       @response = simple_failure("Unknown state")
@@ -32,6 +32,10 @@ class CC::PullRequests < CC::Service
   end
 
   private
+
+  def report_status?
+    raise NotImplementedError
+  end
 
   def simple_failure(message)
     { ok: false, message: message }

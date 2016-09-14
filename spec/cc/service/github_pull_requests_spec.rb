@@ -133,6 +133,56 @@ describe CC::Service::GitHubPullRequests, type: :service do
       state:       "pending")
   end
 
+  describe "pr status rollout" do
+    it "does not send the status if username is not part of rollout" do
+      instance = service(
+        CC::Service::GitHubPullRequests,
+        { oauth_token: "123", rollout_github_usernames: "sup" },
+        { name: "pull_request", github_slug: "gordondiggs/ellis", commit_sha: "abc123", state: "pending", author_username: "abbynormal" },
+      )
+
+      expect(instance).not_to receive(:update_status_pending)
+
+      instance.receive
+    end
+
+    it "does not send the status if user not part of percentage" do
+      instance = service(
+        CC::Service::GitHubPullRequests,
+        { oauth_token: "123", rollout_percentage: 50 },
+        { name: "pull_request", github_slug: "gordondiggs/ellis", commit_sha: "abc123", state: "pending", author_username: "abbynormal" },
+      )
+
+      expect(instance).not_to receive(:update_status_pending)
+
+      instance.receive
+    end
+
+    it "does send the status if username is part of rollout" do
+      instance = service(
+        CC::Service::GitHubPullRequests,
+        { oauth_token: "123", rollout_github_usernames: "abbynormal", rollout_percentage: 0 },
+        { name: "pull_request", github_slug: "gordondiggs/ellis", commit_sha: "abc123", state: "pending", author_username: "abbynormal" },
+      )
+
+      expect_status_update("gordondiggs/ellis", "abc123", "state" => "pending")
+
+      instance.receive
+    end
+
+    it "does send the status if user falls under rollout percentage" do
+      instance = service(
+        CC::Service::GitHubPullRequests,
+        { oauth_token: "123", rollout_github_usernames: "sup", rollout_percentage: 60 },
+        { name: "pull_request", github_slug: "gordondiggs/ellis", commit_sha: "abc123", state: "pending", author_username: "abbynormal" },
+      )
+
+      expect_status_update("gordondiggs/ellis", "abc123", "state" => "pending")
+
+      instance.receive
+    end
+  end
+
   private
 
   def expect_status_update(repo, commit_sha, params)
@@ -144,6 +194,12 @@ describe CC::Service::GitHubPullRequests, type: :service do
       params.each do |k, v|
         expect(v).to match(body[k])
       end
+    end
+  end
+
+  def expect_no_status_update(repo, commit_sha)
+    http_stubs.post "repos/#{repo}/statuses/#{commit_sha}" do |env|
+      expect(false).to eq(true)
     end
   end
 
