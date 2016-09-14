@@ -13,7 +13,7 @@ class CC::Service::GitHubPullRequests < CC::PullRequests
       label: "Github Context",
       description: "The integration name next to the pull request status",
       default: "codeclimate"
-    attribute :rollout_github_usernames, Axiom::Types::String,
+    attribute :rollout_usernames, Axiom::Types::String,
       label: "Allowed Author's Usernames",
       description: "The GitHub usernames of authors to report status for, comma separated",
       default: nil
@@ -31,7 +31,7 @@ class CC::Service::GitHubPullRequests < CC::PullRequests
   private
 
   def report_status?
-    if author_username.present? && (config.rollout_github_usernames.present? || config.rollout_percentage.present?)
+    if author_username.present? && (config.rollout_usernames.present? || config.rollout_percentage.present?)
       rollout_allowed_by_username? || rollout_allowed_by_percentage?
     else
       true
@@ -39,8 +39,8 @@ class CC::Service::GitHubPullRequests < CC::PullRequests
   end
 
   def rollout_allowed_by_username?
-    config.rollout_github_usernames.present? &&
-      config.rollout_github_usernames.split(",").map(&:strip).include?(author_username)
+    config.rollout_usernames.present? &&
+      config.rollout_usernames.split(",").map(&:strip).include?(author_username)
   end
 
   def rollout_allowed_by_percentage?

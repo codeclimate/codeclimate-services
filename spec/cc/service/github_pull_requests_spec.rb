@@ -137,7 +137,7 @@ describe CC::Service::GitHubPullRequests, type: :service do
     it "does not send the status if username is not part of rollout" do
       instance = service(
         CC::Service::GitHubPullRequests,
-        { oauth_token: "123", rollout_github_usernames: "sup" },
+        { oauth_token: "123", rollout_usernames: "sup" },
         { name: "pull_request", github_slug: "gordondiggs/ellis", commit_sha: "abc123", state: "pending", author_username: "abbynormal" },
       )
 
@@ -161,7 +161,7 @@ describe CC::Service::GitHubPullRequests, type: :service do
     it "does send the status if username is part of rollout" do
       instance = service(
         CC::Service::GitHubPullRequests,
-        { oauth_token: "123", rollout_github_usernames: "abbynormal", rollout_percentage: 0 },
+        { oauth_token: "123", rollout_usernames: "abbynormal", rollout_percentage: 0 },
         { name: "pull_request", github_slug: "gordondiggs/ellis", commit_sha: "abc123", state: "pending", author_username: "abbynormal" },
       )
 
@@ -173,7 +173,7 @@ describe CC::Service::GitHubPullRequests, type: :service do
     it "does send the status if user falls under rollout percentage" do
       instance = service(
         CC::Service::GitHubPullRequests,
-        { oauth_token: "123", rollout_github_usernames: "sup", rollout_percentage: 60 },
+        { oauth_token: "123", rollout_usernames: "sup", rollout_percentage: 60 },
         { name: "pull_request", github_slug: "gordondiggs/ellis", commit_sha: "abc123", state: "pending", author_username: "abbynormal" },
       )
 
