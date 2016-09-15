@@ -133,6 +133,56 @@ describe CC::Service::GitHubPullRequests, type: :service do
       state:       "pending")
   end
 
+  describe "pr status rollout" do
+    it "does not send the status if username is not part of rollout" do
+      instance = service(
+        CC::Service::GitHubPullRequests,
+        { oauth_token: "123", rollout_usernames: "sup" },
+        { name: "pull_request", github_slug: "gordondiggs/ellis", commit_sha: "abc123", state: "pending", github_login: "abbynormal", github_user_id: 1234 },
+      )
+
+      expect(instance).not_to receive(:update_status_pending)
+
+      instance.receive
+    end
+
+    it "does not send the status if user not part of percentage" do
+      instance = service(
+        CC::Service::GitHubPullRequests,
+        { oauth_token: "123", rollout_percentage: 20 },
+        { name: "pull_request", github_slug: "gordondiggs/ellis", commit_sha: "abc123", state: "pending", github_login: "abbynormal", github_user_id: 1234 },
+      )
+
+      expect(instance).not_to receive(:update_status_pending)
+
+      instance.receive
+    end
+
+    it "does send the status if username is part of rollout" do
+      instance = service(
+        CC::Service::GitHubPullRequests,
+        { oauth_token: "123", rollout_usernames: "abbynormal", rollout_percentage: 0 },
+        { name: "pull_request", github_slug: "gordondiggs/ellis", commit_sha: "abc123", state: "pending", github_login: "abbynormal", github_user_id: 1234 },
+      )
+
+      expect_status_update("gordondiggs/ellis", "abc123", "state" => "pending")
+
+      instance.receive
+    end
+
+    it "does send the status if user falls under rollout percentage" do
+      instance = service(
+        CC::Service::GitHubPullRequests,
+        { oauth_token: "123", rollout_usernames: "sup", rollout_percentage: 60 },
+        { name: "pull_request", github_slug: "gordondiggs/ellis", commit_sha: "abc123", state: "pending", github_login: "abbynormal", github_user_id: 1234 },
+      )
+
+      expect_status_update("gordondiggs/ellis", "abc123", "state" => "pending")
+
+      instance.receive
+    end
+  end
+
   private
 
   def expect_status_update(repo, commit_sha, params)

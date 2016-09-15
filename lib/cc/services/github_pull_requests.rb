@@ -13,6 +13,12 @@ class CC::Service::GitHubPullRequests < CC::PullRequests
       label: "Github Context",
       description: "The integration name next to the pull request status",
       default: "codeclimate"
+    attribute :rollout_usernames, Axiom::Types::String,
+      label: "Allowed Author's Usernames",
+      description: "The GitHub usernames of authors to report status for, comma separated"
+    attribute :rollout_percentage, Axiom::Types::Integer,
+      label: "Author Rollout Percentage",
+      description: "The percentage of users to report status for"
 
     validates :oauth_token, presence: true
   end
@@ -21,6 +27,37 @@ class CC::Service::GitHubPullRequests < CC::PullRequests
   self.description = "Update pull requests on GitHub"
 
   private
+
+  def report_status?
+    if should_apply_rollout?
+      rollout_allowed_by_username? || rollout_allowed_by_percentage?
+    else
+      true
+    end
+  end
+
+  def should_apply_rollout?
+    (github_login.present? && config.rollout_usernames.present?) ||
+      (github_user_id.present? && config.rollout_percentage.present?)
+  end
+
+  def rollout_allowed_by_username?
+    github_login.present? && config.rollout_usernames.present? &&
+      config.rollout_usernames.split(",").map(&:strip).include?(github_login)
+  end
+
+  def rollout_allowed_by_percentage?
+    github_user_id.present? && config.rollout_percentage.present? &&
+      github_user_id % 100 < config.rollout_percentage
+  end
+
+  def github_login
+    @payload["github_login"]
+  end
+
+  def github_user_id
+    @payload["github_user_id"]
+  end
 
   def update_status_skipped
     update_status("success", presenter.skipped_message)

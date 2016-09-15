@@ -22,6 +22,10 @@ class CC::Service::GitlabMergeRequests < CC::PullRequests
 
   private
 
+  def report_status?
+    true
+  end
+
   def update_status_skipped
     update_status("success", presenter.skipped_message)
   end
