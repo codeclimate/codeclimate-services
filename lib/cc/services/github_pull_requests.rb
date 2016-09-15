@@ -15,12 +15,10 @@ class CC::Service::GitHubPullRequests < CC::PullRequests
       default: "codeclimate"
     attribute :rollout_usernames, Axiom::Types::String,
       label: "Allowed Author's Usernames",
-      description: "The GitHub usernames of authors to report status for, comma separated",
-      default: nil
+      description: "The GitHub usernames of authors to report status for, comma separated"
     attribute :rollout_percentage, Axiom::Types::Integer,
       label: "Author Rollout Percentage",
-      description: "The percentage of users to report status for",
-      default: nil
+      description: "The percentage of users to report status for"
 
     validates :oauth_token, presence: true
   end
