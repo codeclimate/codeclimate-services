@@ -50,7 +50,7 @@ class CC::Service::GitHubPullRequests < CC::PullRequests
 
   def rollout_allowed_by_percentage?
     github_user_id.present? && config.rollout_percentage.present? &&
-      github_user_id % 100 <= config.rollout_percentage
+      github_user_id % 100 < config.rollout_percentage
   end
 
   def github_login
