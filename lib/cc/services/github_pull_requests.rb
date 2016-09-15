@@ -39,8 +39,8 @@ class CC::Service::GitHubPullRequests < CC::PullRequests
   end
 
   def should_apply_rollout?
-    (github_login.present? || github_user_id.present?) &&
-      (config.rollout_usernames.present? || config.rollout_percentage.present?)
+    (github_login.present? || config.rollout_usernames.present?) &&
+      (github_user_id.present? || config.rollout_percentage.present?)
   end
 
   def rollout_allowed_by_username?
