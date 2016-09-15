@@ -31,25 +31,34 @@ class CC::Service::GitHubPullRequests < CC::PullRequests
   private
 
   def report_status?
-    if author_username.present? && (config.rollout_usernames.present? || config.rollout_percentage.present?)
+    if should_apply_rollout?
       rollout_allowed_by_username? || rollout_allowed_by_percentage?
     else
       true
     end
   end
 
+  def should_apply_rollout?
+    (github_login.present? || github_user_id.present?) &&
+      (config.rollout_usernames.present? || config.rollout_percentage.present?)
+  end
+
   def rollout_allowed_by_username?
-    config.rollout_usernames.present? &&
-      config.rollout_usernames.split(",").map(&:strip).include?(author_username)
+    github_login.present? && config.rollout_usernames.present? &&
+      config.rollout_usernames.split(",").map(&:strip).include?(github_login)
   end
 
   def rollout_allowed_by_percentage?
-    config.rollout_percentage.present? &&
-      Digest::MD5.hexdigest(author_username).to_i(16) % 100 <= config.rollout_percentage
+    github_user_id.present? && config.rollout_percentage.present? &&
+      github_user_id % 100 <= config.rollout_percentage
   end
 
-  def author_username
-    @payload["author_username"]
+  def github_login
+    @payload["github_login"]
+  end
+
+  def github_user_id
+    @payload["github_user_id"]
   end
 
   def update_status_skipped

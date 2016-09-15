@@ -138,7 +138,7 @@ describe CC::Service::GitHubPullRequests, type: :service do
       instance = service(
         CC::Service::GitHubPullRequests,
         { oauth_token: "123", rollout_usernames: "sup" },
-        { name: "pull_request", github_slug: "gordondiggs/ellis", commit_sha: "abc123", state: "pending", author_username: "abbynormal" },
+        { name: "pull_request", github_slug: "gordondiggs/ellis", commit_sha: "abc123", state: "pending", github_login: "abbynormal", github_user_id: 1234 },
       )
 
       expect(instance).not_to receive(:update_status_pending)
@@ -149,8 +149,8 @@ describe CC::Service::GitHubPullRequests, type: :service do
     it "does not send the status if user not part of percentage" do
       instance = service(
         CC::Service::GitHubPullRequests,
-        { oauth_token: "123", rollout_percentage: 50 },
-        { name: "pull_request", github_slug: "gordondiggs/ellis", commit_sha: "abc123", state: "pending", author_username: "abbynormal" },
+        { oauth_token: "123", rollout_percentage: 20 },
+        { name: "pull_request", github_slug: "gordondiggs/ellis", commit_sha: "abc123", state: "pending", github_login: "abbynormal", github_user_id: 1234 },
       )
 
       expect(instance).not_to receive(:update_status_pending)
@@ -162,7 +162,7 @@ describe CC::Service::GitHubPullRequests, type: :service do
       instance = service(
         CC::Service::GitHubPullRequests,
         { oauth_token: "123", rollout_usernames: "abbynormal", rollout_percentage: 0 },
-        { name: "pull_request", github_slug: "gordondiggs/ellis", commit_sha: "abc123", state: "pending", author_username: "abbynormal" },
+        { name: "pull_request", github_slug: "gordondiggs/ellis", commit_sha: "abc123", state: "pending", github_login: "abbynormal", github_user_id: 1234 },
       )
 
       expect_status_update("gordondiggs/ellis", "abc123", "state" => "pending")
@@ -174,7 +174,7 @@ describe CC::Service::GitHubPullRequests, type: :service do
       instance = service(
         CC::Service::GitHubPullRequests,
         { oauth_token: "123", rollout_usernames: "sup", rollout_percentage: 60 },
-        { name: "pull_request", github_slug: "gordondiggs/ellis", commit_sha: "abc123", state: "pending", author_username: "abbynormal" },
+        { name: "pull_request", github_slug: "gordondiggs/ellis", commit_sha: "abc123", state: "pending", github_login: "abbynormal", github_user_id: 1234 },
       )
 
       expect_status_update("gordondiggs/ellis", "abc123", "state" => "pending")
