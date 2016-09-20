@@ -40,7 +40,7 @@ Quick note: By default, Code Climate will post the above comment on the *first* 
       end
 
       def author_username
-        payload.fetch("author_username")
+        payload.fetch("author_github_username")
       end
 
       def github_slug

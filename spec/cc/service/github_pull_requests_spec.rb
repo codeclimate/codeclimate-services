@@ -347,7 +347,7 @@ describe CC::Service::GitHubPullRequests, type: :service do
         name: "pull_request_opened",
         github_slug: "gordondiggs/ellis",
         number: "45",
-        author_username: "mrb",
+        author_github_username: "mrb",
         pull_request_integration_edit_url: "http://example.com/edit",
         authors_first_contribution: true,
       }.merge(event_data),
