@@ -1,5 +1,6 @@
 require "active_support/concern"
 require "cc/service/response_check"
+require "cc/service/safe_webhook"
 
 module CC::Service::HTTP
   extend ActiveSupport::Concern
@@ -38,10 +39,8 @@ module CC::Service::HTTP
   end
 
   def raw_get(url = nil, params = nil, headers = nil)
-    http.get do |req|
-      req.url(url) if url
+    http_method(:get, url, nil, headers) do |req|
       req.params.update(params) if params
-      req.headers.update(headers) if headers
       yield req if block_given?
     end
   end
@@ -59,6 +58,11 @@ module CC::Service::HTTP
       req.headers.update(headers) if headers
       req.body = body if body
       block.call req if block
+
+      unless allow_internal_webhooks?
+        safe_webhook = CC::Service::SafeWebhook.new(url)
+        safe_webhook.validate!(req)
+      end
     end
   end
 
@@ -98,5 +102,10 @@ module CC::Service::HTTP
       status: response.status,
       message: "Success",
     }
+  end
+
+  def allow_internal_webhooks?
+    var = ENV["CODECLIMATE_ALLOW_INTERNAL_WEBHOOKS"] || ""
+    var == "1" || var == "true"
   end
 end
