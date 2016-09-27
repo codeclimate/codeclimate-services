@@ -134,42 +134,12 @@ describe CC::Service::GitlabMergeRequests, type: :service do
   end
 
   it "different base url" do
-    stub_resolv("gitlab.hal.org", "1.1.1.2")
-
     http_stubs.post("api/v3/projects/hal%2Fhal9000/statuses/#{"0" * 40}") do |env|
-      expect(env[:url].to_s).to eq("https://1.1.1.2/api/v3/projects/hal%2Fhal9000/statuses/#{"0" * 40}")
+      expect(env[:url].to_s).to eq("https://gitlab.hal.org/api/v3/projects/hal%2Fhal9000/statuses/#{"0" * 40}")
       [404, {}, ""]
     end
 
     expect(receive_test({ base_url: "https://gitlab.hal.org" }, git_url: "ssh://git@gitlab.com/hal/hal9000.git")[:ok]).to eq(true)
-  end
-
-  context "SafeWebhook" do
-    it "rewrites the request to be for the resolved IP" do
-      stub_resolv("my.gitlab.com", "1.1.1.2")
-
-      http_stubs.post("api/v3/projects/hal%2Fhal9000/statuses/#{"0" * 40}") do |env|
-        expect(env[:url].to_s).to eq("https://1.1.1.2/api/v3/projects/hal%2Fhal9000/statuses/#{"0" * 40}")
-        expect(env[:request_headers][:Host]).to eq("my.gitlab.com")
-        [404, {}, ""]
-      end
-
-      expect(receive_test({ base_url: "https://my.gitlab.com" }, git_url: "ssh://git@gitlab.com/hal/hal9000.git")[:ok]).to eq(true)
-    end
-
-    it "validates that the host doesn't resolve to something internal" do
-      stub_resolv("my.gitlab.com", "127.0.0.1")
-
-      expect do
-        receive_test({ base_url: "https://my.gitlab.com" }, git_url: "")
-      end.to raise_error(CC::Service::SafeWebhook::InvalidWebhookURL)
-
-      stub_resolv("my.gitlab.com", "10.0.0.9")
-
-      expect do
-        receive_test({ base_url: "https://my.gitlab.com" }, git_url: "")
-      end.to raise_error(CC::Service::SafeWebhook::InvalidWebhookURL)
-    end
   end
 
   private

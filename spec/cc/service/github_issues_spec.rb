@@ -67,10 +67,8 @@ describe CC::Service::GitHubIssues, type: :service do
   end
 
   it "different base url" do
-    stub_resolv("example.com", "1.1.1.2")
-
     http_stubs.post request_url do |env|
-      expect(env[:url].to_s).to eq("http://1.1.1.2/#{request_url}")
+      expect(env[:url].to_s).to eq("http://example.com/#{request_url}")
       [200, {}, '{"number": 2, "html_url": "http://foo.bar"}']
     end
 

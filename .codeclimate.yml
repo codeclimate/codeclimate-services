@@ -9,11 +9,6 @@ engines:
     enabled: true
   rubocop:
     enabled: true
-    exclude_fingerprints:
-      # Using #=== intentionally in SafeWebhook
-      - d1afe90be49c43e85a76bfa58f637804
-      # High complexity in http method due to SafeWebhook check
-      - f05cea2d219c0f8119eb826067a18eda
 ratings:
   paths:
   - "**.rb"
