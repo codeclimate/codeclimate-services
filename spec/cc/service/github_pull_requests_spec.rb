@@ -107,10 +107,8 @@ describe CC::Service::GitHubPullRequests, type: :service do
   end
 
   it "different base url" do
-    stub_resolv("example.com", "1.1.1.2")
-
     http_stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") do |env|
-      expect(env[:url].to_s).to eq("http://1.1.1.2/repos/pbrisbin/foo/statuses/#{"0" * 40}")
+      expect(env[:url].to_s).to eq("http://example.com/repos/pbrisbin/foo/statuses/#{"0" * 40}")
       [422, { "x-oauth-scopes" => "gist, user, repo" }, ""]
     end
 
