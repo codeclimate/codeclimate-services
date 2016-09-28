@@ -36,4 +36,8 @@ RSpec.configure do |config|
   # This setting enables warnings. It's recommended, but in some cases may
   # be too noisy due to issues in dependencies.
   config.warnings = true
+  config.before do
+    # Disable actual DNS resolution during specs by default
+    stub_resolv(anything, "1.1.1.1")
+  end
 end

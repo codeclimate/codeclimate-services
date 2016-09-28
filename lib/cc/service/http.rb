@@ -1,5 +1,6 @@
 require "active_support/concern"
 require "cc/service/response_check"
+require "cc/service/safe_webhook"
 
 module CC::Service::HTTP
   extend ActiveSupport::Concern
@@ -38,10 +39,8 @@ module CC::Service::HTTP
   end
 
   def raw_get(url = nil, params = nil, headers = nil)
-    http.get do |req|
-      req.url(url) if url
+    http_method(:get, url, nil, headers) do |req|
       req.params.update(params) if params
-      req.headers.update(headers) if headers
       yield req if block_given?
     end
   end
@@ -53,6 +52,8 @@ module CC::Service::HTTP
 
   def http_method(method, url = nil, body = nil, headers = nil)
     block = Proc.new if block_given?
+
+    CC::Service::SafeWebhook.ensure_safe!(url)
 
     http.send(method) do |req|
       req.url(url) if url
