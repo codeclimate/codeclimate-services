@@ -9,6 +9,9 @@ engines:
     enabled: true
   rubocop:
     enabled: true
+    exclude_fingerprints:
+      # Using #=== intentionally to do subnet masking
+      - d1afe90be49c43e85a76bfa58f637804
 ratings:
   paths:
   - "**.rb"
