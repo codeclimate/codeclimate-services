@@ -1,5 +1,7 @@
-require "codeclimate-test-reporter"
-CodeClimate::TestReporter.start
+require "simplecov"
+SimpleCov.start do
+  add_filter "/spec/"
+end
 
 cwd = File.expand_path(File.dirname(__FILE__))
 require "#{cwd}/../config/load"

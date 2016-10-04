@@ -1,0 +1,4 @@
+test:
+  override:
+    - bundle exec rake
+    - bundle exec codeclimate-test-reporter
