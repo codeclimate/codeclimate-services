@@ -1,8 +1,6 @@
 require "ipaddr"
 require "uri"
 
-require "cc/fixed_resolv"
-
 module CC
   class Service
     class SafeWebhook
@@ -22,16 +20,6 @@ module CC
         instance.ensure_safe!
       end
 
-      def self.getaddress(host)
-        @dns ||= Resolv::DNS.new
-        @dns.getaddress(host)
-      end
-
-      def self.setaddress(host, address)
-        @fixed_resolv ||= CC::FixedResolv.enable!
-        @fixed_resolv.setaddress(host, address)
-      end
-
       def initialize(url)
         @url = url
       end
@@ -49,14 +37,12 @@ module CC
       attr_reader :url
 
       def internal?(host)
-        address = self.class.getaddress(host)
-
-        self.class.setaddress(host, address)
+        address = ::Resolv.getaddress(host)
 
         PRIVATE_ADDRESS_SUBNETS.any? do |subnet|
           subnet === IPAddr.new(address.to_s)
         end
-      rescue Resolv::ResolvError
+      rescue ::Resolv::ResolvError
         true # localhost
       end
 
