@@ -1,4 +1,5 @@
 require "active_support/concern"
+require "cc/resolv"
 require "cc/service/response_check"
 require "cc/service/safe_webhook"
 
@@ -53,13 +54,15 @@ module CC::Service::HTTP
   def http_method(method, url = nil, body = nil, headers = nil)
     block = Proc.new if block_given?
 
-    CC::Service::SafeWebhook.ensure_safe!(url)
+    CC::Resolv.with_fixed_dns do
+      CC::Service::SafeWebhook.ensure_safe!(url)
 
-    http.send(method) do |req|
-      req.url(url) if url
-      req.headers.update(headers) if headers
-      req.body = body if body
-      block.call req if block
+      http.send(method) do |req|
+        req.url(url) if url
+        req.headers.update(headers) if headers
+        req.body = body if body
+        block.call req if block
+      end
     end
   end
 
