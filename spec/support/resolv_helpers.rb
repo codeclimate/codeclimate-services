@@ -1,7 +1,9 @@
 module ResolvHelpers
   def stub_resolv(name, address)
-    allow(CC::Service::SafeWebhook).to receive(:getaddress).
-      with(name).and_return(Resolv::IPv4.create(address))
+    dns = double
+    allow(::Resolv::DNS).to receive(:new).and_return(dns)
+    allow(dns).to receive(:each_address).
+      with(name).and_yield(Resolv::IPv4.create(address))
   end
 end
 
