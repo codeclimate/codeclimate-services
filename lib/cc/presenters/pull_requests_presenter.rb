@@ -28,7 +28,7 @@ module CC
       end
 
       def coverage_message
-        message = "#{formatted_percent(@covered_percent)}% test coverage"
+        message = "#{formatted_percent(@covered_percent)}%"
 
         if @covered_percent_delta > 0
           message += " (+#{formatted_percent(@covered_percent_delta)}%)"

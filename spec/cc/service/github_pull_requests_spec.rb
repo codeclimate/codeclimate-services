@@ -72,7 +72,7 @@ describe CC::Service::GitHubPullRequests, type: :service do
 
   it "pull request coverage status" do
     expect_status_update("pbrisbin/foo", "abc123", "state" => "success",
-      "description" => "87% test coverage (+2%)")
+      "description" => "87% (+2%)")
 
     receive_pull_request_coverage({},
       github_slug:     "pbrisbin/foo",
