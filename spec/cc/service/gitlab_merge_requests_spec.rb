@@ -102,7 +102,7 @@ describe CC::Service::GitlabMergeRequests, type: :service do
       "hal/hal9000",
       "abc123",
       "state" => "success",
-      "description" => "87% test coverage (+2%)",
+      "description" => "87% (+2%)",
     )
 
     receive_merge_request_coverage(
