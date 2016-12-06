@@ -2,23 +2,28 @@ require "cc/presenters/pull_requests_presenter"
 
 describe CC::Service::PullRequestsPresenter, type: :service do
   it "message singular" do
-    expect("Code Climate found 1 new issue and 1 fixed issue.").to eq(build_presenter("fixed" => 1, "new" => 1).success_message)
+    expect(build_presenter("fixed" => 1, "new" => 1).success_message).
+      to eq("1 new issue (1 fixed)")
   end
 
   it "message plural" do
-    expect("Code Climate found 2 new issues and 1 fixed issue.").to eq(build_presenter("fixed" => 1, "new" => 2).success_message)
+    expect(build_presenter("fixed" => 1, "new" => 2).success_message).
+      to eq("2 new issues (1 fixed)")
   end
 
   it "message only fixed" do
-    expect("Code Climate found 1 fixed issue.").to eq(build_presenter("fixed" => 1, "new" => 0).success_message)
+    expect(build_presenter("fixed" => 1, "new" => 0).success_message).
+      to eq("1 fixed issue")
   end
 
   it "message only new" do
-    expect("Code Climate found 3 new issues.").to eq(build_presenter("fixed" => 0, "new" => 3).success_message)
+    expect(build_presenter("fixed" => 0, "new" => 3).success_message).
+      to eq("3 new issues")
   end
 
   it "message no new or fixed" do
-    expect("Code Climate didn't find any new or fixed issues.").to eq(build_presenter("fixed" => 0, "new" => 0).success_message)
+    expect(build_presenter("fixed" => 0, "new" => 0).success_message).
+      to eq("no new or fixed issues")
   end
 
   it "message coverage same" do
