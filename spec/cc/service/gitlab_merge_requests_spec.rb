@@ -20,7 +20,7 @@ describe CC::Service::GitlabMergeRequests, type: :service do
       "hal/hal9000",
       "abc123",
       "state" => "success",
-      "description" => "Code Climate found 2 new issues and 1 fixed issue.",
+      "description" => "2 new issues (1 fixed)",
     )
 
     receive_merge_request(
@@ -36,7 +36,7 @@ describe CC::Service::GitlabMergeRequests, type: :service do
       "hal/hal9000",
       "abc123",
       "state" => "failed",
-      "description" => "Code Climate found 2 new issues and 1 fixed issue.",
+      "description" => "2 new issues (1 fixed)",
     )
 
     receive_merge_request(

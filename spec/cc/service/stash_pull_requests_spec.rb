@@ -31,7 +31,7 @@ describe CC::Service::StashPullRequests, type: :service do
 
   it "pull request status success detailed" do
     expect_status_update("abc123", "state" => "SUCCESSFUL",
-      "description" => "Code Climate found 2 new issues and 1 fixed issue.")
+      "description" => "2 new issues (1 fixed)")
 
     receive_pull_request(
       commit_sha: "abc123",
@@ -41,7 +41,7 @@ describe CC::Service::StashPullRequests, type: :service do
 
   it "pull request status failure" do
     expect_status_update("abc123", "state" => "FAILED",
-      "description" => "Code Climate found 2 new issues and 1 fixed issue.")
+      "description" => "2 new issues (1 fixed)")
 
     receive_pull_request(
       commit_sha: "abc123",
