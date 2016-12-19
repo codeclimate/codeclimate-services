@@ -13,6 +13,12 @@ module CC
 
         @covered_percent = payload["covered_percent"]
         @covered_percent_delta = payload["covered_percent_delta"]
+
+        @approved_by = payload["approved_by"].presence
+      end
+
+      def approved_message
+        "Approved by #{@approved_by}."
       end
 
       def error_message
@@ -40,7 +46,9 @@ module CC
       end
 
       def success_message
-        if @new_count > 0 && @fixed_count > 0
+        if @approved_by
+          approved_message
+        elsif @new_count > 0 && @fixed_count > 0
           "#{@new_count} new #{"issue".pluralize(@new_count)} (#{@fixed_count} fixed)"
         elsif @new_count <= 0 && @fixed_count > 0
           "#{@fixed_count} fixed #{"issue".pluralize(@fixed_count)}"
