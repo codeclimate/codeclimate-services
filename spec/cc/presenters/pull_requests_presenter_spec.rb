@@ -38,6 +38,16 @@ describe CC::Service::PullRequestsPresenter, type: :service do
     expect("85.35% (-3%)").to eq( build_presenter({}, "covered_percent" => 85.348, "covered_percent_delta" => -3.0).coverage_message)
   end
 
+  it "message approved" do
+    expect(build_presenter({"fixed" => 1, "new" => 1}, { "approved_by" => "FooBar"}).success_message).
+      to eq("Approved by FooBar.")
+  end
+
+  it "message approved is empty string" do
+    expect(build_presenter({"fixed" => 1, "new" => 1}, { "approved_by" => ""}).success_message).
+      to eq("1 new issue (1 fixed)")
+  end
+
   private
 
   def build_payload(issue_counts)
