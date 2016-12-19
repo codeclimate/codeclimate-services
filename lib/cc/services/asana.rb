@@ -1,6 +1,7 @@
 class CC::Service::Asana < CC::Service
   class Config < CC::Service::Config
-    attribute :api_key, Axiom::Types::String, label: "API key"
+    attribute :personal_access_token, Axiom::Types::String, label: "Personal Access Token"
+    attribute :api_key, Axiom::Types::String, label: "API key (Deprecated)"
 
     attribute :workspace_id, Axiom::Types::String, label: "Workspace ID"
 
@@ -10,8 +11,14 @@ class CC::Service::Asana < CC::Service
     attribute :assignee, Axiom::Types::String, label: "Assignee",
       description: "Assignee email address (optional)"
 
-    validates :api_key, presence: true
+    validate :authorization_provided
     validates :workspace_id, presence: true
+
+    def authorization_provided
+      if api_key.blank? && personal_access_token.blank?
+        errors.add(:personal_access_token, "can't be blank")
+      end
+    end
   end
 
   ENDPOINT = "https://app.asana.com/api/1.0/tasks".freeze
@@ -82,6 +89,10 @@ class CC::Service::Asana < CC::Service
   end
 
   def authenticate_http
-    http.basic_auth(config.api_key, "")
+    if config.personal_access_token.present?
+      http.headers["Authorization"] = "Bearer #{config.personal_access_token}"
+    else
+      http.basic_auth(config.api_key, "")
+    end
   end
 end
