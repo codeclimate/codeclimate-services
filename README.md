@@ -134,4 +134,4 @@ When you open your PR, please include an image for your service.
 ## License
 
 See LICENSE.txt. This incorporates code from bugsnag-notification-plugins and
-github-services, both MIT licensed.
+github-services, both MIT licensed.  
