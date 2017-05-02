@@ -77,11 +77,12 @@ module CC::Service::HTTP
         end
       end
       options[:ssl][:ca_file] ||= ca_file
+      adapters = Array(options.delete(:adapter) || config[:adapter])
 
       Faraday.new(options) do |b|
         b.use(CC::Service::ResponseCheck)
         b.request(:url_encoded)
-        b.adapter(*Array(options[:adapter] || config[:adapter]))
+        b.adapter(*adapters)
       end
     end
   end

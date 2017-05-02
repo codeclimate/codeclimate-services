@@ -45,7 +45,7 @@ describe CC::Service::Jira, type: :service do
   end
 
   it "receive test" do
-    http_stubs.post "/rest/api/2/issue" do |_env|
+    http_stubs.post "/rest/api/2/issue/" do |_env|
       [200, {}, '{"id": 12345, "key": "CC-123", "self": "http://foo.bar"}']
     end
 
@@ -57,7 +57,7 @@ describe CC::Service::Jira, type: :service do
   private
 
   def assert_jira_receives(event_data, title, ticket_body)
-    http_stubs.post "/rest/api/2/issue" do |env|
+    http_stubs.post "/rest/api/2/issue/" do |env|
       body = JSON.parse(env[:body])
       expect(env[:request_headers]["Authorization"]).to eq("Basic Zm9vOmJhcg==")
       expect(body["fields"]["summary"]).to eq(title)
