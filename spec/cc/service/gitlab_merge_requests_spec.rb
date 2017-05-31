@@ -124,7 +124,9 @@ describe CC::Service::GitlabMergeRequests, type: :service do
   it "merge request status test failure" do
     http_stubs.post("api/v3/projects/hal%2Fhal9000/statuses/#{"0" * 40}") { |_env| [401, {}, ""] }
 
-    expect { receive_test({}, git_url: "ssh://git@gitlab.com/hal/hal9000.git") }.to raise_error(CC::Service::HTTPError)
+    response = receive_test({}, git_url: "ssh://git@gitlab.com/hal/hal9000.git")
+    expect(response[:ok]).to be false
+    expect(response[:message]).to eq CC::PullRequests::CANT_UPDATE_STATUS_MESSAGE 
   end
 
   it "merge request unknown state" do

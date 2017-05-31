@@ -1,4 +1,5 @@
 require "cc/presenters/pull_requests_presenter"
+require "cc/presenters/github_pull_requests_welcome_comment_presenter"
 
 class CC::Service::GitHubPullRequests < CC::PullRequests
   class Config < CC::Service::Config
@@ -19,12 +20,53 @@ class CC::Service::GitHubPullRequests < CC::PullRequests
     attribute :rollout_percentage, Axiom::Types::Integer,
       label: "Author Rollout Percentage",
       description: "The percentage of users to report status for"
+    attribute :welcome_comment_enabled, Axiom::Types::Boolean,
+      label: "Welcome comment enabled?",
+      description: "Post a welcome comment?",
+      default: false
+    attribute :welcome_comment_markdown, Axiom::Types::String,
+      label: "Welcome comment markdown",
+      description: "The body of the welcome comment for first-time contributors to this repo.",
+      default: CC::Service::GitHubPullRequestsWelcomeCommentPresenter::DEFAULT_BODY
 
     validates :oauth_token, presence: true
   end
 
   self.title = "GitHub Pull Requests"
   self.description = "Update pull requests on GitHub"
+
+  CANT_POST_COMMENTS_MESSAGE = "Access token is invalid - can't post comments".freeze
+  INVALID_TOKEN_MESSAGE = "Access token is invalid.".freeze
+
+  MESSAGES = {
+    [true, true] => VALID_TOKEN_MESSAGE,
+    [true, nil] => VALID_TOKEN_MESSAGE,
+    [false, nil] => CANT_UPDATE_STATUS_MESSAGE,
+    [true, false] => CANT_POST_COMMENTS_MESSAGE,
+    [false, true] => CANT_UPDATE_STATUS_MESSAGE,
+    [false, false] => INVALID_TOKEN_MESSAGE,
+  }.freeze
+
+  # Override:
+  def receive_test
+    setup_http
+
+    tests = [able_to_update_status?, able_to_post_comments?]
+
+    {
+      ok: tests.compact.all?,
+      message: MESSAGES.fetch(tests),
+    }
+  end
+
+  def receive_pull_request_opened
+    return unless config.welcome_comment_enabled
+    return unless payload.fetch("authors_first_contribution")
+
+    setup_http
+
+    @response = service_post(comments_url, { body: welcome_comment_markdown }.to_json)
+  end
 
   private
 
@@ -109,5 +151,31 @@ class CC::Service::GitHubPullRequests < CC::PullRequests
 
   def test_status_code
     422
+  end
+
+  def user_url
+    "#{config.base_url}/user"
+  end
+
+  def comments_url
+    "#{config.base_url}/repos/#{github_slug}/issues/#{number}/comments"
+  end
+
+  def able_to_comment?
+    response_includes_repo_scope?(service_get(user_url))
+  end
+
+  def welcome_comment_markdown
+    GitHubPullRequestsWelcomeCommentPresenter.new(@payload, config).welcome_message
+  end
+
+  def welcome_comment_enabled?
+    [true, "1"].include?(config.welcome_comment_enabled)
+  end
+
+  def able_to_post_comments?
+    if welcome_comment_enabled?
+      able_to_comment?
+    end
   end
 end
