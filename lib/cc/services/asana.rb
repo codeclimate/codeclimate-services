@@ -1,7 +1,7 @@
 class CC::Service::Asana < CC::Service
   class Config < CC::Service::Config
-    attribute :personal_access_token, Axiom::Types::String, label: "Personal Access Token"
-    attribute :api_key, Axiom::Types::String, label: "API key (Deprecated)"
+    attribute :personal_access_token, Axiom::Types::Token, label: "Personal Access Token"
+    attribute :api_key, Axiom::Types::Token, label: "API key (Deprecated)"
 
     attribute :workspace_id, Axiom::Types::String, label: "Workspace ID"
 

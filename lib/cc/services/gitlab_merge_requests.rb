@@ -4,7 +4,7 @@ class CC::Service::GitlabMergeRequests < CC::PullRequests
   class Config < CC::Service::Config
     CONTEXT = "codeclimate".freeze
 
-    attribute :access_token, Axiom::Types::String,
+    attribute :access_token, Axiom::Types::Token,
       label: "Access Token",
       description: "A personal access token with permissions for the repo."
     attribute :base_url, Axiom::Types::String,

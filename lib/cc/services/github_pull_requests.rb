@@ -2,7 +2,7 @@ require "cc/presenters/pull_requests_presenter"
 
 class CC::Service::GitHubPullRequests < CC::PullRequests
   class Config < CC::Service::Config
-    attribute :oauth_token, Axiom::Types::String,
+    attribute :oauth_token, Axiom::Types::Token,
       label: "OAuth Token",
       description: "A personal OAuth token with permissions for the repo."
     attribute :base_url, Axiom::Types::String,
