@@ -6,6 +6,7 @@ module CC
     require "cc/service/formatter"
     require "cc/service/invocation"
     require "axiom/types/password"
+    require "axiom/types/token"
 
     dir = File.expand_path "../helpers", __FILE__
     Dir["#{dir}/*_helper.rb"].sort.each do |helper|

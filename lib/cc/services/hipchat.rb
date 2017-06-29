@@ -1,6 +1,6 @@
 class CC::Service::HipChat < CC::Service
   class Config < CC::Service::Config
-    attribute :auth_token, Axiom::Types::String,
+    attribute :auth_token, Axiom::Types::Token,
       description: "Your HipChat API auth token"
 
     attribute :room_id, Axiom::Types::String,

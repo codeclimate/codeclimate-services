@@ -1,6 +1,6 @@
 class CC::Service::GitHubIssues < CC::Service
   class Config < CC::Service::Config
-    attribute :oauth_token, Axiom::Types::String,
+    attribute :oauth_token, Axiom::Types::Token,
       label: "OAuth Token",
       description: "A personal OAuth token with permissions for the repo"
     attribute :project, Axiom::Types::String,

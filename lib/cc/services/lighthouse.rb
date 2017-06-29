@@ -3,7 +3,7 @@ class CC::Service::Lighthouse < CC::Service
     attribute :subdomain, Axiom::Types::String,
       description: "Your Lighthouse subdomain"
 
-    attribute :api_token, Axiom::Types::String,
+    attribute :api_token, Axiom::Types::Token,
       label: "API Token",
       description: "Your Lighthouse API Key (http://help.lighthouseapp.com/kb/api/how-do-i-get-an-api-token)"
 

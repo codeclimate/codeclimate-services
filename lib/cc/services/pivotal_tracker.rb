@@ -1,6 +1,6 @@
 class CC::Service::PivotalTracker < CC::Service
   class Config < CC::Service::Config
-    attribute :api_token, Axiom::Types::String,
+    attribute :api_token, Axiom::Types::Token,
       description: "Your Pivotal Tracker API Token, from your profile page"
 
     attribute :project_id, Axiom::Types::String,
