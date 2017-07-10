@@ -1,5 +1,5 @@
 module CC
   module Services
-    VERSION = "1.9.8".freeze
+    VERSION = "1.10.0".freeze
   end
 end
