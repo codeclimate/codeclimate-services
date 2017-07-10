@@ -20,7 +20,7 @@ describe CC::Service::GitlabMergeRequests, type: :service do
       "hal/hal9000",
       "abc123",
       "state" => "success",
-      "description" => "2 new issues (1 fixed)",
+      "description" => "2 issues to fix",
     )
 
     receive_merge_request(
@@ -36,7 +36,7 @@ describe CC::Service::GitlabMergeRequests, type: :service do
       "hal/hal9000",
       "abc123",
       "state" => "failed",
-      "description" => "2 new issues (1 fixed)",
+      "description" => "2 issues to fix",
     )
 
     receive_merge_request(

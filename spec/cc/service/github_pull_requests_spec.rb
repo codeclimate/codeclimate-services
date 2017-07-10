@@ -10,7 +10,7 @@ describe CC::Service::GitHubPullRequests, type: :service do
 
   it "pull request status success detailed" do
     expect_status_update("pbrisbin/foo", "abc123", "state" => "success",
-      "description" => "2 new issues (1 fixed)")
+      "description" => "2 issues to fix")
 
     receive_pull_request(
       {},
@@ -22,7 +22,7 @@ describe CC::Service::GitHubPullRequests, type: :service do
 
   it "pull request status failure" do
     expect_status_update("pbrisbin/foo", "abc123", "state" => "failure",
-      "description" => "2 new issues (1 fixed)")
+      "description" => "2 issues to fix")
 
     receive_pull_request(
       {},
@@ -34,7 +34,7 @@ describe CC::Service::GitHubPullRequests, type: :service do
 
   it "pull request status success generic" do
     expect_status_update("pbrisbin/foo", "abc123", "state" => "success",
-      "description" => /2 new issues \(1 fixed\)/)
+      "description" => "2 issues to fix")
 
     receive_pull_request({}, github_slug: "pbrisbin/foo",
                              commit_sha:  "abc123",
