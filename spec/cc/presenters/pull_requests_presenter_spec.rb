@@ -3,12 +3,12 @@ require "cc/presenters/pull_requests_presenter"
 describe CC::Service::PullRequestsPresenter, type: :service do
   it "message singular" do
     expect(build_presenter("fixed" => 1, "new" => 1).success_message).
-      to eq("1 new issue (1 fixed)")
+      to eq("1 issue to fix")
   end
 
   it "message plural" do
     expect(build_presenter("fixed" => 1, "new" => 2).success_message).
-      to eq("2 new issues (1 fixed)")
+      to eq("2 issues to fix")
   end
 
   it "message only fixed" do
@@ -18,12 +18,12 @@ describe CC::Service::PullRequestsPresenter, type: :service do
 
   it "message only new" do
     expect(build_presenter("fixed" => 0, "new" => 3).success_message).
-      to eq("3 new issues")
+      to eq("3 issues to fix")
   end
 
   it "message no new or fixed" do
     expect(build_presenter("fixed" => 0, "new" => 0).success_message).
-      to eq("no new or fixed issues")
+      to eq("All good!")
   end
 
   it "message coverage same" do
@@ -45,7 +45,7 @@ describe CC::Service::PullRequestsPresenter, type: :service do
 
   it "message approved is empty string" do
     expect(build_presenter({"fixed" => 1, "new" => 1}, { "approved_by" => ""}).success_message).
-      to eq("1 new issue (1 fixed)")
+      to eq("1 issue to fix")
   end
 
   private
