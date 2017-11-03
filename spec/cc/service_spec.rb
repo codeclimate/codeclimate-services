@@ -75,4 +75,53 @@ describe CC::Service, type: :service do
 
     expect(services.include?(CC::PullRequests)).not_to eq(true)
   end
+
+  context "with proxy details" do
+    before do
+      @old_no_proxy = ENV["no_proxy"]
+      @old_http_proxy = ENV["http_proxy"]
+      ENV["no_proxy"] = "github.com"
+      ENV["http_proxy"] = "http://127.0.0.2:42"
+    end
+
+    after do
+      ENV["no_proxy"] = @old_no_proxy
+      ENV["http_proxy"] = @old_http_proxy
+    end
+
+    it "uses the proxy when it should" do
+      stub_http("http://proxied.test/my/test/url") do |env|
+        expect(env.request.proxy).to be_instance_of(Faraday::ProxyOptions)
+        expect(env.request.proxy.uri).to eq(URI.parse("http://127.0.0.2:42"))
+        [200, {}, '{"ok": true, "thing": "123"}']
+      end
+
+      response = service_post("http://proxied.test/my/test/url", { token: "1234" }.to_json, {}) do |inner_response|
+        body = JSON.parse(inner_response.body)
+        { thing: body["thing"] }
+      end
+
+      expect(response[:ok]).to eq(true)
+      expect(response[:params]).to eq('{"token":"1234"}')
+      expect(response[:endpoint_url]).to eq("http://proxied.test/my/test/url")
+      expect(response[:status]).to eq(200)
+    end
+
+    it "respects proxy exclusions" do
+      stub_http("http://github.com/my/test/url") do |env|
+        expect(env.request.proxy).to be_nil
+        [200, {}, '{"ok": true, "thing": "123"}']
+      end
+
+      response = service_post("http://github.com/my/test/url", { token: "1234" }.to_json, {}) do |inner_response|
+        body = JSON.parse(inner_response.body)
+        { thing: body["thing"] }
+      end
+
+      expect(response[:ok]).to eq(true)
+      expect(response[:params]).to eq('{"token":"1234"}')
+      expect(response[:endpoint_url]).to eq("http://github.com/my/test/url")
+      expect(response[:status]).to eq(200)
+    end
+  end
 end
