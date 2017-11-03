@@ -58,7 +58,10 @@ module CC::Service::HTTP
       CC::Service::SafeWebhook.ensure_safe!(url)
 
       http.send(method) do |req|
-        req.url(url) if url
+        if url
+          req.url(url)
+          req.options.proxy = http.proxy_from_env(url)
+        end
         req.headers.update(headers) if headers
         req.body = body if body
         block.call req if block
