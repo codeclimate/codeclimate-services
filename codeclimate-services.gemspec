@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email = ["bryan@brynary.com"]
   spec.summary = "Service classes for Code Climate"
   spec.description = "Service classes for Code Climate"
-  spec.homepage = "https://developer.codeclimate.com/"
+  spec.homepage = "https://codeclimate.com/"
   spec.license = "MIT"
 
   spec.files = `git ls-files`.split($/)
