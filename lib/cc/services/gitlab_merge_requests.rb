@@ -58,12 +58,12 @@ class CC::Service::GitlabMergeRequests < CC::PullRequests
 
   def setup_http
     http.headers["Content-Type"] = "application/json"
-    http.headers["PRIVATE-TOKEN"] = config.access_token
+    http.headers["Private-Token"] = config.access_token
     http.headers["User-Agent"] = "Code Climate"
   end
 
   def base_status_url(commit_sha)
-    "#{config.base_url}/api/v3/projects/#{CGI.escape(slug)}/statuses/#{commit_sha}"
+    "#{config.base_url}/api/v4/projects/#{CGI.escape(slug)}/statuses/#{commit_sha}"
   end
 
   def slug
