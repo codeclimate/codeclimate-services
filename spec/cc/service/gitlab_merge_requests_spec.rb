@@ -116,13 +116,13 @@ describe CC::Service::GitlabMergeRequests, type: :service do
   end
 
   it "merge request status test success" do
-    http_stubs.post("api/v3/projects/hal%2Fhal9000/statuses/#{"0" * 40}") { |_env| [404, {}, ""] }
+    http_stubs.post("api/v4/projects/hal%2Fhal9000/statuses/#{"0" * 40}") { |_env| [404, {}, ""] }
 
     expect(receive_test({}, git_url: "ssh://git@gitlab.com/hal/hal9000.git")[:ok]).to eq(true)
   end
 
   it "merge request status test failure" do
-    http_stubs.post("api/v3/projects/hal%2Fhal9000/statuses/#{"0" * 40}") { |_env| [401, {}, ""] }
+    http_stubs.post("api/v4/projects/hal%2Fhal9000/statuses/#{"0" * 40}") { |_env| [401, {}, ""] }
 
     expect { receive_test({}, git_url: "ssh://git@gitlab.com/hal/hal9000.git") }.to raise_error(CC::Service::HTTPError)
   end
@@ -134,8 +134,8 @@ describe CC::Service::GitlabMergeRequests, type: :service do
   end
 
   it "different base url" do
-    http_stubs.post("api/v3/projects/hal%2Fhal9000/statuses/#{"0" * 40}") do |env|
-      expect(env[:url].to_s).to eq("https://gitlab.hal.org/api/v3/projects/hal%2Fhal9000/statuses/#{"0" * 40}")
+    http_stubs.post("api/v4/projects/hal%2Fhal9000/statuses/#{"0" * 40}") do |env|
+      expect(env[:url].to_s).to eq("https://gitlab.hal.org/api/v4/projects/hal%2Fhal9000/statuses/#{"0" * 40}")
       [404, {}, ""]
     end
 
@@ -145,8 +145,8 @@ describe CC::Service::GitlabMergeRequests, type: :service do
   private
 
   def expect_status_update(repo, commit_sha, params)
-    http_stubs.post "api/v3/projects/#{CGI.escape(repo)}/statuses/#{commit_sha}" do |env|
-      expect(env[:request_headers]["PRIVATE-TOKEN"]).to eq("123")
+    http_stubs.post "api/v4/projects/#{CGI.escape(repo)}/statuses/#{commit_sha}" do |env|
+      expect(env[:request_headers]["Private-Token"]).to eq("123")
 
       body = JSON.parse(env[:body])
 
