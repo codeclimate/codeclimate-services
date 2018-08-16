@@ -38,9 +38,9 @@ module CC
 
         return message if @covered_percent_delta.nil?
 
-        if @covered_percent_delta > 0
+        if @covered_percent_delta.round(2) > 0
           message += " (+#{formatted_percent(@covered_percent_delta)}%)"
-        elsif @covered_percent_delta < 0
+        elsif @covered_percent_delta.round(2) < 0
           message += " (#{formatted_percent(@covered_percent_delta)}%)"
         end
 

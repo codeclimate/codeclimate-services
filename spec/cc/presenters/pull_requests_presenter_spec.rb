@@ -34,12 +34,16 @@ describe CC::Service::PullRequestsPresenter, type: :service do
     expect("85%").to eq(build_presenter({}, "covered_percent" => 85, "covered_percent_delta" => nil).coverage_message)
   end
 
+  it "message coverage the same when rounded" do
+    expect("85%").to eq(build_presenter({}, "covered_percent" => 85, "covered_percent_delta" => 0.0005).coverage_message)
+  end
+
   it "message coverage up" do
     expect("85.5% (+2.46%)").to eq(build_presenter({}, "covered_percent" => 85.5, "covered_percent_delta" => 2.4567).coverage_message)
   end
 
   it "message coverage down" do
-    expect("85.35% (-3%)").to eq( build_presenter({}, "covered_percent" => 85.348, "covered_percent_delta" => -3.0).coverage_message)
+    expect("85.35% (-3%)").to eq(build_presenter({}, "covered_percent" => 85.348, "covered_percent_delta" => -3.0).coverage_message)
   end
 
   it "message approved" do
