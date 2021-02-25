@@ -1,0 +1,16 @@
+version: 2
+
+jobs:
+  test:
+    machine:
+      docker_layer_caching: true
+    working_directory: ~/codeclimate/codeclimate-services
+    steps:
+      - checkout
+      - run: bundle install && bundle exec rake && bundle exec codeclimate-test-reporter
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test
