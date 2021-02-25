@@ -3,7 +3,7 @@ require "base64"
 class CC::Service::Jira < CC::Service
   class Config < CC::Service::Config
     attribute :domain, Axiom::Types::String,
-      description: "Your JIRA host domain (e.g. yourjira.com[:PORT], please exclude https://. Include PORT only if you are using a port number to access your own server)"
+      description: "Your JIRA host domain (e.g. yourjira.com[:PORT], please exclude https:// and only add PORT if you are using a different port number to access your own server that is not the default)"
 
     attribute :username, Axiom::Types::String,
       description: "Must exactly match the 'username' that appears on your JIRA profile page."
