@@ -131,6 +131,18 @@ and always return a hash of `{ ok: true|false, message: "String (HTML ok)" }`.
 
 When you open your PR, please include an image for your service.
 
+## Release
+
+1. Bump the version on `lib/cc/services/version`
+2. A gem owner developer should run the following: (check owners here https://rubygems.org/gems/codeclimate-services)
+```shell
+bundle install
+gem build codeclimate-services.gemspec
+gem push codeclimate-services-<VERSION>.gem
+git tag v<VERSION>
+git push origin master --tags
+```
+
 ## License
 
 See LICENSE.txt. This incorporates code from bugsnag-notification-plugins and
