@@ -2,8 +2,8 @@ version: 2
 
 jobs:
   test:
-    machine:
-      docker_layer_caching: true
+    docker:
+      - image: circleci/ruby:2.4.4
     working_directory: ~/codeclimate/codeclimate-services
     steps:
       - checkout
