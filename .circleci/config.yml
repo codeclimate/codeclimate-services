@@ -3,7 +3,7 @@ version: 2
 jobs:
   test:
     docker:
-      - image: circleci/ruby:2.4.4
+      - image: circleci/ruby:2.5.0
     setup_remote_docker:
       docker_layer_chaching: true
     working_directory: ~/codeclimate/codeclimate-services
