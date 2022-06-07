@@ -2,6 +2,7 @@ module CC
   module Formatters
     class LinkedFormatter < CC::Service::Formatter
       def format_test
+        # test something
         message = message_prefix
         message << "This is a test of the #{service_title} service hook"
       end
