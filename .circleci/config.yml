@@ -12,13 +12,12 @@ jobs:
           name: Setup Coverage
           command: |
            (curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > cc-test-reporter && chmod +x ./cc-test-reporter) || echo "Couldn't download test reporter"
-      - run: ./cc-test-reporter before-build
       - run: bundle install && bundle exec rake
       - persist_to_workspace:
           root: .
           paths:
             - coverage
-      - run: ./cc-test-reporter after-build --coverage-input-type clover --exit-code $? || echo "Send coverage skipped..."
+      - run: ./cc-test-reporter after-build --exit-code $? || echo "Send coverage skipped..."
 
 workflows:
   version: 2
