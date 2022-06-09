@@ -3,8 +3,6 @@ jobs:
   test:
     environment:
       CC_TEST_REPORTER_ID: ad21bc049a323138b0a88086069115e9df6dba417912095b7bb17b7a65fc6182
-    machine:
-      docker_layer_caching: true
     docker:
       - image: "circleci/ruby:2.4.4"
     working_directory: ~/codeclimate/codeclimate-services
@@ -20,6 +18,6 @@ jobs:
 
 workflows:
   version: 2
-  build_deploy:
+  test:
     jobs:
       - test
