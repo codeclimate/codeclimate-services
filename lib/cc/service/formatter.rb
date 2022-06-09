@@ -19,7 +19,8 @@ class CC::Service::Formatter < SimpleDelegator
   end
 
   def message_prefix
-    prefix = (options[:prefix] || "").to_s
+    #prefix = (options[:prefix] || "").to_s
+    prefix = options.fetch(:prefix, "").to_s
 
     if options[:prefix_with_repo]
       prefix << "[#{repo_name}]"
