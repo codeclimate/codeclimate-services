@@ -1,15 +1,23 @@
-version: 2
-
+version: 2.0
 jobs:
   test:
+    environment:
+      CC_TEST_REPORTER_ID: ad21bc049a323138b0a88086069115e9df6dba417912095b7bb17b7a65fc6182
     docker:
-      - image: circleci/ruby:2.4.4
-    setup_remote_docker:
-      docker_layer_chaching: true
+      - image: "circleci/ruby:2.7.5"
     working_directory: ~/codeclimate/codeclimate-services
     steps:
       - checkout
-      - run: bundle install && bundle exec rake && bundle exec codeclimate-test-reporter
+      - run:
+          name: Setup Coverage
+          command: |
+           (curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > cc-test-reporter && chmod +x ./cc-test-reporter) || echo "Couldn't download test reporter"
+      - run: bundle install && bundle exec rake
+      - persist_to_workspace:
+          root: .
+          paths:
+            - coverage
+      - run: ./cc-test-reporter after-build --exit-code $? || echo "Send coverage skipped..."
 
 workflows:
   version: 2
