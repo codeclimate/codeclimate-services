@@ -31,6 +31,19 @@ class CC::PullRequests < CC::Service
     response
   end
 
+  def receive_pull_request_diff_coverage
+    setup_http
+    state = @payload["state"]
+
+    if state == "skipped" && report_status?
+      update_diff_coverage_status_skipped
+    else
+      @response = simple_failure("Unknown state")
+    end
+
+    response
+  end
+
   private
 
   def report_status?
