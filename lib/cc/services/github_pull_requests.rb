@@ -71,6 +71,11 @@ class CC::Service::GitHubPullRequests < CC::PullRequests
     update_status("success", presenter.coverage_message, "#{config.context}/coverage")
   end
 
+  def update_diff_coverage_status_skipped
+    update_status("success", presenter.skipped_message, "#{config.context}/diff-coverage")
+    update_status("success", presenter.skipped_message, "#{config.context}/total-coverage")
+  end
+
   def update_status_failure
     update_status("failure", presenter.success_message)
   end

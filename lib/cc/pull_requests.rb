@@ -6,29 +6,15 @@ class CC::PullRequests < CC::Service
   end
 
   def receive_pull_request
-    setup_http
-    state = @payload["state"]
-
-    if %w[pending success failure skipped error].include?(state) && report_status?
-      send("update_status_#{state}")
-    else
-      @response = simple_failure("Unknown state")
-    end
-
-    response
+    receive_request(%w[pending success failure skipped error], :update_status)
   end
 
   def receive_pull_request_coverage
-    setup_http
-    state = @payload["state"]
+    receive_request("success", :update_coverage_status)
+  end
 
-    if state == "success" && report_status?
-      update_coverage_status_success
-    else
-      @response = simple_failure("Unknown state")
-    end
-
-    response
+  def receive_pull_request_diff_coverage
+    receive_request("skipped", :update_diff_coverage_status)
   end
 
   private
@@ -54,6 +40,10 @@ class CC::PullRequests < CC::Service
   end
 
   def update_coverage_status_success
+    raise NotImplementedError
+  end
+
+  def update_diff_coverage_status_skipped
     raise NotImplementedError
   end
 
@@ -89,6 +79,19 @@ class CC::PullRequests < CC::Service
     else
       raise
     end
+  end
+
+  def receive_request(*permitted_statuses, call_method)
+    setup_http
+    state = @payload["state"]
+
+    if permitted_statuses.flatten.include?(state) && report_status?
+      send(call_method.to_s + "_#{state}")
+    else
+      @response = simple_failure("Unknown state")
+    end
+
+    response
   end
 
   def presenter

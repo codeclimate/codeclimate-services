@@ -82,6 +82,18 @@ describe CC::Service::GitHubPullRequests, type: :service do
       covered_percent_delta: 2.0)
   end
 
+  it "pull request diff coverage skipped" do
+    expect_status_update("pbrisbin/foo", "abc123", "state" => "success",
+      "description" => /skipped analysis/, "context" => /diff-coverage/)
+    expect_status_update("pbrisbin/foo", "abc123", "state" => "success",
+    "description" => /skipped analysis/, "context" => /total-coverage/)
+
+    receive_pull_request_diff_coverage({},
+      github_slug:     "pbrisbin/foo",
+      commit_sha:      "abc123",
+      state:           "skipped")
+  end
+
   it "pull request status test success" do
     http_stubs.post("/repos/pbrisbin/foo/statuses/#{"0" * 40}") { |_env| [422, {}, ""] }
 
@@ -210,6 +222,14 @@ describe CC::Service::GitHubPullRequests, type: :service do
       CC::Service::GitHubPullRequests,
       { oauth_token: "123" }.merge(config),
       { name: "pull_request_coverage", issue_comparison_counts: { "fixed" => 1, "new" => 2 } }.merge(event_data),
+    )
+  end
+
+  def receive_pull_request_diff_coverage(config, event_data)
+    service_receive(
+      CC::Service::GitHubPullRequests,
+      { oauth_token: "123" }.merge(config),
+      { name: "pull_request_diff_coverage" }.merge(event_data),
     )
   end
 
