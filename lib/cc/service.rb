@@ -37,6 +37,7 @@ module CC
       pull_request
       pull_request_coverage
       pull_request_diff_coverage
+      pull_request_total_coverage
       quality
       snapshot
       test

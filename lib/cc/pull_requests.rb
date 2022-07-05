@@ -14,7 +14,11 @@ class CC::PullRequests < CC::Service
   end
 
   def receive_pull_request_diff_coverage
-    receive_request("skipped", :update_diff_coverage_status)
+    receive_request(%w[pending skipped], :update_diff_coverage_status)
+  end
+
+  def receive_pull_request_total_coverage
+    receive_request(%w[pending skipped], :update_total_coverage_status)
   end
 
   private
@@ -44,6 +48,18 @@ class CC::PullRequests < CC::Service
   end
 
   def update_diff_coverage_status_skipped
+    raise NotImplementedError
+  end
+
+  def update_diff_coverage_status_pending
+    raise NotImplementedError
+  end
+
+  def update_total_coverage_status_skipped
+    raise NotImplementedError
+  end
+
+  def update_total_coverage_status_pending
     raise NotImplementedError
   end
 
