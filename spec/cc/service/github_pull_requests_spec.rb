@@ -104,22 +104,24 @@ describe CC::Service::GitHubPullRequests, type: :service do
 
   it "pull request diff coverage pending" do
     expect_status_update("pbrisbin/foo", "abc123", "state" => "pending",
-      "description" => /is analyzing/, "context" => /diff-coverage/)
+      "description" => /a test message/, "context" => /diff-coverage/)
 
     receive_pull_request_diff_coverage({},
       github_slug:     "pbrisbin/foo",
       commit_sha:      "abc123",
-      state:           "pending")
+      state:           "pending",
+      message: "a test message")
   end
 
   it "pull request total coverage skipped" do
     expect_status_update("pbrisbin/foo", "abc123", "state" => "pending",
-      "description" => /is analyzing/, "context" => /total-coverage/)
+      "description" => /a test message/, "context" => /total-coverage/)
 
     receive_pull_request_total_coverage({},
       github_slug:     "pbrisbin/foo",
       commit_sha:      "abc123",
-      state:           "pending")
+      state:           "pending",
+      message: "a test message")
   end
 
   it "pull request status test success" do
