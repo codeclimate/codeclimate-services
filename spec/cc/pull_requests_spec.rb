@@ -120,4 +120,12 @@ describe CC::PullRequests do
 
     it_behaves_like "receive method"
   end
+
+  describe "#receive_pull_request_total_coverage" do
+    let(:payload_status) { "skipped" }
+    let(:expected_method_name) { :update_total_coverage_status_skipped }
+    let(:method_to_call) { :receive_pull_request_total_coverage }
+
+    it_behaves_like "receive method"
+  end
 end

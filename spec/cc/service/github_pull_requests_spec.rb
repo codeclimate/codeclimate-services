@@ -85,13 +85,43 @@ describe CC::Service::GitHubPullRequests, type: :service do
   it "pull request diff coverage skipped" do
     expect_status_update("pbrisbin/foo", "abc123", "state" => "success",
       "description" => /skipped analysis/, "context" => /diff-coverage/)
-    expect_status_update("pbrisbin/foo", "abc123", "state" => "success",
-    "description" => /skipped analysis/, "context" => /total-coverage/)
 
     receive_pull_request_diff_coverage({},
       github_slug:     "pbrisbin/foo",
       commit_sha:      "abc123",
       state:           "skipped")
+  end
+
+  it "pull request total coverage skipped" do
+    expect_status_update("pbrisbin/foo", "abc123", "state" => "success",
+      "description" => /skipped analysis/, "context" => /total-coverage/)
+
+    receive_pull_request_total_coverage({},
+      github_slug:     "pbrisbin/foo",
+      commit_sha:      "abc123",
+      state:           "skipped")
+  end
+
+  it "pull request diff coverage pending" do
+    expect_status_update("pbrisbin/foo", "abc123", "state" => "pending",
+      "description" => /a test message/, "context" => /diff-coverage/)
+
+    receive_pull_request_diff_coverage({},
+      github_slug:     "pbrisbin/foo",
+      commit_sha:      "abc123",
+      state:           "pending",
+      message: "a test message")
+  end
+
+  it "pull request total coverage skipped" do
+    expect_status_update("pbrisbin/foo", "abc123", "state" => "pending",
+      "description" => /a test message/, "context" => /total-coverage/)
+
+    receive_pull_request_total_coverage({},
+      github_slug:     "pbrisbin/foo",
+      commit_sha:      "abc123",
+      state:           "pending",
+      message: "a test message")
   end
 
   it "pull request status test success" do
@@ -230,6 +260,14 @@ describe CC::Service::GitHubPullRequests, type: :service do
       CC::Service::GitHubPullRequests,
       { oauth_token: "123" }.merge(config),
       { name: "pull_request_diff_coverage" }.merge(event_data),
+    )
+  end
+
+  def receive_pull_request_total_coverage(config, event_data)
+    service_receive(
+      CC::Service::GitHubPullRequests,
+      { oauth_token: "123" }.merge(config),
+      { name: "pull_request_total_coverage" }.merge(event_data),
     )
   end
 

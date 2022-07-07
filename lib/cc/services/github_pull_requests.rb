@@ -73,7 +73,27 @@ class CC::Service::GitHubPullRequests < CC::PullRequests
 
   def update_diff_coverage_status_skipped
     update_status("success", presenter.skipped_message, "#{config.context}/diff-coverage")
+
+  end
+
+  def update_total_coverage_status_skipped
     update_status("success", presenter.skipped_message, "#{config.context}/total-coverage")
+  end
+
+  def update_diff_coverage_status_pending
+    update_status(
+      "pending",
+      @payload["message"] || presenter.pending_message,
+      "#{config.context}/diff-coverage"
+    )
+  end
+
+  def update_total_coverage_status_pending
+    update_status(
+      "pending",
+      @payload["message"] || presenter.pending_message,
+      "#{config.context}/total-coverage"
+    )
   end
 
   def update_status_failure
