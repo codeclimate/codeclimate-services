@@ -5,7 +5,7 @@ require "cc/services/version"
 
 Gem::Specification.new do |spec|
   spec.name = "codeclimate-services"
-  spec.version = CC::Services::VERSION
+  spec.version = CC::Services.version
   spec.authors = ["Bryan Helmkamp"]
   spec.email = ["bryan@brynary.com"]
   spec.summary = "Service classes for Code Climate"
