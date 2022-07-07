@@ -1,5 +1,9 @@
 module CC
   module Services
-    VERSION = "1.11.3".freeze
+    def version
+      path = File.expand_path("../../../../VERSION", __FILE__)
+      @version ||= File.read(path).strip
+    end
+    module_function :version
   end
 end

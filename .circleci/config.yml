@@ -1,4 +1,10 @@
 version: 2.0
+init: &init
+  run:
+    name: init
+    command: |
+      echo '. .circleci/shared.bash' >> "$BASH_ENV"
+
 jobs:
   test:
     environment:
@@ -19,8 +25,33 @@ jobs:
             - coverage
       - run: ./cc-test-reporter after-build --exit-code $? || echo "Send coverage skipped..."
 
+  publish:
+    machine: true
+    steps:
+      - checkout
+      - *init
+      - run:
+          name: Install Hub dependency
+          command: install_hub
+      - run:
+          name: Login on RubyGems
+          command: login_to_rubygems
+      - run:
+          name: Publish new version
+          command: |
+            if [ `git diff --quiet HEAD~ VERSION; echo $?` -eq 1 ]; then
+              publish_new_version
+            fi
+
 workflows:
   version: 2
   test:
     jobs:
       - test
+      - publish:
+          requires:
+            - test
+          filters:
+            branches:
+              only:
+                - master
