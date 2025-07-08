@@ -19,9 +19,9 @@ class CC::Service::GitHubPullRequests < CC::PullRequests
     attribute :rollout_percentage, Axiom::Types::Integer,
       label: "Author Rollout Percentage",
       description: "The percentage of users to report status for"
-    attribute :eol_commit_status_enabled, Axiom::Types::Boolean,
-      label: "EOL Commit Status Enabled",
-      description: "Enable EOL commit status reporting",
+    attribute :hard_fail_migration_notice, Axiom::Types::Boolean,
+      label: "Hard Fail Migration Notice Enabled",
+      description: "Enable hard fail commit status migration notice reporting",
       default: false
 
     validates :oauth_token, presence: true
@@ -140,7 +140,7 @@ class CC::Service::GitHubPullRequests < CC::PullRequests
     422
   end
 
-  def eol_commit_status_enabled?
-    config.eol_commit_status_enabled
+  def hard_fail_migration_notice_enabled?
+    config.hard_fail_migration_notice
   end
 end

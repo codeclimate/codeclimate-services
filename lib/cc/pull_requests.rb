@@ -79,7 +79,7 @@ class CC::PullRequests < CC::Service
     raise NotImplementedError
   end
 
-  def eol_commit_status_enabled?
+  def hard_fail_migration_notice_enabled?
     false
   end
 
@@ -107,7 +107,7 @@ class CC::PullRequests < CC::Service
 
     if permitted_statuses.flatten.include?(state) && report_status?
       send(call_method.to_s + "_#{state}")
-      send_eol_commit_status(commit_sha)
+      send_hard_fail_migration_notice_commit_status(commit_sha)
     else
       @response = simple_failure("Unknown state")
     end
@@ -115,8 +115,8 @@ class CC::PullRequests < CC::Service
     response
   end
 
-  def send_eol_commit_status(commit_sha)
-    return unless eol_commit_status_enabled?
+  def send_hard_fail_migration_notice_commit_status(commit_sha)
+    return unless hard_fail_migration_notice_enabled?
 
     # Temporarily store the original target_url and replace it
     original_target_url = @payload["details_url"]
@@ -124,8 +124,8 @@ class CC::PullRequests < CC::Service
     
     update_status(
       "failure",
-      "Code Climate support is ending! Please migrate to qlty.sh",
-      "codeclimate/eol"
+      "Code Climate plans to stop sending commit statuses to GitHub. Migrate to Qlty.sh for continued support.",
+      "codeclimate/migrate-to-qlty-sh"
     )
     
     # Restore the original target_url
