@@ -124,7 +124,7 @@ class CC::PullRequests < CC::Service
     
     update_status(
       "failure",
-      "Code Climate plans to stop sending commit statuses to GitHub. Migrate to Qlty.sh for continued support.",
+      "Code Climate will stop sending commit statuses to GitHub on July 18th. Migrate to Qlty.sh for continued support.",
       "codeclimate/migrate-to-qlty-sh"
     )
     
