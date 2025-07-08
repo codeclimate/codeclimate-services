@@ -19,6 +19,10 @@ class CC::Service::GitHubPullRequests < CC::PullRequests
     attribute :rollout_percentage, Axiom::Types::Integer,
       label: "Author Rollout Percentage",
       description: "The percentage of users to report status for"
+    attribute :eol_commit_status_enabled, Axiom::Types::Boolean,
+      label: "EOL Commit Status Enabled",
+      description: "Enable EOL commit status reporting",
+      default: false
 
     validates :oauth_token, presence: true
   end
@@ -134,5 +138,9 @@ class CC::Service::GitHubPullRequests < CC::PullRequests
 
   def test_status_code
     422
+  end
+
+  def eol_commit_status_enabled?
+    config.eol_commit_status_enabled
   end
 end
