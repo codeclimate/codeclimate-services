@@ -124,7 +124,7 @@ class CC::PullRequests < CC::Service
 
     update_status(
       "error",
-      "Code Climate has been replaced by Qlty and will be eol imminently.",
+      "Code Climate has been replaced by Qlty and will be EOL imminently.",
       "codeclimate/upgrade"
     )
 
