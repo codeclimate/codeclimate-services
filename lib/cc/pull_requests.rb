@@ -123,9 +123,9 @@ class CC::PullRequests < CC::Service
     @payload["details_url"] = "https://docs.qlty.sh/migration/guide"
 
     update_status(
-      "success", # will change this or make this failing soon
-      "Code Climate will stop sending commit statuses to GitHub imminently. Migrate to Qlty.sh for continued support.",
-      "codeclimate/eol"
+      "error",
+      "Code Climate has been replaced by Qlty and will be eol imminently.",
+      "codeclimate/upgrade"
     )
 
     # Restore the original target_url
