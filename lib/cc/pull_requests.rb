@@ -79,7 +79,7 @@ class CC::PullRequests < CC::Service
     raise NotImplementedError
   end
 
-  def hard_fail_migration_notice_enabled?
+  def create_migration_notice_commit_status_enabled?
     false
   end
 
@@ -107,7 +107,7 @@ class CC::PullRequests < CC::Service
 
     if permitted_statuses.flatten.include?(state) && report_status?
       send(call_method.to_s + "_#{state}")
-      send_hard_fail_migration_notice_commit_status(commit_sha)
+      create_migration_notice_commit_status(commit_sha)
     else
       @response = simple_failure("Unknown state")
     end
@@ -115,8 +115,8 @@ class CC::PullRequests < CC::Service
     response
   end
 
-  def send_hard_fail_migration_notice_commit_status(commit_sha)
-    return unless hard_fail_migration_notice_enabled?
+  def create_migration_notice_commit_status(commit_sha)
+    return unless create_migration_notice_commit_status_enabled?
 
     # Temporarily store the original target_url and replace it
     original_target_url = @payload["details_url"]

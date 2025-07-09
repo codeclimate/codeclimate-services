@@ -19,9 +19,9 @@ class CC::Service::GitHubPullRequests < CC::PullRequests
     attribute :rollout_percentage, Axiom::Types::Integer,
       label: "Author Rollout Percentage",
       description: "The percentage of users to report status for"
-    attribute :hard_fail_migration_notice, Axiom::Types::Boolean,
-      label: "Hard Fail Migration Notice Enabled",
-      description: "Enable hard fail commit status migration notice reporting",
+    attribute :create_migration_notice_commit_status, Axiom::Types::Boolean,
+      label: "Create Migration Notice",
+      description: "Post a notice about the migration to Qlty.sh as a failing commit status",
       default: false
 
     validates :oauth_token, presence: true
@@ -140,7 +140,7 @@ class CC::Service::GitHubPullRequests < CC::PullRequests
     422
   end
 
-  def hard_fail_migration_notice_enabled?
-    config.hard_fail_migration_notice
+  def create_migration_notice_commit_status_enabled?
+    config.create_migration_notice_commit_status
   end
 end
