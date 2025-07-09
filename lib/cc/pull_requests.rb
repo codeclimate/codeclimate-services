@@ -121,13 +121,13 @@ class CC::PullRequests < CC::Service
     # Temporarily store the original target_url and replace it
     original_target_url = @payload["details_url"]
     @payload["details_url"] = "https://docs.qlty.sh/migration/guide"
-    
+
     update_status(
       "success", # will change this or make this failing soon
-      "Code Climate will stop sending commit statuses to GitHub on July 18th. Migrate to Qlty.sh for continued support.",
-      "codeclimate/migrate-to-qlty-sh"
+      "Code Climate will stop sending commit statuses to GitHub imminently. Migrate to Qlty.sh for continued support.",
+      "codeclimate/eol"
     )
-    
+
     # Restore the original target_url
     @payload["details_url"] = original_target_url
   end
