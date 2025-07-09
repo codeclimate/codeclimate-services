@@ -8,7 +8,7 @@ describe CC::PullRequests do
     end
 
     context "when the status is valid" do
-      let(:instance) { CC::PullRequests.new({}, name: "test", state: payload_status) }
+      let(:instance) { CC::PullRequests.new({}, commit_sha: "abcd", name: "test", state: payload_status) }
       let(:response) do
         {
           ok: true,
